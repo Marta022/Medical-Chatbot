@@ -1,4 +1,3 @@
-disease,cure
 Common Cold  Runny Nose  Sneezing  Cough,"Rest, stay hydrated, take vitamin C, use steam inhalation, and consider over-the-counter decongestants."
 Influenza  Fever  Body Aches  Fatigue,"Drink plenty of fluids, rest, take antiviral medications if prescribed, and use fever reducers like acetaminophen."
 Migraine  Headache  Sensitivity to Light  Nausea,"Rest in a dark room, use a cold compress, stay hydrated, and take prescribed migraine medications."
@@ -47,8 +46,8 @@ Flufeverchillsmuscle achesfatigue ,"Rest, drink plenty of fluids, take antiviral
 Stomach Flunauseavomitingdiarrheastomach cramps ,"Stay hydrated with water, clear soups, or oral rehydration solutions. Avoid solid food until symptoms subside. Medications like anti-nausea drugs may help, but see a doctor if dehydration occurs."
 Allergic Rhinitissneezingrunny noseitchy eyesnasal congestion ,"Use antihistamines (e.g., loratadine, cetirizine), nasal corticosteroids (e.g., fluticasone), avoid allergens, and consider allergy shots for long-term relief."
 Asthmawheezingshortness of breathchest tightness ,"Use bronchodilators (e.g., albuterol) as prescribed, inhaled corticosteroids (e.g., fluticasone), avoid triggers, and engage in regular exercise to improve lung function."
-Diabetes Type 1increased thirstfrequent urinationfatigueweight loss ,"Insulin therapy is essential, monitor blood sugar regularly, follow a healthy diet, and engage in physical activity to maintain blood sugar levels."
-Diabetes Type 2increased thirstfrequent urinationfatigueblurred vision ,"Lifestyle changes (diet and exercise), oral medications like metformin, and possibly insulin therapy. Regular blood sugar monitoring is crucial."
+Diabetes Type 1increased thirstfrequent urination fatigue weight loss ,"Insulin therapy is essential, monitor blood sugar regularly, follow a healthy diet, and engage in physical activity to maintain blood sugar levels."
+Diabetes Type 2increased thirst frequent urination fatigue blurred vision ,"Lifestyle changes (diet and exercise), oral medications like metformin, and possibly insulin therapy. Regular blood sugar monitoring is crucial."
 Hypertensionheadachesdizzinesschest pain ,"Monitor blood pressure regularly, take prescribed antihypertensive medications (e.g., ACE inhibitors, beta-blockers), and adopt a healthy diet low in salt and rich in fruits and vegetables."
 Heart Attackchest painshortness of breathnausea ,"Immediate emergency care, medications like aspirin and blood thinners, possibly surgery like angioplasty or coronary artery bypass grafting (CABG) depending on the severity."
 Strokesudden numbnessconfusiondifficulty speakingsevere headache ,"Immediate medical attention, clot-busting medications (e.g., tPA), surgery for hemorrhagic strokes, and rehabilitation therapies to regain lost skills."

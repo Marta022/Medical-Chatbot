@@ -20,8 +20,7 @@ def retrieve_top_similar_descriptions(input_message, top_k=5):
         text = payload.get("text", "").strip()
         score = float(h.score)
 
-        results.append(f"{title}: {text} ({score:.4f})")
+        results.append(f"{text} ({score:.4f})")
         titles.append(title)
 
     return results, titles
-

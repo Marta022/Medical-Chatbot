@@ -44,7 +44,7 @@ def load_medical_items(json_path, csv_path):
         ).strip()
 
         items.append({
-        "title": disease_and_symptoms,
+        "title":"",
         "description": text,
         "source": "csv",
         })

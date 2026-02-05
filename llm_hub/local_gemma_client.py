@@ -11,7 +11,7 @@ def ollama_call(
     response = ollama.chat(
         model=model,
         messages=messages,
-        
+        temperature=temperature,
     )
 
     return response["message"]["content"].strip()

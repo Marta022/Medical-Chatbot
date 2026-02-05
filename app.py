@@ -9,5 +9,5 @@ while True:
 
     print("\nTop matches:")
     for t in top:
-        print(" -", t)
+        print(" -", t, "\n")
     print()
