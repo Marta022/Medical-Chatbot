@@ -1,13 +1,6 @@
-from rag.retriever import retrieve_top_similar_descriptions
+from run import main
 
-while True:
-    q = input("You: ").strip()
-    if not q:
-        continue
 
-    top, titles = retrieve_top_similar_descriptions(q, top_k=5)
+if __name__ == "__main__":
+    main()
 
-    print("\nTop matches:")
-    for t in top:
-        print(" -", t, "\n")
-    print()

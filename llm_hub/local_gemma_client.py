@@ -1,17 +1,5 @@
-import ollama
+# TODO(remove-shim): remove after P2 stabilization.
+from agent.reasoning.providers.local_gemma_client import ollama_call
 
+__all__ = ["ollama_call"]
 
-def ollama_call(
-    messages,
-    model="gemma2:2b",
-    temperature=0,
-    
-):
-    
-    response = ollama.chat(
-        model=model,
-        messages=messages,
-        options={"temperature": temperature},
-    )
-
-    return response["message"]["content"].strip()

@@ -43,6 +43,23 @@ For each epic:
 - run relevant tests before marking epic `DONE`
 - record test command and result in `docs/backlog-tracker.md`
 
+## Estimation and Risk Buffer Policy
+
+Use this model for all remaining backlog items:
+- `Base Estimate`: implementation hours without uncertainty buffer.
+- `Risk Class`: `LOW`, `MEDIUM`, `HIGH`.
+- `Risk Buffer`:
+- `LOW`: `+10%`
+- `MEDIUM`: `+20%`
+- `HIGH`: `+35%`
+- `Buffered Estimate` = `Base Estimate + Risk Buffer`.
+
+Calibration rules:
+- New component or external integration defaults to `MEDIUM` unless evidence suggests otherwise.
+- Any dependency on third-party runtime services (model APIs, Docker networking, vector store) is at least `MEDIUM`.
+- Tasks with unclear requirements stay `BLOCKED` until scope is clarified; do not absorb ambiguity by inflating estimates.
+- If actual effort exceeds buffered estimate by `>20%`, log cause in tracker and split follow-up into a new task.
+
 ## Python Modeling Rule (Mandatory)
 
 All core objects must be modeled as Python types (for example dataclasses or Pydantic models), not ad-hoc dictionaries embedded in business logic.
@@ -695,4 +712,3 @@ Priority constraints:
 - Before coding, note expected output artifact from task row.
 - After coding, update tracker with actual hours, changed files, and validation command output summary.
 - Do not close epic without `*.TEST` task marked `DONE`.
-

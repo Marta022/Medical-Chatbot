@@ -1,14 +1,5 @@
-from deep_translator import GoogleTranslator
+# TODO(remove-shim): remove after P2 stabilization.
+from agent.reasoning.translator import translate_to_english, translate_to_romanian
 
-def translate_to_romanian(chunks):
-    """Translate chunks to Romanian."""
-    translated = []
-    for i, chunk in enumerate(chunks):
-        translated_chunk = GoogleTranslator(source='auto', target='ro').translate(chunk)
-        translated.append(translated_chunk)  
-    return translated
+__all__ = ["translate_to_english", "translate_to_romanian"]
 
-
-def translate_to_english(text):
-    """Translate text to English."""
-    return GoogleTranslator(source='auto', target='en').translate(text)

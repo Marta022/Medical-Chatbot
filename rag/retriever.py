@@ -1,26 +1,8 @@
-from ingestion.embed import embed_query
-from vector_db.qdrant_client import client, COLLECTION
+# TODO(remove-shim): remove after P2 stabilization.
+from rag.retrieval.retriever import retrieve_top_similar
 
-def retrieve_top_similar_descriptions(input_message, top_k=5):
-    qvec = embed_query(input_message)
 
-    hits = client.search(
-        collection_name=COLLECTION,
-        query_vector=qvec,
-        limit=top_k,
-        with_payload=True,
-    )
+def retrieve_top_similar_descriptions(input_message: str, top_k: int = 5):
+    result = retrieve_top_similar(input_message=input_message, top_k=top_k)
+    return result.context_lines(with_score=True), result.titles()
 
-    results = []
-    titles = []
-
-    for h in hits:
-        payload = h.payload or {}
-        title = payload.get("title", "unknown").strip()
-        text = payload.get("text", "").strip()
-        score = float(h.score)
-
-        results.append(f"{text} ({score:.4f})")
-        titles.append(title)
-
-    return results, titles

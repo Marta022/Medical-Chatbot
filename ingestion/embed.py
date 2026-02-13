@@ -1,14 +1,5 @@
-from sentence_transformers import SentenceTransformer
+# TODO(remove-shim): remove after P2 stabilization.
+from rag.retrieval.embeddings import embed_query, embed_texts, vector_size
 
-model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
+__all__ = ["embed_query", "embed_texts", "vector_size"]
 
-def vector_size():
-    return model.get_sentence_embedding_dimension()
-
-def embed_texts(texts):
-    vecs = model.encode(texts, convert_to_tensor=False, normalize_embeddings=True)
-    return vecs.tolist()
-
-def embed_query(text):
-    v = model.encode([text], convert_to_tensor=False, normalize_embeddings=True)[0]
-    return v.tolist()
