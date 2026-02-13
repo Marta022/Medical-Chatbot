@@ -22,3 +22,17 @@ def llm_ask(prompt, input_message, context_block):
             ],
             temperature=0
         )
+
+
+def llm_classify(messages, temperature=0):
+    if LLM_PROVIDER == "ollama":
+        return ollama_call(
+            messages=messages,
+            temperature=temperature,
+        )
+
+    elif LLM_PROVIDER == "openai":
+        return openai_call(
+            messages=messages,
+            temperature=temperature,
+        )

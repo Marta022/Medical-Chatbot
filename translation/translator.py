@@ -1,13 +1,14 @@
 from deep_translator import GoogleTranslator
 
 def translate_to_romanian(chunks):
-    """Translate chunks to Romanian (auto-detect source)."""
+    """Translate chunks to Romanian."""
     translated = []
     for i, chunk in enumerate(chunks):
-        try:
-            translated_chunk = GoogleTranslator(source='auto', target='ro').translate(chunk)
-            translated.append(translated_chunk)
-        except Exception as e:
-            print(f"Translation error for chunk {i}: {e}")
-            translated.append(chunk)  # Keep original if translation fails
+        translated_chunk = GoogleTranslator(source='auto', target='ro').translate(chunk)
+        translated.append(translated_chunk)  
     return translated
+
+
+def translate_to_english(text):
+    """Translate text to English."""
+    return GoogleTranslator(source='auto', target='en').translate(text)

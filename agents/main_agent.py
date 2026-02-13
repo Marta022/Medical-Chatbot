@@ -1,14 +1,24 @@
 from rag.retriever import retrieve_top_similar_descriptions
 from llm_hub.router import llm_ask
 from config.settings import BASE_SYSTEM_PROMPT
-from translation.translator import translate_to_romanian
+from translation.translator import translate_to_romanian, translate_to_english
+from guardrails.rules import apply_guardrails
 
 while True:
     q = input("You: ").strip()
     if not q:
         continue
 
-    top, titles = retrieve_top_similar_descriptions(q, top_k=3)
+    # Apply guardrails to check for emergencies
+    guardrail_result = apply_guardrails(q)
+    
+    if not guardrail_result["is_valid"]:
+        print(guardrail_result["message"])
+        if guardrail_result["is_emergency"]:
+            print("\n" + "="*80 + "\n")
+        continue
+    q_en = translate_to_english(q)
+    top, titles = retrieve_top_similar_descriptions(q_en, top_k=3)
     
     # Translate chunks to Romanian
     top_romanian = translate_to_romanian(top)
