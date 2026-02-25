@@ -1,6 +1,6 @@
 # Backlog Tracker
 
-Last updated: 2026-02-13  
+Last updated: 2026-02-25  
 Tracking scope: tasks defined in `docs/backlog.md`
 
 ## Tracking Rules
@@ -20,10 +20,10 @@ Status legend:
 | Metric | Value |
 | --- | --- |
 | Planned effort | 238h |
-| Completed effort | 88h |
+| Completed effort | 178h |
 | In-progress effort | 0h |
-| Remaining effort | 150h |
-| Overall completion | 37% |
+| Remaining effort | 60h |
+| Overall completion | 75% |
 
 ## Phase Progress
 
@@ -31,9 +31,9 @@ Status legend:
 | --- | --- | --- | --- | --- | --- |
 | P0 Product Definition and Planning | 28 | 28 | 0 | 0 | DONE |
 | P1 Architecture and Codebase Reorganization | 60 | 60 | 0 | 0 | DONE |
-| P2 Core Orchestration and Safety Pipeline | 50 | 0 | 0 | 50 | TODO |
-| P3 Code Quality and Observability | 40 | 0 | 0 | 40 | TODO |
-| P4 Runtime and Delivery | 60 | 0 | 0 | 60 | TODO |
+| P2 Core Orchestration and Safety Pipeline | 50 | 18.5 | 0 | 31.5 | IN_PROGRESS |
+| P3 Code Quality and Observability | 40 | 29 | 0 | 11 | DONE |
+| P4 Runtime and Delivery | 60 | 42.5 | 0 | 17.5 | IN_PROGRESS |
 
 ## Epic Progress
 
@@ -42,19 +42,19 @@ Status legend:
 | E0.1 | PRD Authoring and Scope Baseline | 16 | 16 | DONE | PRD baseline completed in `docs/prd.md` with requirement traceability |
 | E0.2 | Backlog Governance and Tracker Setup | 12 | 12 | DONE | Risk-buffer model and governance dry-run completed |
 | E1.1 | Repository Restructuring to Target Layout | 24 | 24 | DONE | Shims finalized, dataset move complete, import/path validation complete |
-| E1.2 | Unified CLI Entrypoint | 10 | 10 | DONE | README examples and CLI smoke tests completed |
+| E1.2 | Unified CLI Entrypoint | 10 | 10 | DONE | Added `main.py` entrypoint and CLI shims delegate to it (2026-02-15) |
 | E1.3 | Configuration and Prompt Normalization | 10 | 10 | DONE | Prompt centralization + startup validation + config tests completed |
 | E1.4 | Domain Models and Typed Contracts | 16 | 16 | DONE | Typed flow refactor + serde + guidelines completed |
-| E2.1 | Orchestrator and Evaluator Retry Loop | 20 | 0 | TODO | Includes mandatory epic test task |
-| E2.2 | Guardrail Hardening | 12 | 0 | TODO | Includes mandatory epic test task |
-| E2.3 | RAG and Ingestion Robustness | 18 | 0 | TODO | Includes mandatory epic test task |
-| E3.1 | Structured Logging | 12 | 0 | TODO | Includes mandatory epic test task |
-| E3.2 | PEP8 Refactor and Static Checks | 14 | 0 | TODO | Includes mandatory epic test task |
-| E3.3 | Automated Testing and Quality Gates | 14 | 0 | TODO | Includes mandatory epic test task |
-| E4.1 | Application Containerization | 10 | 0 | TODO | Includes mandatory epic test task |
-| E4.2 | Docker Compose Topology | 16 | 0 | TODO | Includes mandatory epic test task |
-| E4.3 | Operations and Release Documentation | 14 | 0 | TODO | Includes mandatory epic test task |
-| E4.4 | REST API and OpenWebUI Integration | 20 | 0 | TODO | New epic for engine REST and OpenWebUI compatibility |
+| E2.1 | Orchestrator and Evaluator Retry Loop | 20 | 8 | DONE | Orchestrator pipeline, evaluator threshold, retry/fallback, and tests completed |
+| E2.2 | Guardrail Hardening | 12 | 4 | DONE | Expanded keyword coverage, LLM fallback, safety logging, and tests completed |
+| E2.3 | RAG and Ingestion Robustness | 18 | 6.5 | DONE | Retrieval filters, chunking strategies, validation, dedup, and tests completed |
+| E3.1 | Structured Logging | 12 | 8 | DONE | Logging bootstrap module added and wired to CLI entrypoints (2026-02-25) |
+| E3.2 | PEP8 Refactor and Static Checks | 14 | 11 | DONE | Lint/format tooling config added (2026-02-25); lint/format gate executed (2026-02-25) |
+| E3.3 | Automated Testing and Quality Gates | 14 | 10 | DONE | Coverage gate passed at 82% (2026-02-25) |
+| E4.1 | Application Containerization | 10 | 10 | DONE | `docker build --no-cache -t medical-chatbot:test .` and `docker run --rm medical-chatbot:test python main.py --help` succeeded (2026-02-25) |
+| E4.2 | Docker Compose Topology | 16 | 7.5 | DONE | Connectivity/persistence verified; optional profile added; startup/shutdown and compose test evidence captured |
+| E4.3 | Operations and Release Documentation | 14 | 10 | DONE | README runbook, PRD/architecture sync, release/acceptance checklist docs, and walk-through validation completed (`T4.3.1`-`T4.3.TEST`) |
+| E4.4 | REST API and OpenWebUI Integration | 20 | 15 | IN_PROGRESS | Compose and docs updated for OpenWebUI -> API adapter wiring |
 
 ## Phase 0 Completion Record
 
@@ -112,16 +112,40 @@ Use this section for current work only (max 10 items at a time).
 
 | Task ID | Task | Estimate (h) | Actual (h) | Owner | Status | Start | End | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| T2.1.1 | Implement orchestrator class with explicit step pipeline | 4 | 0 | TBD | TODO |  |  | Start of Phase 2 |
-| T2.1.2 | Integrate evaluator call after LLM response | 3 | 0 | TBD | TODO |  |  |  |
-| T2.1.3 | Implement retry policy: adjusted prompt and provider fallback | 3 | 0 | TBD | TODO |  |  |  |
-| T2.1.4 | Implement evaluator scoring (grounding, safety, language compliance) | 4 | 0 | TBD | TODO |  |  |  |
-| T2.1.5 | Add evaluator config model in `config/eval_config.py` | 2 | 0 | TBD | TODO |  |  |  |
-| T2.1.6 | Add evaluator result schema and structured logs | 2 | 0 | TBD | TODO |  |  |  |
-| T2.1.TEST | Tests for orchestrator + evaluator retry loop | 2 | 0 | TBD | TODO |  |  | Mandatory epic test task |
-| T2.2.1 | Expand and test emergency/unsafe phrase coverage | 2 | 0 | TBD | TODO |  |  |  |
-| T2.2.2 | Add guardrail reason codes and confidence fields | 2 | 0 | TBD | TODO |  |  |  |
-| T2.2.3 | Add fallback for LLM guardrail unavailability | 2 | 0 | TBD | TODO |  |  |  |
+| T3.1.1 | Create centralized logging configuration | 3 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `config/logging_config.py` and wired setup in CLI entrypoints |
+| T3.1.2 | Replace `print` usage in first-party modules | 4 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Replaced runtime `print` usage with logger calls in CLI and chat loop |
+| T3.1.3 | Add correlation ID per request/session | 3 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added correlation IDs in CLI and chat loop |
+| T3.1.TEST | Tests for logging config and correlation propagation | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | `python -m unittest tests.test_logging -v` OK |
+| T3.2.1 | Add lint/format tooling configuration | 3 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `pyproject.toml` with Black and Ruff config |
+| T3.2.2 | Refactor first-party modules for PEP8 compliance | 5 | 3 | Codex | DONE | 2026-02-25 | 2026-02-25 | Wrapped long lines and adjusted imports for PEP8 line length |
+| T3.2.3 | Add pre-commit hooks for style checks | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `.pre-commit-config.yaml` for Black and Ruff |
+| T3.2.4 | Resolve/document dead or empty modules | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `docs/p3-dead-code-registry.md` |
+| T3.2.TEST | Execute lint/format gate and record baseline | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | `python -m black .` OK; `python -m ruff check .` OK |
+| T3.3.1 | Unit tests for guardrails and evaluator | 4 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `tests/test_evaluator.py` and extended guardrail tests |
+| T3.3.2 | Integration tests for orchestration happy/retry paths | 4 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Extended orchestrator tests for retry guidance |
+| T3.3.3 | Mocked tests for retrieval and LLM providers | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `tests/test_llm_router.py` and `tests/test_retriever.py` |
+| T3.3.4 | Add coverage threshold and CI enforcement | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added coverage config and CI workflow |
+| T3.3.TEST | Full suite run and baseline test report | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | `python -m coverage run -m unittest` OK; `python -m coverage report --fail-under=80` OK (82%) |
+| T4.1.1 | Add `Dockerfile` with slim runtime and non-root user | 3 | 3 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `Dockerfile` using `python:3.10-slim` and non-root user |
+| T4.1.2 | Add `.dockerignore` and optimize dependency layers | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `.dockerignore` for caches, datasets, and local artifacts |
+| T4.1.3 | Add healthcheck and startup command | 3 | 3 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added Docker healthcheck and default chat command |
+| T4.1.TEST | Build and run container smoke test | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Retry succeeded: image built with `docker build --no-cache -t medical-chatbot:test .`; smoke run `docker run --rm medical-chatbot:test python main.py --help` returned CLI help output |
+| T4.2.1 | Create `docker-compose.yml` with app/qdrant/openwebui | 4 | 1.5 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `docker-compose.yml`; validated with `docker compose config` |
+| T4.2.2 | Configure volumes, networks, and env wiring | 3 | 1 | Codex | DONE | 2026-02-25 | 2026-02-25 | Named volumes and bridge network wired; app env maps Qdrant service URL; validated with `docker compose config` |
+| T4.2.3 | Ensure app resolves qdrant and persistence works | 3 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | `docker exec medical-chatbot-app ... http://qdrant:6333/collections` returned `200`; persistence probe survived qdrant restart |
+| T4.2.4 | Add optional profiles for provider integrations | 2 | 1 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `ollama` service with `local-llm` profile in compose; validated using `docker compose --profile local-llm config --services` |
+| T4.2.5 | Validate compose startup/shutdown scenarios | 2 | 1 | Codex | DONE | 2026-02-25 | 2026-02-25 | Verified `up`, `stop/start`, and `down` lifecycle for `app` and `qdrant` |
+| T4.2.TEST | Compose integration tests and logs validation | 2 | 1 | Codex | DONE | 2026-02-25 | 2026-02-25 | `docker compose ps` healthy/running states validated; qdrant logs show collection recovery on restart |
+| T4.3.1 | Update README with CLI, ingestion, Docker flows | 4 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added Docker/Compose usage section to `README.md` |
+| T4.3.2 | Align `docs/prd.md` and architecture diagram with implementation | 3 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Updated `docs/prd.md` version/status and implementation snapshot; updated `architecture.mmd` to current CLI/orchestrator flow and planned API integration |
+| T4.3.3 | Add release/demo checklist and risk register | 3 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `docs/release-demo-checklist.md` with release checks, demo flow, and formal risk register; linked in `README.md` docs index |
+| T4.3.4 | Add final acceptance checklist mapped to PRD | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `docs/final-acceptance-checklist.md` with FR/NFR mapping, status, and evidence; linked in `README.md` docs index |
+| T4.3.TEST | Perform docs walk-through validation | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Validated `python main.py --help`, `python main.py eval`, and documented compose lifecycle (`docker compose up -d qdrant app`, `docker compose ps`, `docker compose down`) |
+| T4.4.1 | Create API application skeleton and dependency wiring | 4 | 3 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added Flask app scaffold in `api/app.py`, dependency container in `api/dependencies.py`, package exports in `api/__init__.py`, and scaffold tests in `tests/test_api_scaffold.py` |
+| T4.4.2 | Implement engine endpoints (`/health`, `/chat`, `/ingest`, `/eval`) | 5 | 4 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `/chat`, `/ingest`, `/eval` routes in `api/app.py` with typed request handling and consistent JSON errors; validated with `tests/test_api_engine_endpoints.py` |
+| T4.4.3 | Implement OpenAI-compatible adapter (`/v1/models`, `/v1/chat/completions`) | 5 | 4 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added adapter endpoints in `api/app.py`; mapped chat-completions payloads to orchestrator and returned OpenAI-compatible response shape; validated with `tests/test_api_openai_adapter.py` |
+| T4.4.4 | Add API config for auth, limits, and environment controls | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `config/api_config.py` and wired auth/limit/env enforcement in `api/app.py`; updated `.env.example`; validated with `tests/test_api_config_controls.py` |
+| T4.4.5 | Update compose/docs for OpenWebUI -> API integration | 2 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added dedicated `api` service and OpenWebUI adapter env wiring in `docker-compose.yml`; updated README integration runbook and API URLs; validated with `docker compose config` |
 
 ## Work Log
 
@@ -144,6 +168,52 @@ Use this section for current work only (max 10 items at a time).
 | 015 | 2026-02-13 | Completed remaining Phase 1 implementation work: shim register, dataset path finalization, startup validation, prompt centralization, typed flow/serde integration, README runbook updates, and model ownership docs | Completed tasks `T1.1.3`, `T1.1.4`, `T1.1.6`, `T1.1.7`, `T1.1.8`, `T1.2.3`, `T1.3.2`, `T1.3.3`, `T1.4.3`, `T1.4.4`, `T1.4.5` | Execute Phase 1 test suite and close phase |
 | 016 | 2026-02-13 | Ran full Phase 1 validation suite: CLI smoke, eval smoke, compileall, legacy shim import smoke, and unittest modules (`test_models`, `test_cli`, `test_config_prompts`, `test_phase1_structure`) | Completed `T1.2.TEST` and `T1.3.TEST`; Phase 1 closed | Start Phase 2 tasks (`T2.1.1`) |
 | 017 | 2026-02-13 | Re-ran Phase 1 completion validation in active session (`run.py --help`, `run.py eval`, Phase-1 unittest suite, compileall) and re-checked tracker consistency | Confirmed all Phase 1 tasks remain `DONE` with passing validation evidence | Proceed with Phase 2 execution from active board |
+| 018 | 2026-02-15 | Added canonical `main.py` CLI entrypoint, updated legacy shims (`app.py`, `agents/main_agent.py`) to delegate to CLI, and refreshed README examples | E1.2 entrypoint alignment tightened without changing behavior | Resume Phase 2 work (`T2.1.1`) |
+| 019 | 2026-02-15 | Re-ran Phase-1 validations: compileall + unittest suite (excluding CLI due to timeout) | `python -m compileall agent knowledge rag models config run.py app.py main.py` OK; `python -m unittest tests.test_models tests.test_config_prompts tests.test_phase1_structure -v` OK; `python -m unittest tests.test_cli -v` timed out after 30s | Investigate CLI test hang before next Phase 1 evidence refresh |
+| 020 | 2026-02-15 | Implemented orchestrator pipeline with evaluator integration, retry guidance, and provider fallback; added `OrchestratorResponse` model; updated chat loop to use orchestrator; added orchestrator unit tests | Phase-2 epic E2.1 in progress; tests pending (`tests/test_orchestrator.py`) | Run `python -m unittest tests.test_orchestrator -v` |
+| 021 | 2026-02-15 | Ran orchestrator tests and closed E2.1 epic | `python -m unittest tests.test_orchestrator -v` OK | Proceed to E2.2 (`T2.2.1`) |
+| 022 | 2026-02-15 | Wired orchestrator translation helpers through dependency injection and re-ran tests | `python -m unittest tests.test_orchestrator -v` OK | Continue E2.2 |
+| 023 | 2026-02-15 | Hardened guardrails: expanded emergency/unsafe phrases, added LLM fallback handling, safety logging, and guardrail tests | `python -m unittest tests.test_guardrail -v` OK | Proceed to E2.3 (`T2.3.1`) |
+| 024 | 2026-02-15 | Implemented RAG/ingestion robustness: retrieval filters, low-confidence fallback, chunking strategies, dataset validation, and idempotent ingestion; added unit tests | `python -m unittest tests.test_orchestrator tests.test_chunking tests.test_retrieval_filters tests.test_ingest_helpers -v` OK | Start E3.1 (`T3.1.1`) |
+| 025 | 2026-02-25 | Added centralized logging bootstrap module and wired CLI entrypoints to initialize logging | `config/logging_config.py`, updates to `run.py` and `ingestion/ingest_vectordb.py` | Proceed to T3.1.2 (`print` replacement) |
+| 026 | 2026-02-25 | Replaced runtime `print` usage with logger calls in CLI and chat loop | `run.py`, `agent/orchestrator/chat_loop.py`, `ingestion/ingest_vectordb.py` | Proceed to T3.1.3 (correlation IDs) |
+| 027 | 2026-02-25 | Added correlation IDs for CLI/ingest and per chat request | `run.py`, `agent/orchestrator/chat_loop.py`, `ingestion/ingest_vectordb.py` | Proceed to T3.1.TEST (logging tests) |
+| 028 | 2026-02-25 | Added logging configuration tests for handler/filter and correlation IDs | `tests/test_logging.py` | Run `python -m unittest tests.test_logging -v` |
+| 029 | 2026-02-25 | Ran logging tests | `python -m unittest tests.test_logging -v` OK | Proceed to E3.2 (`T3.2.1`) |
+| 030 | 2026-02-25 | Added lint/format tooling configuration | `pyproject.toml` (Black, Ruff) | Proceed to T3.2.2 (PEP8 refactor) |
+| 031 | 2026-02-25 | Refactored long lines to meet PEP8 line length | `run.py`, `config/settings.py`, `rag/chunking/load_documents.py`, `tests/test_config_prompts.py`, `tests/test_logging.py`, `tests/test_models.py` | Proceed to T3.2.3 (pre-commit hooks) |
+| 032 | 2026-02-25 | Added pre-commit hooks for Black and Ruff | `.pre-commit-config.yaml` | Proceed to T3.2.4 (dead/empty modules) |
+| 033 | 2026-02-25 | Added dead code registry for empty modules and shims | `docs/p3-dead-code-registry.md` | Proceed to T3.2.TEST (lint/format gate) |
+| 034 | 2026-02-25 | Attempted to install lint/format tools for T3.2.TEST | `python -m pip install black ruff` failed (no network access) | Await tool availability or offline install |
+| 035 | 2026-02-25 | Ran lint/format gate after installing tools | `python -m black .` OK; `python -m ruff check .` OK | Proceed to E3.3 (`T3.3.1`) |
+| 036 | 2026-02-25 | Added evaluator unit tests and extended guardrail tests | `python -m unittest tests.test_guardrail -v` OK; `python -m unittest tests.test_evaluator -v` OK | Proceed to T3.3.2 (orchestrator integration tests) |
+| 037 | 2026-02-25 | Added orchestrator retry guidance test and ran orchestrator suite | `python -m unittest tests.test_orchestrator -v` OK | Proceed to T3.3.3 (mocked retrieval/LLM tests) |
+| 038 | 2026-02-25 | Added mocked LLM router and retriever tests | `python -m unittest tests.test_llm_router tests.test_retriever -v` OK | Proceed to T3.3.4 (coverage/CI gate) |
+| 039 | 2026-02-25 | Added coverage config and CI workflow | `pyproject.toml`, `requirements.txt`, `.github/workflows/ci.yml` | Proceed to T3.3.TEST (full suite + coverage) |
+| 040 | 2026-02-25 | Ran full suite with coverage | `python -m coverage run -m unittest` OK; `python -m coverage report --fail-under=80` FAILED (69%) | Add tests or adjust threshold to unblock |
+| 041 | 2026-02-25 | Added test coverage for shims/providers/translator/embeddings/loaders and reran coverage | `python -m coverage run -m unittest` OK; `python -m coverage report --fail-under=80` OK (82%) | Proceed to P4 (runtime and delivery) |
+| 042 | 2026-02-25 | Added Dockerfile for containerized runtime | `Dockerfile` | Proceed to T4.1.2 (`.dockerignore`) |
+| 043 | 2026-02-25 | Added `.dockerignore` for build context hygiene | `.dockerignore` | Proceed to T4.1.3 (healthcheck/startup) |
+| 044 | 2026-02-25 | Added Docker healthcheck and default startup command | `Dockerfile` | Proceed to T4.1.TEST (container smoke) |
+| 045 | 2026-02-25 | Attempted T4.1 container smoke test commands | `docker --version` OK; `docker compose version` OK; `docker build -t medical-chatbot:test .` FAILED (`Access is denied` lock file in sandbox) and retry outside sandbox FAILED (daemon pipe missing); `docker info` confirms server unavailable | Start Docker Desktop engine, then rerun T4.1.TEST |
+| 046 | 2026-02-25 | Re-ran T4.1 smoke after Docker Desktop start | `docker info` OK (server reachable); `docker build -t medical-chatbot:test .` repeatedly fails on layer extraction (`sha256:41f10...` / `unpigz ... corrupted -- invalid deflate data`); `docker builder prune -af` executed; retry still unstable; image listed but `docker run --rm medical-chatbot:test ...` fails with same extraction error | Restart Docker Desktop and clean Docker data/cache before rerunning T4.1.TEST |
+| 047 | 2026-02-25 | Implemented compose topology baseline for E4.2 | Added `docker-compose.yml` with `app`, `qdrant`, `openwebui`, named volumes, and shared bridge network; added `.env.example`; `docker compose config` validation passed | Proceed to T4.2.2 connectivity and persistence checks |
+| 048 | 2026-02-25 | Finalized compose wiring task | Confirmed volumes/networks/env wiring through compose validation output | Proceed to T4.2.3 service connectivity and persistence behavior check |
+| 049 | 2026-02-25 | Synced tracker/backlog execution status and activated next task | Marked `E3.2` as `DONE`, rolled up P4 progress with completed E4.2 baseline tasks, set `T4.2.3` to `IN_PROGRESS`, and kept `T4.1.TEST` as `BLOCKED` pending Docker repair | Repair Docker Desktop image layer cache, then execute `T4.2.3` and unblock `T4.1.TEST` |
+| 050 | 2026-02-25 | Completed compose connectivity and persistence verification | `docker exec` from app to `http://qdrant:6333/collections` returned `200`; temporary collection remained `green` after qdrant restart | Proceed to T4.2.4 optional profiles |
+| 051 | 2026-02-25 | Added optional provider profile wiring to compose | Added `ollama` service under `local-llm` profile; validated with `docker compose --profile local-llm config --services` | Proceed to T4.2.5 startup/shutdown validation |
+| 052 | 2026-02-25 | Executed compose startup/shutdown and integration-log checks | Verified `up`, `stop/start`, `down`, and logs/ps evidence for app+qdrant lifecycle; completed `T4.2.5` and `T4.2.TEST`; closed `E4.2` | Proceed to E4.3 (`T4.3.1`) |
+| 053 | 2026-02-25 | Updated operations runbook in README | Added Docker build/compose flows, profile usage, and service URLs to `README.md`; completed `T4.3.1` | Continue E4.3 with `T4.3.2` PRD/architecture alignment |
+| 054 | 2026-02-25 | Retried blocked container smoke task (`T4.1.TEST`) | Docker daemon reachable; `docker build --no-cache -t medical-chatbot:test .` completed and `docker run --rm medical-chatbot:test python main.py --help` succeeded | Clear E4.1 blocker and continue E4.3 (`T4.3.2`) |
+| 055 | 2026-02-25 | Aligned PRD and architecture diagram to the implemented system | Updated `docs/prd.md` to version `1.1` with implementation snapshot and ownership alignment; updated `architecture.mmd` to CLI -> orchestrator -> guardrail/retrieval/LLM/evaluator flow plus planned API path | Proceed to `T4.3.3` release/demo checklist and risk register |
+| 056 | 2026-02-25 | Added release/demo checklist and risk register artifact | Created `docs/release-demo-checklist.md` with release readiness checks, demo run flow, and risk register; linked artifact in `README.md` | Proceed to `T4.3.4` final acceptance checklist mapped to PRD |
+| 057 | 2026-02-25 | Added PRD-mapped final acceptance checklist | Created `docs/final-acceptance-checklist.md` with FR/NFR acceptance status and evidence references; linked in `README.md` docs index | Proceed to `T4.3.TEST` docs walk-through validation |
+| 058 | 2026-02-25 | Executed docs walk-through validation for E4.3 | `python main.py --help` and `python main.py eval` succeeded; compose walkthrough (`up/ps/down`) succeeded for `qdrant` + `app` | Close E4.3 and proceed to E4.4 (`T4.4.1`) |
+| 059 | 2026-02-25 | Implemented API scaffold and dependency wiring | Added `create_app` Flask scaffold with dependency container and standardized error payloads; added `/health` skeleton route and API scaffold tests (`python -m unittest tests.test_api_scaffold -v` OK) | Proceed to `T4.4.2` engine endpoints (`/chat`, `/ingest`, `/eval`) |
+| 060 | 2026-02-25 | Implemented engine API endpoints and endpoint tests | Added `/chat`, `/ingest`, and `/eval` endpoint handlers with typed payload validation and JSON error schema; validated with `python -m unittest tests.test_api_scaffold tests.test_api_engine_endpoints -v` | Proceed to `T4.4.3` OpenAI-compatible adapter endpoints |
+| 061 | 2026-02-25 | Implemented OpenAI-compatible adapter endpoints and tests | Added `/v1/models` and `/v1/chat/completions` routes with OpenAI-compatible payload/response structure and request validation; validated with `python -m unittest tests.test_api_scaffold tests.test_api_engine_endpoints tests.test_api_openai_adapter -v` | Proceed to `T4.4.4` API config for auth/limits/env controls |
+| 062 | 2026-02-25 | Implemented API config controls for auth/limits/env | Added `ApiSettings` config loader (`config/api_config.py`), enforced API enabled/auth/api-key/request limits in `api/app.py`, and added `.env.example` controls; validated with `python -m unittest tests.test_api_scaffold tests.test_api_engine_endpoints tests.test_api_openai_adapter tests.test_api_config_controls -v` | Proceed to `T4.4.5` compose/docs OpenWebUI -> API integration updates |
+| 063 | 2026-02-25 | Completed OpenWebUI -> API integration wiring and docs | Updated `docker-compose.yml` with separate `api` service (`python -m api.app`), mapped OpenWebUI to `http://api:8000/v1`, and documented integration in README; compose model validation passed | Proceed to `T4.4.TEST` API integration and compatibility validation |
 
 ## Known Risks and Blockers
 

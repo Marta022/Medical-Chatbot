@@ -1,8 +1,8 @@
 # Medical Chatbot PRD
 
 Date: 2026-02-13  
-Version: 1.0  
-Status: Baseline Approved for Implementation  
+Version: 1.1  
+Status: In Implementation (Phase 4 active)  
 Primary reference backlog: `docs/backlog.md`  
 Tracking document: `docs/backlog-tracker.md`
 
@@ -49,6 +49,18 @@ The project needs a medically oriented chatbot that uses retrieval-augmented gen
 1. Production-grade identity/access platform.
 2. Certified medical device workflow compliance.
 3. Fine-tuning and serving custom transformer models.
+
+## 5.1 Implementation Snapshot (2026-02-25)
+
+Implemented:
+- Unified CLI entrypoint (`main.py` / `run.py`) with `chat`, `ingest`, `eval`
+- Orchestrator with guardrails, retrieval, evaluator retry guidance, and provider fallback
+- Typed contracts across runtime (`models/*`)
+- Containerization and compose topology (`Dockerfile`, `docker-compose.yml`, optional `local-llm` profile)
+In progress:
+- Operations/release documentation finalization (`E4.3`)
+Not implemented yet:
+- REST/OpenAI-compatible API layer (`E4.4`) in `api/*`
 
 ## 6. User Journeys
 
@@ -108,15 +120,15 @@ The project needs a medically oriented chatbot that uses retrieval-augmented gen
 
 | Component | Responsibility | Owner |
 | --- | --- | --- |
-| `agent/orchestrator` | Main workflow and retry policy | TBD |
-| `agent/guardrail` | Safety classification and escalation messages | TBD |
-| `agent/evaluation` | Output validation and scoring | TBD |
-| `rag/retrieval` | Context lookup and ranking | TBD |
-| `rag/chunking` | Chunk strategy for ingestion | TBD |
-| `knowledge/qdrant` | Vector DB lifecycle and operations | TBD |
-| `models` | Typed contracts for core objects | TBD |
-| `api` | REST and OpenAI-compatible interface | TBD |
-| `config` | Prompt/env/logging configuration | TBD |
+| `agent/orchestrator` | Main workflow and retry policy | Thesis developer |
+| `agent/guardrail` | Safety classification and escalation messages | Thesis developer |
+| `agent/evaluation` | Output validation and scoring | Thesis developer |
+| `rag/retrieval` | Context lookup and ranking | Thesis developer |
+| `rag/chunking` | Chunk strategy for ingestion | Thesis developer |
+| `knowledge/qdrant` | Vector DB lifecycle and operations | Thesis developer |
+| `models` | Typed contracts for core objects | Thesis developer |
+| `api` | REST and OpenAI-compatible interface (planned in E4.4) | Thesis developer |
+| `config` | Prompt/env/logging configuration | Thesis developer |
 
 ## 10. Requirement Traceability Matrix
 
@@ -181,4 +193,5 @@ The project needs a medically oriented chatbot that uses retrieval-augmented gen
 | Date | Version | Change |
 | --- | --- | --- |
 | 2026-02-13 | 1.0 | Initial PRD baseline authored from raw idea docs and backlog scope |
+| 2026-02-25 | 1.1 | Aligned PRD to implementation state (CLI/orchestrator/containers complete; API marked as planned in E4.4) and synchronized ownership/architecture references |
 

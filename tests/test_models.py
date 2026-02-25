@@ -27,6 +27,7 @@ class TestModels(unittest.TestCase):
         self.assertEqual(request.query, "Care sunt simptomele gripei?")
         self.assertEqual(request.top_k, 3)
         self.assertEqual(request.language, "ro")
+        self.assertIsNone(request.filters)
 
     def test_guardrail_result_roundtrip(self) -> None:
         model = GuardrailResult(
@@ -64,7 +65,9 @@ class TestModels(unittest.TestCase):
         self.assertIn("- c1", messages[1]["content"])
 
     def test_serde_helpers_for_llm_and_evaluator_results(self) -> None:
-        llm_response = llm_response_from_dict({"content": "ok", "provider": "openai", "model": "m1"})
+        llm_response = llm_response_from_dict(
+            {"content": "ok", "provider": "openai", "model": "m1"}
+        )
         self.assertEqual(llm_response, LLMResponse(content="ok", provider="openai", model="m1"))
 
         eval_result = evaluator_result_from_dict(
@@ -85,4 +88,3 @@ class TestModels(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

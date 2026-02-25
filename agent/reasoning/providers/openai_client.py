@@ -6,7 +6,6 @@ from openai import OpenAI
 
 from config.settings import SETTINGS
 
-
 _client: OpenAI | None = None
 
 
@@ -29,4 +28,3 @@ def openai_call(
         temperature=temperature,
     )
     return (response.choices[0].message.content or "").strip()
-

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import logging
 import unicodedata
 
+from agent.guardrail.llm_classifier import classify_guardrail_with_llm
 from config.settings import GUARDRAIL_LLM_ENABLED
 from models import GuardrailResult
 
-from agent.guardrail.llm_classifier import classify_guardrail_with_llm
+logger = logging.getLogger(__name__)
 
 EMERGENCY_KEYWORDS = [
     "durere in piept",
@@ -43,6 +45,17 @@ EMERGENCY_KEYWORDS = [
     "arsuri majore",
     "durere abdominala severa",
     "dureri abdominale extreme",
+    "nu pot sa respir",
+    "respiratie grea",
+    "respir greu",
+    "sangerare care nu se opreste",
+    "plaga adanca",
+    "rana adanca",
+    "durere puternica in piept",
+    "pierdere brusca a vederii",
+    "nu pot vorbi",
+    "confuzie brusca",
+    "convulsii",
 ]
 
 UNSAFE_KEYWORDS = [
@@ -65,6 +78,18 @@ UNSAFE_KEYWORDS = [
     "antibiotic fara reteta",
     "medicamente fara reteta",
     "diagnostic sigur",
+    "sinucidere",
+    "suicid",
+    "cum sa ma sinucid",
+    "cum sa imi fac rau",
+    "doza precisa",
+    "doza exacta pentru",
+    "tratament exact",
+    "tratament personalizat",
+    "schema exacta",
+    "amestec droguri",
+    "cum se face heroina",
+    "cum se face metamfetamina",
 ]
 
 SAFE_INFO_PATTERNS = [
@@ -129,53 +154,72 @@ def is_general_info_query(query: str) -> bool:
 
 def apply_guardrails(query: str) -> GuardrailResult:
     if not query or not query.strip():
-        return GuardrailResult(
+        result = GuardrailResult(
             is_valid=False,
             message="Te rog introdu o intrebare.",
             reason_code="EMPTY_QUERY",
             confidence=1.0,
         )
+        logger.info("guardrail_blocked", extra={"reason_code": result.reason_code})
+        return result
 
     if check_emergency_keywords(query):
-        return GuardrailResult(
+        result = GuardrailResult(
             is_emergency=True,
             is_valid=False,
             message=EMERGENCY_MESSAGE,
             reason_code="KEYWORD_EMERGENCY",
             confidence=0.95,
         )
+        logger.warning("guardrail_emergency", extra={"reason_code": result.reason_code})
+        return result
 
     if check_unsafe_keywords(query):
-        return GuardrailResult(
+        result = GuardrailResult(
             is_unsafe=True,
             is_valid=False,
             message=UNSAFE_MESSAGE,
             reason_code="KEYWORD_UNSAFE",
             confidence=0.95,
         )
+        logger.warning("guardrail_unsafe", extra={"reason_code": result.reason_code})
+        return result
 
     if GUARDRAIL_LLM_ENABLED and not is_general_info_query(query):
-        label = classify_guardrail_with_llm(query)
-        if label == "EMERGENCY":
+        try:
+            label = classify_guardrail_with_llm(query)
+        except Exception as exc:
+            logger.exception("guardrail_llm_unavailable", extra={"error": str(exc)})
             return GuardrailResult(
+                is_valid=True,
+                reason_code="LLM_UNAVAILABLE",
+                confidence=0.6,
+            )
+        if label == "EMERGENCY":
+            result = GuardrailResult(
                 is_emergency=True,
                 is_valid=False,
                 message=EMERGENCY_MESSAGE,
                 reason_code="LLM_EMERGENCY",
                 confidence=0.8,
             )
+            logger.warning("guardrail_emergency", extra={"reason_code": result.reason_code})
+            return result
         if label == "UNSAFE":
-            return GuardrailResult(
+            result = GuardrailResult(
                 is_unsafe=True,
                 is_valid=False,
                 message=UNSAFE_MESSAGE,
                 reason_code="LLM_UNSAFE",
                 confidence=0.8,
             )
+            logger.warning("guardrail_unsafe", extra={"reason_code": result.reason_code})
+            return result
 
-    return GuardrailResult(
+    result = GuardrailResult(
         is_valid=True,
         reason_code="SAFE",
         confidence=0.9,
     )
-
+    logger.info("guardrail_safe", extra={"reason_code": result.reason_code})
+    return result

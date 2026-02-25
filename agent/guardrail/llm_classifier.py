@@ -25,4 +25,3 @@ def classify_guardrail_with_llm(query: str) -> str:
     if "UNSAFE" in label:
         return "UNSAFE"
     return "SAFE"
-

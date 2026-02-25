@@ -2,16 +2,22 @@
 
 ```mermaid
 graph TD
-    User --> Query
-    Query --> MainAgent
+    User --> CLI[CLI: main.py / run.py]
+    CLI --> Orchestrator
 
-    MainAgent --> Guardrails
-    MainAgent --> RAG
-    MainAgent --> LLMHub
+    Orchestrator --> Guardrails
+    Orchestrator --> Translator
+    Orchestrator --> Retriever
+    Retriever --> Qdrant[(Qdrant)]
+    Orchestrator --> LLMRouter
+    LLMRouter --> Providers[Provider Clients]
+    Orchestrator --> Evaluator
 
-    RAG --> VectorDB
+    Evaluator -->|pass| CLI
+    Evaluator -->|retry/fallback| Orchestrator
 
-    LLMHub --> Eval
-    Eval -->|ok| User
-    Eval -->|not ok| MainAgent
+    CLI --> User
+
+    OpenWebUI -. planned via E4.4 .-> API[REST/OpenAI-compatible API]
+    API -. planned .-> Orchestrator
 ```

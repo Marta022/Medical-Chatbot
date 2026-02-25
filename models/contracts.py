@@ -9,6 +9,7 @@ class QueryRequest:
     query: str
     top_k: int = 3
     language: str = "ro"
+    filters: dict[str, str] | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.query, str) or not self.query.strip():
@@ -17,7 +18,12 @@ class QueryRequest:
             raise ValueError("top_k must be greater than 0")
 
     def to_dict(self) -> dict[str, Any]:
-        return {"query": self.query, "top_k": self.top_k, "language": self.language}
+        return {
+            "query": self.query,
+            "top_k": self.top_k,
+            "language": self.language,
+            "filters": self.filters,
+        }
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> QueryRequest:
@@ -25,6 +31,7 @@ class QueryRequest:
             query=str(value.get("query", "")),
             top_k=int(value.get("top_k", 3)),
             language=str(value.get("language", "ro")),
+            filters=value.get("filters"),
         )
 
 
@@ -108,6 +115,11 @@ class RetrievalResult:
         ]
         return cls(hits=hits)
 
+    def max_score(self) -> float:
+        if not self.hits:
+            return 0.0
+        return max(hit.score for hit in self.hits)
+
 
 @dataclass
 class LLMMessage:
@@ -163,6 +175,30 @@ class EvaluatorResult:
 
 
 @dataclass
+class OrchestratorResponse:
+    response: str | None
+    provider: str | None
+    model: str | None
+    retries: int
+    guardrail: GuardrailResult
+    evaluator: EvaluatorResult | None
+    retrieval: RetrievalResult | None
+    context_lines: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "response": self.response,
+            "provider": self.provider,
+            "model": self.model,
+            "retries": self.retries,
+            "guardrail": self.guardrail.to_dict(),
+            "evaluator": self.evaluator.to_dict() if self.evaluator else None,
+            "retrieval": self.retrieval.to_dict() if self.retrieval else None,
+            "context_lines": self.context_lines,
+        }
+
+
+@dataclass
 class MedicalItem:
     title: str
     description: str
@@ -176,4 +212,3 @@ class MedicalItem:
             "source": self.source,
             "category": self.category,
         }
-

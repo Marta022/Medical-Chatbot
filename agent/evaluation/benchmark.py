@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from models import EvaluatorResult
-
 from agent.evaluation.evaluator import evaluate_response
+from models import EvaluatorResult
 
 
 def run_evaluation_smoke() -> EvaluatorResult:
@@ -11,4 +10,3 @@ def run_evaluation_smoke() -> EvaluatorResult:
         response="Gripa include febra, frisoane, tuse si dureri musculare.",
         context_lines=["Simptome frecvente: febra, tuse, dureri musculare."],
     )
-

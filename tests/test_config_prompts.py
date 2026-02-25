@@ -6,7 +6,12 @@ import unittest
 from pathlib import Path
 
 from config import prompts
-from config.settings import AppSettings, ensure_startup_valid, load_settings, validate_startup
+from config.settings import (
+    AppSettings,
+    ensure_startup_valid,
+    load_settings,
+    validate_startup,
+)
 
 
 class TestConfigAndPrompts(unittest.TestCase):
@@ -42,7 +47,12 @@ class TestConfigAndPrompts(unittest.TestCase):
         self.assertTrue(any("OPENAI_API_KEY is required" in item for item in errors))
 
     def test_ensure_startup_valid_passes_for_eval_with_temp_prompt(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as handle:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            delete=False,
+            suffix=".txt",
+            encoding="utf-8",
+        ) as handle:
             handle.write("system prompt")
             temp_prompt = handle.name
 
@@ -59,4 +69,3 @@ class TestConfigAndPrompts(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

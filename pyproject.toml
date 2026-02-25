@@ -1,0 +1,50 @@
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.venv
+  | qdrant_storage
+  | __pycache__
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = [
+  ".venv",
+  "qdrant_storage",
+  "__pycache__",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.coverage.run]
+branch = true
+source = [
+  "agent",
+  "config",
+  "evaluation",
+  "guardrails",
+  "ingestion",
+  "knowledge",
+  "llm_hub",
+  "models",
+  "rag",
+  "translation",
+  "vector_db",
+]
+omit = [
+  ".venv/*",
+  "qdrant_storage/*",
+  "tests/*",
+]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = true

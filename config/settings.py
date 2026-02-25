@@ -36,9 +36,10 @@ class AppSettings:
     guardrail_llm_enabled: bool = True
     llm_txt_path: str = "llm.txt"
     llm_provider: str = "openai"
-    openai_model: str = "gpt-4.1-mini"
+    openai_model: str = "gpt-4o-mini"
     ollama_model: str = "gemma2:2b"
     default_top_k: int = 3
+    retrieval_min_score: float = 0.2
     dataset_json_path: str = "data/dataset/disease_database.json"
     dataset_csv_path: str = "data/dataset/dataset_sheet1.csv"
 
@@ -51,11 +52,18 @@ def load_settings() -> AppSettings:
         guardrail_llm_enabled=_env_bool("GUARDRAIL_LLM_ENABLED", True),
         llm_txt_path=os.getenv("LLM_TXT_PATH", "llm.txt").strip(),
         llm_provider=os.getenv("LLM_PROVIDER", "openai").strip().lower(),
-        openai_model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini").strip(),
+        openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip(),
         ollama_model=os.getenv("OLLAMA_MODEL", "gemma2:2b").strip(),
         default_top_k=_env_int("DEFAULT_TOP_K", 3),
-        dataset_json_path=os.getenv("DATASET_JSON_PATH", "data/dataset/disease_database.json").strip(),
-        dataset_csv_path=os.getenv("DATASET_CSV_PATH", "data/dataset/dataset_sheet1.csv").strip(),
+        retrieval_min_score=float(os.getenv("RETRIEVAL_MIN_SCORE", "0.2").strip()),
+        dataset_json_path=os.getenv(
+            "DATASET_JSON_PATH",
+            "data/dataset/disease_database.json",
+        ).strip(),
+        dataset_csv_path=os.getenv(
+            "DATASET_CSV_PATH",
+            "data/dataset/dataset_sheet1.csv",
+        ).strip(),
     )
 
 
@@ -79,9 +87,12 @@ def validate_startup(
         errors.append("QDRANT_COLLECTION is required.")
     if current.default_top_k <= 0:
         errors.append("DEFAULT_TOP_K must be greater than 0.")
+    if current.retrieval_min_score < 0:
+        errors.append("RETRIEVAL_MIN_SCORE must be >= 0.")
     if current.llm_provider not in SUPPORTED_LLM_PROVIDERS:
+        providers = sorted(SUPPORTED_LLM_PROVIDERS)
         errors.append(
-            f"LLM_PROVIDER must be one of {sorted(SUPPORTED_LLM_PROVIDERS)}, got '{current.llm_provider}'."
+            f"LLM_PROVIDER must be one of {providers}, got '{current.llm_provider}'."
         )
 
     prompt_path = Path(current.llm_txt_path)
@@ -120,4 +131,3 @@ QDRANT_URL = SETTINGS.qdrant_url
 QDRANT_API_KEY = SETTINGS.qdrant_api_key
 QDRANT_COLLECTION = SETTINGS.qdrant_collection
 GUARDRAIL_LLM_ENABLED = SETTINGS.guardrail_llm_enabled
-

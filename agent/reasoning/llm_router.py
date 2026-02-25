@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from config.settings import SETTINGS
-from models import LLMRequest, LLMResponse
-
 from agent.reasoning.providers.local_gemma_client import ollama_call
 from agent.reasoning.providers.openai_client import openai_call
+from config.settings import SETTINGS
+from models import LLMRequest, LLMResponse
 
 SUPPORTED_PROVIDERS = {"openai", "ollama"}
 
@@ -50,4 +49,3 @@ def llm_classify(
     if chosen == "ollama":
         return ollama_call(messages=messages, temperature=temperature)
     return openai_call(messages=messages, temperature=temperature)
-

@@ -18,6 +18,10 @@ GUARDRAIL_SYSTEM_PROMPT = (
 )
 
 CONTEXT_BLOCK_HEADER = "Top similar diseases and additional information:"
+LOW_CONFIDENCE_MESSAGE = (
+    "Nu am suficiente informatii relevante pentru a raspunde cu siguranta. "
+    "Te rog consulta un medic sau reformuleaza intrebarea."
+)
 
 
 def get_base_system_prompt() -> str:
@@ -26,4 +30,3 @@ def get_base_system_prompt() -> str:
 
 def build_context_block(context_lines: list[str]) -> str:
     return CONTEXT_BLOCK_HEADER + "\n" + "\n".join(f"- {line}" for line in context_lines)
-

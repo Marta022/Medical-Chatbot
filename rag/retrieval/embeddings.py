@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from sentence_transformers import SentenceTransformer
 
-
 _MODEL_NAME = "paraphrase-multilingual-mpnet-base-v2"
 _model: SentenceTransformer | None = None
 
@@ -26,4 +25,3 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
 def embed_query(text: str) -> list[float]:
     vector = _get_model().encode([text], convert_to_tensor=False, normalize_embeddings=True)[0]
     return vector.tolist()
-

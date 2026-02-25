@@ -13,4 +13,3 @@ def translate_to_romanian(chunks: list[str]) -> list[str]:
 
 def translate_to_english(text: str) -> str:
     return GoogleTranslator(source="auto", target="en").translate(text)
-

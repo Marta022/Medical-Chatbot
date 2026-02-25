@@ -17,3 +17,8 @@ pandas==2.2.0
 
 # Translation
 deep-translator==1.11.4
+
+python-dotenv>=1.0.0
+
+# Testing
+coverage==7.5.4

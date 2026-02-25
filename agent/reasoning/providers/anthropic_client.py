@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 
 def anthropic_call(
     messages: list[dict[str, str]],
@@ -12,4 +10,3 @@ def anthropic_call(
         "Anthropic provider is not implemented yet. "
         "Use OPENAI or OLLAMA provider until this client is wired."
     )
-

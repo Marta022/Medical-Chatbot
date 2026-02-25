@@ -57,4 +57,3 @@ def evaluator_result_from_dict(value: dict[str, Any]) -> EvaluatorResult:
         reasons=[str(item) for item in value.get("reasons", [])],
         retry_recommended=bool(value.get("retry_recommended", False)),
     )
-

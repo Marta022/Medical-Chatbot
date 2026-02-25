@@ -19,7 +19,13 @@ flowchart TD
 
 ## Project Entrypoint
 
-Unified CLI:
+Unified CLI (canonical entrypoint is `main.py`, `run.py` is a thin alias):
+
+```bash
+python main.py --help
+```
+
+Legacy alias:
 
 ```bash
 python run.py --help
@@ -50,6 +56,7 @@ QDRANT_COLLECTION=medical_docs
 DATASET_JSON_PATH=data/dataset/disease_database.json
 DATASET_CSV_PATH=data/dataset/dataset_sheet1.csv
 LLM_TXT_PATH=llm.txt
+RETRIEVAL_MIN_SCORE=0.2
 ```
 
 ## CLI Usage
@@ -57,7 +64,7 @@ LLM_TXT_PATH=llm.txt
 ### Chat
 
 ```bash
-python run.py chat --top-k 3
+python main.py chat --top-k 3
 ```
 
 Exit commands in chat loop: `exit`, `quit`, `:q`.
@@ -65,20 +72,80 @@ Exit commands in chat loop: `exit`, `quit`, `:q`.
 ### Ingest
 
 ```bash
-python run.py ingest
+python main.py ingest
 ```
 
 Custom dataset paths:
 
 ```bash
-python run.py ingest --json-path data/dataset/disease_database.json --csv-path data/dataset/dataset_sheet1.csv
+python main.py ingest --json-path data/dataset/disease_database.json --csv-path data/dataset/dataset_sheet1.csv
 ```
 
 ### Eval Smoke
 
 ```bash
-python run.py eval
+python main.py eval
 ```
+
+## Docker Usage
+
+Build image:
+
+```bash
+docker build -t medical-chatbot:local .
+```
+
+Run compose stack (app + qdrant + openwebui):
+
+```bash
+docker compose up -d
+docker compose ps
+```
+
+Run only API + qdrant (recommended for OpenWebUI):
+
+```bash
+docker compose up -d qdrant api
+```
+
+Run only app + qdrant (CLI flow):
+
+```bash
+docker compose up -d qdrant app
+```
+
+Enable optional local model provider profile:
+
+```bash
+docker compose --profile local-llm up -d
+```
+
+Stop and remove the stack:
+
+```bash
+docker compose down
+```
+
+OpenWebUI default URL: `http://localhost:3000`  
+Qdrant API: `http://localhost:6333`  
+Medical Chatbot API: `http://localhost:8000`
+
+### OpenWebUI -> API Integration
+
+Compose wiring now points OpenWebUI to the local adapter service:
+- `OPENAI_API_BASE_URL=http://api:8000/v1`
+- `OPENAI_API_KEY=${API_KEY}`
+
+Quick validation:
+
+```bash
+curl http://localhost:8000/health
+curl http://localhost:8000/v1/models
+```
+
+If API key auth is enabled:
+- set `API_REQUIRE_KEY=true` and `API_KEY=<your-secret>` in `.env`
+- configure the same key in OpenWebUI for the OpenAI provider
 
 ## Validation Commands
 
@@ -102,6 +169,8 @@ Canonical dataset location:
 - Backlog: `docs/backlog.md`
 - Tracker: `docs/backlog-tracker.md`
 - PRD: `docs/prd.md`
+- Release and demo checklist: `docs/release-demo-checklist.md`
+- Final acceptance checklist (PRD-mapped): `docs/final-acceptance-checklist.md`
 - Phase-1 migration plan: `docs/p1-migration-plan.md`
 - Shim register: `docs/p1-shim-register.md`
 - Import validation: `docs/p1-import-validation.md`

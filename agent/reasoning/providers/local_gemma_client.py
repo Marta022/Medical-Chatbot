@@ -23,4 +23,3 @@ def ollama_call(
         options={"temperature": temperature},
     )
     return response["message"]["content"].strip()
-

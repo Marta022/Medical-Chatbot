@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from config.eval_config import EVAL_CONFIG
 from models import EvaluatorResult
 
 
@@ -24,11 +25,10 @@ def evaluate_response(
         reasons.append("context_available_but_unknown_answer")
         score -= 0.3
 
-    passed = score >= 0.7
+    passed = score >= EVAL_CONFIG.pass_score
     return EvaluatorResult(
         passed=passed,
         score=max(score, 0.0),
         reasons=reasons,
         retry_recommended=not passed,
     )
-

@@ -2,4 +2,3 @@
 from agent.reasoning.providers.openai_client import openai_call
 
 __all__ = ["openai_call"]
-
