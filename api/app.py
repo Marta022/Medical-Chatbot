@@ -11,6 +11,7 @@ from api.dependencies import ApiDependencies, default_dependencies
 from config.api_config import API_SETTINGS, ApiSettings
 from config.logging_config import new_correlation_id, setup_logging
 from config.settings import SETTINGS
+from knowledge.graph.gitnexus import build_gitnexus_payload_safe
 from models import QueryRequest
 
 logger = logging.getLogger(__name__)
@@ -51,6 +52,21 @@ def _extract_api_key_from_request() -> str | None:
     if auth_header.lower().startswith("bearer "):
         return auth_header[7:].strip()
     return request.headers.get("X-API-Key")
+
+
+def _build_retrieval_filters(payload: dict[str, Any]) -> dict[str, str] | None:
+    raw_filters = payload.get("filters")
+    filters: dict[str, str] = dict(raw_filters) if isinstance(raw_filters, dict) else {}
+
+    if "retrieval_mode" in payload:
+        filters["__retrieval_mode"] = str(payload.get("retrieval_mode", ""))
+    if "graph_depth" in payload:
+        filters["__graph_depth"] = str(payload.get("graph_depth", ""))
+    if "vector_weight" in payload:
+        filters["__vector_weight"] = str(payload.get("vector_weight", ""))
+    if "graph_weight" in payload:
+        filters["__graph_weight"] = str(payload.get("graph_weight", ""))
+    return filters or None
 
 
 def create_app(
@@ -125,7 +141,7 @@ def create_app(
             query=raw_query,
             top_k=int(payload.get("top_k", SETTINGS.default_top_k)),
             language=str(payload.get("language", "ro")),
-            filters=payload.get("filters"),
+            filters=_build_retrieval_filters(payload),
         )
         if query_request.top_k > settings.max_top_k:
             raise ValueError(f"top_k must be <= {settings.max_top_k}")
@@ -155,6 +171,13 @@ def create_app(
     def eval_smoke() -> Any:
         result = _deps(app).run_eval()
         return jsonify(_deps(app).to_json_compatible(result))
+
+    @app.get("/graph/nexus")
+    def graph_nexus() -> Any:
+        query = str(request.args.get("query", ""))
+        limit = int(request.args.get("limit", 50))
+        payload = build_gitnexus_payload_safe(query=query, limit=limit)
+        return jsonify(payload)
 
     @app.get("/v1/models")
     def openai_models() -> Any:
@@ -191,7 +214,7 @@ def create_app(
             query=query,
             top_k=int(payload.get("top_k", SETTINGS.default_top_k)),
             language=str(payload.get("language", "ro")),
-            filters=payload.get("filters"),
+            filters=_build_retrieval_filters(payload),
         )
         if query_request.top_k > settings.max_top_k:
             raise ValueError(f"top_k must be <= {settings.max_top_k}")

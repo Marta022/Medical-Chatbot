@@ -1,9 +1,9 @@
 # Medical Chatbot Backlog
 
-Date: 2026-02-13  
-Version: 3.0  
+Date: 2026-03-04  
+Version: 4.0  
 Estimation unit: engineering hours (`h`)  
-Source inputs: `docs/raw_idea/licenta_title.txt`, `docs/raw_idea/raw_backlog.txt`, repository inspection
+Source inputs: `docs/raw_idea/licenta_title.txt`, `docs/raw_idea/raw_backlog.txt`, `docs/raw_idea/new_backlog.txt`, repository inspection
 
 ## Goal of This Backlog
 
@@ -27,11 +27,11 @@ Key findings from repository review:
 - `ingestion/ingest_vectordb.py` imports `ensure_collection`, but `vector_db/qdrant_client.py` does not provide it.
 - Docker assets now exist (`Dockerfile`, `docker-compose.yml`), but container smoke tests are currently blocked by Docker layer extraction/cache corruption in the local environment.
 
-## Execution Status Snapshot (2026-03-01)
+## Execution Status Snapshot (2026-03-04)
 
-- Overall status: `DONE`
-- Active phase: none (Phase 4 completed)
-- Current active task: none
+- Overall status: `IN_PROGRESS` (scope extension approved)
+- Active phase: `P5` (Knowledge Graph and Graph-RAG Expansion)
+- Current active task: `None` (all planned backlog tasks completed)
 - Current blocker: none
 - Source of truth: `docs/backlog-tracker.md`
 
@@ -111,7 +111,8 @@ These conditions apply to all implementation epics:
 | P2 | Core Orchestration and Safety Pipeline | 3 | 50 |
 | P3 | Code Quality and Observability | 3 | 40 |
 | P4 | Runtime and Delivery | 4 | 60 |
-|  | **Grand Total** | **16** | **238** |
+| P5 | Semantic Knowledge and Graph-RAG Expansion | 6 | 134 |
+|  | **Grand Total** | **22** | **372** |
 
 ## Phase P0: Product Definition and Planning (28h)
 
@@ -700,6 +701,236 @@ Acceptance criteria:
 | S4.4 | T4.4.TEST | API integration tests and compatibility validation | API test evidence | 2 |
 |  |  | **Epic subtotal** |  | **20** |
 
+## Phase P5: Semantic Knowledge and Graph-RAG Expansion (134h)
+
+Goal: move from simple chunk-and-retrieve to document-structured semantic retrieval with entity/relation graph augmentation and graph-aware citations.
+
+### Epic E5.1: PDF Dataset Baseline and Structure Detection (16h)
+
+Technical description:
+- adopt medical PDF files from `data/dataset/*` as primary corpus
+- inspect document structure (chapters, sections, titles, numbered lists, bullet lists)
+- define metadata contract for downstream chunking and citation
+
+Primary files:
+- `data/dataset/*.pdf`
+- `rag/chunking/load_documents.py`
+- `models/contracts.py`
+- `docs/*` (structure report)
+
+Deliverables:
+- PDF structure analysis artifact
+- parser output schema with normalized metadata
+- deterministic `chunk_id` specification
+
+Dependencies:
+- E2.3 completed
+
+Acceptance criteria:
+- parser identifies chapter/section/title/list boundaries for at least one main medical PDF
+- output records include `source_file`, `page`, `chapter`, `section`, `chunk_id`
+- malformed/low-text pages are logged and skipped safely
+- `T5.1.TEST` completed with parser/metadata tests
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S5.1 | T5.1.1 | Inspect PDF layout and define extraction rules for headings/lists | PDF structure profile report | 4 |
+| S5.1 | T5.1.2 | Implement PDF parser with page-aware structural signals | Structured page parser | 5 |
+| S5.1 | T5.1.3 | Define and validate metadata schema including stable `chunk_id` rules | Typed metadata models | 3 |
+| S5.1 | T5.1.4 | Add parser logging for unreadable pages and OCR edge cases | Parser diagnostics | 2 |
+| S5.1 | T5.1.TEST | Parser and metadata unit tests | Test evidence for structure extraction | 2 |
+|  |  | **Epic subtotal** |  | **16** |
+
+### Epic E5.2: Semantic Chunking with LlamaIndex (22h)
+
+Technical description:
+- replace fixed heuristic chunking with semantic chunking using LlamaIndex
+- align chunk boundaries to meaning and document structure
+- preserve numbered and bulleted list integrity when context is semantically contiguous
+
+Primary files:
+- `rag/chunking/strategies.py`
+- `rag/chunking/load_documents.py`
+- `requirements.txt`
+- `config/settings.py`
+
+Deliverables:
+- LlamaIndex-based semantic chunker
+- fallback chunker for runtime degradation
+- metadata-enriched chunk records
+
+Dependencies:
+- E5.1
+
+Acceptance criteria:
+- semantic chunking strategy selectable via config/CLI
+- list continuity policy keeps related list items in same chunk where possible
+- every chunk carries metadata (`page`, `chapter`, `section`, `chunk_id`, `source_file`)
+- `T5.2.TEST` completed with chunk-boundary regression tests
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S5.2 | T5.2.1 | Add LlamaIndex dependency and configuration controls | Dependency + settings update | 3 |
+| S5.2 | T5.2.2 | Implement semantic chunker adapter with structure hints | Semantic chunker module | 6 |
+| S5.2 | T5.2.3 | Implement list-preservation policy for numbered/bullet blocks | List-aware chunk policy | 4 |
+| S5.2 | T5.2.4 | Attach metadata to chunk models and serialization path | Chunk metadata integration | 4 |
+| S5.2 | T5.2.5 | Add fallback to existing section/sentence chunkers | Fallback chunking path | 3 |
+| S5.2 | T5.2.TEST | Chunking tests for semantic and fallback modes | Chunking test evidence | 2 |
+|  |  | **Epic subtotal** |  | **22** |
+
+### Epic E5.3: PDF-First Ingestion Pipeline from `/data` (18h)
+
+Technical description:
+- ingest medical PDFs from `/data/dataset`
+- transform parsed pages into semantic chunks
+- store chunks and metadata in Qdrant payloads
+
+Primary files:
+- `ingestion/ingest_vectordb.py`
+- `knowledge/qdrant/ingest.py`
+- `rag/chunking/load_documents.py`
+- `tests/test_qdrant_ingest.py`
+
+Deliverables:
+- PDF ingestion runner
+- idempotent upsert logic with metadata-aware point IDs
+- ingestion validation report
+
+Dependencies:
+- E5.2
+
+Acceptance criteria:
+- ingestion pipeline loads PDF corpus from `/data/dataset`
+- upserted payload includes page/section/chapter/chunk identifiers
+- repeated ingestion does not duplicate existing chunks
+- `T5.3.TEST` completed with ingestion integration tests
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S5.3 | T5.3.1 | Extend loaders to enumerate and parse PDFs from `/data/dataset` | PDF loader integration | 4 |
+| S5.3 | T5.3.2 | Update Qdrant ingest payload schema for structured metadata | Metadata-rich Qdrant payloads | 4 |
+| S5.3 | T5.3.3 | Update point-id dedup logic to include source/page/chunk identity | Stable dedup id strategy | 4 |
+| S5.3 | T5.3.4 | Add ingestion CLI/runtime switches for PDF-first mode | CLI/config integration | 2 |
+| S5.3 | T5.3.TEST | PDF ingestion tests with idempotency checks | Ingestion test evidence | 4 |
+|  |  | **Epic subtotal** |  | **18** |
+
+### Epic E5.4: Medical NER Pipeline and Entity Normalization (20h)
+
+Technical description:
+- extract domain entities (disease, symptom, drug, anatomical structure) from chunks
+- compute confidence scores
+- normalize aliases and variants to canonical entities
+
+Primary files:
+- `agent/reasoning/*` (or new `knowledge/entities/*`)
+- `models/contracts.py`
+- `config/settings.py`
+- `tests/*`
+
+Deliverables:
+- NER extraction module with typed output
+- entity normalization dictionary/rules
+- confidence threshold controls
+
+Dependencies:
+- E5.3
+
+Acceptance criteria:
+- entity extraction emits type, mention text, canonical form, confidence, and source chunk metadata
+- configurable confidence threshold can filter weak entities
+- normalization merges duplicates (`MI` vs `myocardial infarction`, etc.)
+- `T5.4.TEST` completed with extraction and normalization tests
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S5.4 | T5.4.1 | Select NER approach and implement extraction pipeline interface | NER pipeline contract | 3 |
+| S5.4 | T5.4.2 | Implement medical entity extraction and typed outputs | Entity extraction module | 6 |
+| S5.4 | T5.4.3 | Add confidence scoring and threshold-based filtering | Confidence filtering layer | 3 |
+| S5.4 | T5.4.4 | Implement canonical normalization and duplicate merging | Normalization module | 4 |
+| S5.4 | T5.4.5 | Persist entity annotations linked to `chunk_id` and page | Entity annotation storage | 2 |
+| S5.4 | T5.4.TEST | NER + normalization tests | NER test evidence | 2 |
+|  |  | **Epic subtotal** |  | **20** |
+
+### Epic E5.5: Relation Extraction and Kuzu Graph Storage (26h)
+
+Technical description:
+- extract medical relations from chunk/entity context
+- persist entities and edges in KuzuDB
+- maintain graph schema and graph ingestion jobs
+
+Primary files:
+- `knowledge/graph/*` (new)
+- `models/contracts.py`
+- `config/settings.py`
+- `requirements.txt`
+
+Deliverables:
+- graph schema migration scripts
+- relation extractor for required predicates
+- Kuzu ingestion pipeline and upsert logic
+
+Dependencies:
+- E5.4
+
+Acceptance criteria:
+- graph supports node types and relations:
+- `disease -> symptom`
+- `drug -> treats -> disease`
+- `condition -> causes -> symptom`
+- `disease -> differs_from -> disease`
+- relation records include provenance (`source_file`, `page`, `chunk_id`, confidence)
+- graph ingestion is idempotent and tested
+- `T5.5.TEST` completed with graph integration tests
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S5.5 | T5.5.1 | Add KuzuDB dependency and implement graph client abstraction | Graph client module | 4 |
+| S5.5 | T5.5.2 | Design graph schema for entities, relations, and provenance fields | Graph schema definition | 4 |
+| S5.5 | T5.5.3 | Implement relation extraction for required medical predicates | Relation extraction module | 6 |
+| S5.5 | T5.5.4 | Build graph ingestion/upsert pipeline from chunked text and NER output | Graph ingestion job | 6 |
+| S5.5 | T5.5.5 | Add reconciliation for repeated entities/relations across chunks | Graph dedup logic | 4 |
+| S5.5 | T5.5.TEST | Graph schema and ingestion tests | Graph test evidence | 2 |
+|  |  | **Epic subtotal** |  | **26** |
+
+### Epic E5.6: Graph-RAG, Citation Guarantees, and Visualization (32h)
+
+Technical description:
+- combine vector retrieval (Qdrant) with graph traversal (Kuzu)
+- produce citation-rich responses with page/section/chunk traceability
+- provide graph visualization with GitNexus and source-chunk/page navigation
+
+Primary files:
+- `rag/retrieval/retriever.py`
+- `agent/orchestrator/orchestrator.py`
+- `api/*`
+- `docker-compose.yml`
+- `README.md`
+
+Deliverables:
+- Graph-RAG retriever/orchestrator strategy
+- response citation formatter
+- GitNexus integration endpoints/config
+
+Dependencies:
+- E5.3, E5.5
+
+Acceptance criteria:
+- retrieval can run in vector-only or graph-hybrid mode
+- responses include citations with `source_file`, `page`, `section`, `chunk_id`
+- GitNexus view can explore nodes/relations and open referenced chunk/page
+- `T5.6.TEST` completed with Graph-RAG and citation tests
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S5.6 | T5.6.1 | Implement Graph-RAG retriever that merges vector and graph candidates | Hybrid retriever module | 8 |
+| S5.6 | T5.6.2 | Add orchestration policy for graph traversal depth and merge/rerank | Retrieval policy controls | 5 |
+| S5.6 | T5.6.3 | Enforce citation output schema in generated answers | Citation formatter + contracts | 4 |
+| S5.6 | T5.6.4 | Integrate GitNexus for graph navigation and source linking | Graph visualization integration | 8 |
+| S5.6 | T5.6.5 | Add API/CLI controls for Graph-RAG and visualization hooks | Runtime integration controls | 3 |
+| S5.6 | T5.6.6 | Update docs/runbooks for graph setup and troubleshooting | Documentation updates | 2 |
+| S5.6 | T5.6.TEST | Integration tests for Graph-RAG, citations, and visualization APIs | Graph-RAG test evidence | 2 |
+|  |  | **Epic subtotal** |  | **32** |
+
 ## Recommended Execution Order
 
 1. P0 (planning/governance baseline)
@@ -707,11 +938,15 @@ Acceptance criteria:
 3. P2 (orchestration and safety behavior)
 4. P3 (quality and observability)
 5. P4 (containers, API, release documentation)
+6. P5 (semantic chunking, knowledge graph, Graph-RAG, visualization)
 
 Priority constraints:
 - complete E1.4 before major P2 work
 - complete E2.1 before E2.2 and E2.3
 - complete E4.4 before final release checklist in E4.3
+- complete E5.1 before E5.2 and E5.3
+- complete E5.4 before E5.5
+- complete E5.5 before E5.6 Graph-RAG rollout
 
 ## Handover Checklist for New Developers
 

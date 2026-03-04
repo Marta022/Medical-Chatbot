@@ -13,6 +13,7 @@ RUN apt-get update \
 COPY requirements.txt /app/requirements.txt
 RUN python -m pip install --upgrade pip \
     && python -m pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install -U sentence-transformers
 
 RUN useradd --create-home --uid 10001 appuser
 USER appuser

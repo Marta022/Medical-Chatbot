@@ -13,10 +13,13 @@ services:
       QDRANT_COLLECTION: ${QDRANT_COLLECTION:-medical_docs}
       LLM_PROVIDER: ${LLM_PROVIDER:-openai}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      ALLOW_MODEL_DOWNLOAD: ${ALLOW_MODEL_DOWNLOAD:-true}
       RETRIEVAL_MIN_SCORE: ${RETRIEVAL_MIN_SCORE:-0.2}
       DEFAULT_TOP_K: ${DEFAULT_TOP_K:-3}
     stdin_open: true
     tty: true
+    volumes:
+      - ./data/dataset:/app/data/dataset:ro
     depends_on:
       - qdrant
     restart: unless-stopped
@@ -37,6 +40,7 @@ services:
       QDRANT_COLLECTION: ${QDRANT_COLLECTION:-medical_docs}
       LLM_PROVIDER: ${LLM_PROVIDER:-openai}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      ALLOW_MODEL_DOWNLOAD: ${ALLOW_MODEL_DOWNLOAD:-true}
       RETRIEVAL_MIN_SCORE: ${RETRIEVAL_MIN_SCORE:-0.2}
       DEFAULT_TOP_K: ${DEFAULT_TOP_K:-3}
       API_ENABLED: ${API_ENABLED:-true}
@@ -47,6 +51,8 @@ services:
       API_MAX_TOP_K: ${API_MAX_TOP_K:-10}
     ports:
       - "8000:8000"
+    volumes:
+      - ./data/dataset:/app/data/dataset:ro
     depends_on:
       - qdrant
     restart: unless-stopped

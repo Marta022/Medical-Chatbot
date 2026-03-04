@@ -67,12 +67,24 @@ RETRIEVAL_MIN_SCORE=0.2
 python main.py chat --top-k 3
 ```
 
+Graph-hybrid chat mode:
+
+```bash
+python main.py chat --retrieval-mode hybrid --graph-depth 2 --vector-weight 1.0 --graph-weight 0.7
+```
+
 Exit commands in chat loop: `exit`, `quit`, `:q`.
 
 ### Ingest
 
 ```bash
 python main.py ingest
+```
+
+Enable graph ingestion (Kuzu) from PDF chunks:
+
+```bash
+python main.py ingest --graph-ingest --relation-min-confidence 0.7
 ```
 
 Custom dataset paths:
@@ -146,6 +158,32 @@ curl http://localhost:8000/v1/models
 If API key auth is enabled:
 - set `API_REQUIRE_KEY=true` and `API_KEY=<your-secret>` in `.env`
 - configure the same key in OpenWebUI for the OpenAI provider
+
+## Graph-RAG and GitNexus
+
+Graph-related environment controls:
+
+```env
+RETRIEVAL_MODE=vector
+GRAPH_RETRIEVAL_TOP_K=3
+GRAPH_TRAVERSAL_DEPTH=1
+HYBRID_VECTOR_WEIGHT=1.0
+HYBRID_GRAPH_WEIGHT=0.9
+GRAPH_INGEST_ENABLED=true
+RELATION_MIN_CONFIDENCE=0.7
+GITNEXUS_ENABLED=false
+GITNEXUS_BASE_URL=http://localhost:8088
+```
+
+API control hooks:
+- `POST /chat` and `POST /v1/chat/completions` accept `retrieval_mode`, `graph_depth`, `vector_weight`, `graph_weight`.
+- `GET /graph/nexus?query=<text>&limit=<n>` returns graph nodes/edges with `source_link` fields for source chunk navigation.
+
+Troubleshooting:
+- If graph ingestion logs `Skipping graph ingestion because graph backend is unavailable.`, install/verify `kuzu` in the active environment.
+- If hybrid answers do not include citation rows, ensure retrieval mode is `hybrid` (`RETRIEVAL_MODE=hybrid` or pass API/CLI override).
+- If `/graph/nexus` returns `status=disabled`, set `GITNEXUS_ENABLED=true` and provide `GITNEXUS_BASE_URL`.
+- If graph results are sparse, increase `GRAPH_TRAVERSAL_DEPTH` or `GRAPH_RETRIEVAL_TOP_K`.
 
 ## Validation Commands
 

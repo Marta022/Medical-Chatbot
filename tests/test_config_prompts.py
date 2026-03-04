@@ -28,6 +28,9 @@ class TestConfigAndPrompts(unittest.TestCase):
         self.assertGreater(settings.default_top_k, 0)
         self.assertTrue(settings.dataset_json_path.endswith("disease_database.json"))
         self.assertTrue(settings.dataset_csv_path.endswith("dataset_sheet1.csv"))
+        self.assertEqual(settings.chunking_strategy, "section")
+        self.assertGreater(settings.semantic_chunk_max_chars, 0)
+        self.assertGreaterEqual(settings.entity_min_confidence, 0)
 
     def test_prompt_helpers_return_expected_content(self) -> None:
         self.assertTrue(prompts.get_base_system_prompt())
@@ -45,6 +48,56 @@ class TestConfigAndPrompts(unittest.TestCase):
         settings = AppSettings()
         errors = validate_startup(command="chat", settings=settings)
         self.assertTrue(any("OPENAI_API_KEY is required" in item for item in errors))
+
+    def test_validate_startup_rejects_invalid_chunking_strategy(self) -> None:
+        settings = AppSettings(chunking_strategy="invalid")
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("CHUNKING_STRATEGY must be one of" in item for item in errors))
+
+    def test_validate_startup_rejects_invalid_entity_min_confidence(self) -> None:
+        settings = AppSettings(entity_min_confidence=1.2)
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("ENTITY_MIN_CONFIDENCE must be between 0 and 1" in item for item in errors))
+
+    def test_validate_startup_rejects_invalid_graph_backend(self) -> None:
+        settings = AppSettings(graph_backend="invalid")
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("GRAPH_BACKEND must be one of" in item for item in errors))
+
+    def test_validate_startup_requires_kuzu_db_path(self) -> None:
+        settings = AppSettings(kuzu_db_path="")
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("KUZU_DB_PATH is required." in item for item in errors))
+
+    def test_validate_startup_rejects_invalid_relation_min_confidence(self) -> None:
+        settings = AppSettings(relation_min_confidence=1.5)
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("RELATION_MIN_CONFIDENCE must be between 0 and 1" in item for item in errors))
+
+    def test_validate_startup_rejects_invalid_retrieval_mode(self) -> None:
+        settings = AppSettings(retrieval_mode="invalid")
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("RETRIEVAL_MODE must be one of" in item for item in errors))
+
+    def test_validate_startup_rejects_invalid_graph_retrieval_top_k(self) -> None:
+        settings = AppSettings(graph_retrieval_top_k=0)
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("GRAPH_RETRIEVAL_TOP_K must be greater than 0." in item for item in errors))
+
+    def test_validate_startup_rejects_invalid_graph_traversal_depth(self) -> None:
+        settings = AppSettings(graph_traversal_depth=0)
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("GRAPH_TRAVERSAL_DEPTH must be greater than 0." in item for item in errors))
+
+    def test_validate_startup_rejects_invalid_hybrid_weights(self) -> None:
+        settings = AppSettings(hybrid_graph_weight=-0.1)
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("HYBRID_GRAPH_WEIGHT must be >= 0." in item for item in errors))
+
+    def test_validate_startup_requires_gitnexus_url_when_enabled(self) -> None:
+        settings = AppSettings(gitnexus_enabled=True, gitnexus_base_url="")
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("GITNEXUS_BASE_URL is required" in item for item in errors))
 
     def test_ensure_startup_valid_passes_for_eval_with_temp_prompt(self) -> None:
         with tempfile.NamedTemporaryFile(

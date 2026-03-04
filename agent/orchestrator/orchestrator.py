@@ -6,6 +6,11 @@ from dataclasses import dataclass
 
 from agent.evaluation.evaluator import evaluate_response
 from agent.guardrail.rules_engine import apply_guardrails
+from agent.orchestrator.citations import (
+    append_citation_block,
+    append_retrieved_chunks_block,
+    build_citation_rows,
+)
 from agent.reasoning.llm_router import llm_ask_request
 from agent.reasoning.translator import translate_to_english, translate_to_romanian
 from config.eval_config import EVAL_CONFIG, EvalConfig
@@ -20,6 +25,7 @@ from models import (
     QueryRequest,
     RetrievalResult,
 )
+from rag.retrieval.embeddings import using_fallback_embeddings
 from rag.retrieval.retriever import retrieve_top_similar
 
 logger = logging.getLogger(__name__)
@@ -61,8 +67,10 @@ class Orchestrator:
             )
 
         query_en = self._safe_translate_to_english(request.query)
-        retrieval_result = self._deps.retrieve(query_en, request.top_k, request.filters)
-        if not retrieval_result.hits or retrieval_result.max_score() < SETTINGS.retrieval_min_score:
+        retrieval_filters = self._build_retrieval_filters(request.filters)
+        retrieval_result = self._deps.retrieve(query_en, request.top_k, retrieval_filters)
+        min_score = 0.0 if using_fallback_embeddings() else SETTINGS.retrieval_min_score
+        if not retrieval_result.hits or retrieval_result.max_score() < min_score:
             return OrchestratorResponse(
                 response=LOW_CONFIDENCE_MESSAGE,
                 provider=None,
@@ -100,8 +108,15 @@ class Orchestrator:
                 break
 
         retries = max((attempt + 1) - 1, 0)
+        final_response = last_response.content if last_response else None
+        if final_response is not None and retrieval_result is not None:
+            final_response = append_retrieved_chunks_block(final_response, retrieval_result)
+            if SETTINGS.retrieval_mode == "hybrid":
+                citations = build_citation_rows(retrieval_result)
+                final_response = append_citation_block(final_response, citations)
+
         return OrchestratorResponse(
-            response=last_response.content if last_response else None,
+            response=final_response,
             provider=last_response.provider if last_response else None,
             model=last_response.model if last_response else None,
             retries=retries,
@@ -110,6 +125,19 @@ class Orchestrator:
             retrieval=retrieval_result,
             context_lines=context_lines,
         )
+
+    @staticmethod
+    def _build_retrieval_filters(
+        filters: dict[str, str] | None,
+    ) -> dict[str, str] | None:
+        normalized = dict(filters or {})
+        if SETTINGS.retrieval_mode != "hybrid":
+            return normalized or None
+
+        normalized["__graph_depth"] = str(SETTINGS.graph_traversal_depth)
+        normalized["__vector_weight"] = str(SETTINGS.hybrid_vector_weight)
+        normalized["__graph_weight"] = str(SETTINGS.hybrid_graph_weight)
+        return normalized
 
     @staticmethod
     def _apply_retry_guidance(

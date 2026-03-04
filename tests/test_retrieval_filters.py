@@ -15,6 +15,11 @@ class TestRetrievalFilters(unittest.TestCase):
         self.assertIsNotNone(payload_filter)
         self.assertEqual(len(payload_filter.must), 2)
 
+    def test_build_filter_ignores_policy_keys(self) -> None:
+        payload_filter = _build_filter({"source": "pdf", "__graph_depth": "2"})
+        self.assertIsNotNone(payload_filter)
+        self.assertEqual(len(payload_filter.must), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

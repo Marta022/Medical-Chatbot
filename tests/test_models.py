@@ -7,6 +7,8 @@ from models import (
     GuardrailResult,
     LLMRequest,
     LLMResponse,
+    MedicalEntity,
+    MedicalRelation,
     QueryRequest,
     RetrievalHit,
     RetrievalResult,
@@ -84,6 +86,40 @@ class TestModels(unittest.TestCase):
         self.assertTrue(result["is_emergency"])
         self.assertFalse(result["is_valid"])
         self.assertIn("message", result)
+
+    def test_medical_entity_to_dict(self) -> None:
+        entity = MedicalEntity(
+            entity_type="disease",
+            mention_text="mi",
+            canonical_form="myocardial infarction",
+            confidence=0.85,
+            source_file="doc.pdf",
+            page=2,
+            chunk_id="abc",
+        )
+        payload = entity.to_dict()
+        self.assertEqual(payload["entity_type"], "disease")
+        self.assertEqual(payload["canonical_form"], "myocardial infarction")
+        self.assertEqual(payload["source_file"], "doc.pdf")
+
+    def test_medical_relation_to_dict(self) -> None:
+        relation = MedicalRelation(
+            predicate="drug_treats_disease",
+            source_entity_id="drug-id",
+            source_entity_type="drug",
+            source_canonical_form="aspirina",
+            target_entity_id="disease-id",
+            target_entity_type="disease",
+            target_canonical_form="myocardial infarction",
+            confidence=0.84,
+            source_file="doc.pdf",
+            page=4,
+            chunk_id="chunk-4",
+        )
+        payload = relation.to_dict()
+        self.assertEqual(payload["predicate"], "drug_treats_disease")
+        self.assertEqual(payload["source_entity_type"], "drug")
+        self.assertEqual(payload["target_entity_type"], "disease")
 
 
 if __name__ == "__main__":

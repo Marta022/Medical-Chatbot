@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
 from api.app import create_app
 from api.dependencies import ApiDependencies
@@ -35,6 +36,27 @@ class _StubOrchestrator:
 class _RaisingOrchestrator:
     def run(self, _request: QueryRequest) -> OrchestratorResponse:
         raise RuntimeError("upstream_down")
+
+
+class _CaptureOrchestrator:
+    last_request: QueryRequest | None = None
+
+    def run(self, request: QueryRequest) -> OrchestratorResponse:
+        _CaptureOrchestrator.last_request = request
+        retrieval = RetrievalResult(
+            hits=[RetrievalHit(title="x", text="y", score=0.8, source="unit")]
+        )
+        evaluator = EvaluatorResult(passed=True, score=1.0, reasons=[], retry_recommended=False)
+        return OrchestratorResponse(
+            response="ok",
+            provider="stub-provider",
+            model="stub-model",
+            retries=0,
+            guardrail=GuardrailResult(is_valid=True),
+            evaluator=evaluator,
+            retrieval=retrieval,
+            context_lines=[],
+        )
 
 
 def _stub_ingest(_json_path: str, _csv_path: str, _chunking_strategy: str = "section") -> int:
@@ -123,6 +145,52 @@ class TestApiEngineEndpoints(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         payload = response.get_json()
         self.assertEqual(payload["error"]["message"], "upstream_down")
+
+    def test_graph_nexus_endpoint_returns_payload(self) -> None:
+        deps = ApiDependencies(
+            orchestrator_factory=_StubOrchestrator,
+            ingest=_stub_ingest,
+            run_eval=_stub_eval,
+            to_json_compatible=_stub_to_json,
+        )
+        client = create_app(dependencies=deps).test_client()
+
+        with patch(
+            "api.app.build_gitnexus_payload_safe",
+            return_value={"status": "ok", "nodes": [], "edges": [], "viewer_url": "http://x/graph"},
+        ):
+            response = client.get("/graph/nexus?query=mi&limit=5")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertEqual(payload["status"], "ok")
+        self.assertIn("nodes", payload)
+        self.assertIn("edges", payload)
+
+    def test_chat_endpoint_accepts_graph_policy_controls(self) -> None:
+        deps = ApiDependencies(
+            orchestrator_factory=_CaptureOrchestrator,
+            ingest=_stub_ingest,
+            run_eval=_stub_eval,
+            to_json_compatible=_stub_to_json,
+        )
+        client = create_app(dependencies=deps).test_client()
+
+        response = client.post(
+            "/chat",
+            json={
+                "query": "test",
+                "retrieval_mode": "hybrid",
+                "graph_depth": 2,
+                "vector_weight": 1.0,
+                "graph_weight": 0.7,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(_CaptureOrchestrator.last_request)
+        filters = _CaptureOrchestrator.last_request.filters or {}
+        self.assertEqual(filters["__retrieval_mode"], "hybrid")
+        self.assertEqual(filters["__graph_depth"], "2")
 
 
 if __name__ == "__main__":

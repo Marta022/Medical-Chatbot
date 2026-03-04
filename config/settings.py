@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SUPPORTED_LLM_PROVIDERS = {"openai", "ollama"}
+SUPPORTED_CHUNKING_STRATEGIES = {"section", "sentence", "window", "semantic"}
+SUPPORTED_GRAPH_BACKENDS = {"kuzu"}
+SUPPORTED_RETRIEVAL_MODES = {"vector", "hybrid"}
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -42,6 +45,25 @@ class AppSettings:
     retrieval_min_score: float = 0.2
     dataset_json_path: str = "data/dataset/disease_database.json"
     dataset_csv_path: str = "data/dataset/dataset_sheet1.csv"
+    dataset_primary_pdf_path: str = "data/dataset/DORIN-CURS_SEM2_searchable.pdf"
+    dataset_validation_pdf_path: str = (
+        "data/dataset/DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf"
+    )
+    chunking_strategy: str = "section"
+    semantic_chunk_max_chars: int = 700
+    semantic_use_llamaindex: bool = True
+    entity_min_confidence: float = 0.65
+    graph_backend: str = "kuzu"
+    kuzu_db_path: str = "knowledge/graph/kuzu_storage"
+    graph_ingest_enabled: bool = True
+    relation_min_confidence: float = 0.7
+    retrieval_mode: str = "vector"
+    graph_retrieval_top_k: int = 3
+    graph_traversal_depth: int = 1
+    hybrid_vector_weight: float = 1.0
+    hybrid_graph_weight: float = 0.9
+    gitnexus_enabled: bool = False
+    gitnexus_base_url: str = "http://localhost:8088"
 
 
 def load_settings() -> AppSettings:
@@ -64,6 +86,29 @@ def load_settings() -> AppSettings:
             "DATASET_CSV_PATH",
             "data/dataset/dataset_sheet1.csv",
         ).strip(),
+        dataset_primary_pdf_path=os.getenv(
+            "DATASET_PRIMARY_PDF_PATH",
+            "data/dataset/DORIN-CURS_SEM2_searchable.pdf",
+        ).strip(),
+        dataset_validation_pdf_path=os.getenv(
+            "DATASET_VALIDATION_PDF_PATH",
+            "data/dataset/DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf",
+        ).strip(),
+        chunking_strategy=os.getenv("CHUNKING_STRATEGY", "section").strip().lower(),
+        semantic_chunk_max_chars=_env_int("SEMANTIC_CHUNK_MAX_CHARS", 700),
+        semantic_use_llamaindex=_env_bool("SEMANTIC_USE_LLAMAINDEX", True),
+        entity_min_confidence=float(os.getenv("ENTITY_MIN_CONFIDENCE", "0.65").strip()),
+        graph_backend=os.getenv("GRAPH_BACKEND", "kuzu").strip().lower(),
+        kuzu_db_path=os.getenv("KUZU_DB_PATH", "knowledge/graph/kuzu_storage").strip(),
+        graph_ingest_enabled=_env_bool("GRAPH_INGEST_ENABLED", True),
+        relation_min_confidence=float(os.getenv("RELATION_MIN_CONFIDENCE", "0.7").strip()),
+        retrieval_mode=os.getenv("RETRIEVAL_MODE", "vector").strip().lower(),
+        graph_retrieval_top_k=_env_int("GRAPH_RETRIEVAL_TOP_K", 3),
+        graph_traversal_depth=_env_int("GRAPH_TRAVERSAL_DEPTH", 1),
+        hybrid_vector_weight=float(os.getenv("HYBRID_VECTOR_WEIGHT", "1.0").strip()),
+        hybrid_graph_weight=float(os.getenv("HYBRID_GRAPH_WEIGHT", "0.9").strip()),
+        gitnexus_enabled=_env_bool("GITNEXUS_ENABLED", False),
+        gitnexus_base_url=os.getenv("GITNEXUS_BASE_URL", "http://localhost:8088").strip(),
     )
 
 
@@ -94,6 +139,37 @@ def validate_startup(
         errors.append(
             f"LLM_PROVIDER must be one of {providers}, got '{current.llm_provider}'."
         )
+    if current.chunking_strategy not in SUPPORTED_CHUNKING_STRATEGIES:
+        errors.append(
+            "CHUNKING_STRATEGY must be one of "
+            f"{sorted(SUPPORTED_CHUNKING_STRATEGIES)}, got '{current.chunking_strategy}'."
+        )
+    if current.semantic_chunk_max_chars <= 0:
+        errors.append("SEMANTIC_CHUNK_MAX_CHARS must be greater than 0.")
+    if not 0 <= current.entity_min_confidence <= 1:
+        errors.append("ENTITY_MIN_CONFIDENCE must be between 0 and 1.")
+    if current.graph_backend not in SUPPORTED_GRAPH_BACKENDS:
+        backends = sorted(SUPPORTED_GRAPH_BACKENDS)
+        errors.append(
+            f"GRAPH_BACKEND must be one of {backends}, got '{current.graph_backend}'."
+        )
+    if not current.kuzu_db_path:
+        errors.append("KUZU_DB_PATH is required.")
+    if not 0 <= current.relation_min_confidence <= 1:
+        errors.append("RELATION_MIN_CONFIDENCE must be between 0 and 1.")
+    if current.retrieval_mode not in SUPPORTED_RETRIEVAL_MODES:
+        modes = sorted(SUPPORTED_RETRIEVAL_MODES)
+        errors.append(f"RETRIEVAL_MODE must be one of {modes}, got '{current.retrieval_mode}'.")
+    if current.graph_retrieval_top_k <= 0:
+        errors.append("GRAPH_RETRIEVAL_TOP_K must be greater than 0.")
+    if current.graph_traversal_depth <= 0:
+        errors.append("GRAPH_TRAVERSAL_DEPTH must be greater than 0.")
+    if current.hybrid_vector_weight < 0:
+        errors.append("HYBRID_VECTOR_WEIGHT must be >= 0.")
+    if current.hybrid_graph_weight < 0:
+        errors.append("HYBRID_GRAPH_WEIGHT must be >= 0.")
+    if current.gitnexus_enabled and not current.gitnexus_base_url:
+        errors.append("GITNEXUS_BASE_URL is required when GITNEXUS_ENABLED=true.")
 
     prompt_path = Path(current.llm_txt_path)
     if not prompt_path.exists():
@@ -104,6 +180,13 @@ def validate_startup(
             errors.append(f"Dataset JSON not found at '{current.dataset_json_path}'.")
         if not Path(current.dataset_csv_path).exists():
             errors.append(f"Dataset CSV not found at '{current.dataset_csv_path}'.")
+        if not Path(current.dataset_primary_pdf_path).exists():
+            errors.append(f"Primary dataset PDF not found at '{current.dataset_primary_pdf_path}'.")
+        if not Path(current.dataset_validation_pdf_path).exists():
+            errors.append(
+                "Validation dataset PDF not found at "
+                f"'{current.dataset_validation_pdf_path}'."
+            )
 
     if command in {"chat"} and current.llm_provider == "openai":
         if not os.getenv("OPENAI_API_KEY"):

@@ -9,6 +9,7 @@ from rag.retrieval import embeddings
 class TestEmbeddings(unittest.TestCase):
     def setUp(self) -> None:
         embeddings._model = None
+        embeddings._use_fallback = False
 
     def test_vector_size_and_embed(self) -> None:
         class FakeVector:

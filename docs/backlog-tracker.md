@@ -1,6 +1,6 @@
 # Backlog Tracker
 
-Last updated: 2026-03-01  
+Last updated: 2026-03-04  
 Tracking scope: tasks defined in `docs/backlog.md`
 
 ## Tracking Rules
@@ -19,8 +19,8 @@ Status legend:
 
 | Metric | Value |
 | --- | --- |
-| Planned effort | 238h |
-| Completed effort | 238h |
+| Planned effort | 372h |
+| Completed effort | 372h |
 | In-progress effort | 0h |
 | Remaining effort | 0h |
 | Overall completion | 100% |
@@ -34,6 +34,7 @@ Status legend:
 | P2 Core Orchestration and Safety Pipeline | 50 | 50 | 0 | 0 | DONE |
 | P3 Code Quality and Observability | 40 | 40 | 0 | 0 | DONE |
 | P4 Runtime and Delivery | 60 | 60 | 0 | 0 | DONE |
+| P5 Semantic Knowledge and Graph-RAG Expansion | 134 | 134 | 0 | 0 | DONE |
 
 ## Epic Progress
 
@@ -55,6 +56,12 @@ Status legend:
 | E4.2 | Docker Compose Topology | 16 | 16 | DONE | Connectivity/persistence verified; optional profile added; startup/shutdown and compose test evidence captured |
 | E4.3 | Operations and Release Documentation | 14 | 14 | DONE | README runbook, PRD/architecture sync, release/acceptance checklist docs, and walk-through validation completed (`T4.3.1`-`T4.3.TEST`) |
 | E4.4 | REST API and OpenWebUI Integration | 20 | 20 | DONE | API integration tests completed (see work log step 064) |
+| E5.1 | PDF Dataset Baseline and Structure Detection | 16 | 16 | DONE | Validation PDF parsing verified with `pypdf`; parser metadata/tests confirmed |
+| E5.2 | Semantic Chunking with LlamaIndex | 22 | 22 | DONE | Semantic adapter, list-preservation, metadata integration, fallback path, and regression tests completed |
+| E5.3 | PDF-First Ingestion Pipeline from `/data` | 18 | 18 | DONE | PDF-first discovery, metadata-rich payloads, stable dedup IDs, CLI pdf-only mode, and ingestion tests completed |
+| E5.4 | Medical NER Pipeline and Entity Normalization | 20 | 20 | DONE | Rule-based NER extractor, confidence gating, canonical normalization, and chunk-linked entity persistence added with tests |
+| E5.5 | Relation Extraction and Kuzu Graph Storage | 26 | 26 | DONE | Relation extraction, graph ingestion/upsert, reconciliation logic, and graph integration tests completed |
+| E5.6 | Graph-RAG, Citation Guarantees, and Visualization | 32 | 32 | DONE | Hybrid retrieval, orchestration policy, citation schema, GitNexus integration, API/CLI controls, docs, and integration tests completed |
 
 ## Phase 0 Completion Record
 
@@ -106,12 +113,83 @@ Status legend:
 | T1.4.4 | 2 | 2 | DONE | `models/serde.py` added and used by CLI eval output |
 | T1.4.5 | 2 | 2 | DONE | `docs/p1-model-guidelines.md` |
 
+## Phase 5 Planned Task Register
+
+| Task ID | Estimate (h) | Actual (h) | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| T5.1.1 | 4 | 4 | DONE | Structure profiling artifact `docs/p5-pdf-structure-profile.md` created for primary + validation datasets |
+| T5.1.2 | 5 | 5 | DONE | Validation profile parse succeeded with `pypdf`: `chunk_count=2534`, `pages_detected=124`, `parse_error=null` |
+| T5.1.3 | 3 | 3 | DONE | Added `PdfStructuredChunk` typed contract in `models/contracts.py` |
+| T5.1.4 | 2 | 2 | DONE | Added parser diagnostics and unreadable page warnings in PDF extraction flow |
+| T5.1.TEST | 2 | 2 | DONE | `python -m unittest tests.test_load_documents tests.test_pdf_structure tests.test_config_prompts tests.test_models -v` OK |
+| T5.2.1 | 3 | 3 | DONE | Added dependency + controls: `llama-index-core`, chunking strategy and semantic settings in config/CLI |
+| T5.2.2 | 6 | 6 | DONE | Completed semantic chunker adapter integration across strategy + PDF loading + Qdrant ingestion paths |
+| T5.2.3 | 4 | 4 | DONE | List-preservation policy verified with numbered/bulleted block regression tests |
+| T5.2.4 | 4 | 4 | DONE | Wired PDF metadata payload ingestion in `knowledge/qdrant/ingest.py` using `load_pdf_chunks` |
+| T5.2.5 | 3 | 3 | DONE | Fallback path now exercised in ingest + chunking tests when LlamaIndex is unavailable |
+| T5.2.TEST | 2 | 2 | DONE | `python -m unittest tests.test_qdrant_ingest tests.test_ingest_helpers tests.test_cli tests.test_pdf_structure tests.test_chunking -v` OK |
+| T5.3.1 | 4 | 4 | DONE | Added `discover_pdf_paths` and wired ingest defaults to enumerate `data/dataset/*.pdf` excluding validation PDF |
+| T5.3.2 | 4 | 4 | DONE | Qdrant ingest payload hardened with PDF metadata fields (`source_file`, `page`, `chapter`, `section`, `chunk_id`, `is_list`) |
+| T5.3.3 | 4 | 4 | DONE | Stable PDF point IDs based on source/page/chunk identity with repeated-run idempotency tests |
+| T5.3.4 | 2 | 2 | DONE | Added PDF-first CLI/shim switches via `--pdf-only` and default shim behavior |
+| T5.3.TEST | 4 | 4 | DONE | `python -m unittest tests.test_load_documents tests.test_qdrant_ingest tests.test_ingest_helpers tests.test_cli tests.test_pdf_structure tests.test_chunking -v` OK |
+| T5.4.1 | 3 | 3 | DONE | Selected deterministic rule-based NER approach and extraction interface in `knowledge/entities/extractor.py` |
+| T5.4.2 | 6 | 6 | DONE | Implemented medical entity extraction for disease/symptom/drug/anatomy with typed `MedicalEntity` outputs |
+| T5.4.3 | 3 | 3 | DONE | Added configurable confidence threshold (`ENTITY_MIN_CONFIDENCE`) and filtering |
+| T5.4.4 | 4 | 4 | DONE | Implemented alias normalization and duplicate merge behavior in entity extraction |
+| T5.4.5 | 2 | 2 | DONE | Persisted entity annotations linked to `chunk_id`, `page`, `source_file` in PDF ingest payloads |
+| T5.4.TEST | 2 | 2 | DONE | `python -m unittest tests.test_qdrant_ingest tests.test_entities tests.test_config_prompts tests.test_models -v` OK |
+| T5.5.1 | 4 | 4 | DONE | Added Kuzu dependency, graph settings, and `knowledge/graph/client.py` abstraction with tests |
+| T5.5.2 | 4 | 4 | DONE | Added graph schema statements + installer for required node/edge types and provenance fields with tests |
+| T5.5.3 | 6 | 6 | DONE | Implemented predicate extraction (`disease_has_symptom`, `drug_treats_disease`, `condition_causes_symptom`, `disease_differs_from_disease`) in `knowledge/graph/relations.py` |
+| T5.5.4 | 6 | 6 | DONE | Implemented graph ingestion/upsert pipeline from PDF chunks + NER output in `knowledge/graph/ingest.py` and wired into `knowledge/qdrant/ingest.py` |
+| T5.5.5 | 4 | 4 | DONE | Added reconciliation logic for repeated entities and relations across chunks (`reconcile_entities`, `reconcile_relations`) |
+| T5.5.TEST | 2 | 2 | DONE | `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_graph_relations tests.test_graph_ingest tests.test_qdrant_ingest tests.test_entities tests.test_config_prompts tests.test_models tests.test_cli tests.test_ingest_helpers -v` OK |
+| T5.6.1 | 8 | 8 | DONE | Implemented hybrid Graph-RAG retriever merge path in `rag/retrieval/retriever.py` with vector/graph modes |
+| T5.6.2 | 5 | 5 | DONE | Added graph traversal depth and merge/rerank policy controls wired through orchestrator + retriever |
+| T5.6.3 | 4 | 4 | DONE | Enforced citation output schema (`source_file`, `page`, `section`, `chunk_id`) in hybrid-mode responses |
+| T5.6.4 | 8 | 8 | DONE | Implemented GitNexus graph navigation payload builder and API endpoint (`/graph/nexus`) with source-link hooks |
+| T5.6.5 | 3 | 3 | DONE | Added API/CLI controls for Graph-RAG retrieval mode and visualization policy hooks |
+| T5.6.6 | 2 | 2 | DONE | Updated README runbook for Graph-RAG/GitNexus setup, controls, and troubleshooting |
+| T5.6.TEST | 2 | 2 | DONE | `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_graph_relations tests.test_graph_ingest tests.test_gitnexus tests.test_citations tests.test_retriever tests.test_retrieval_filters tests.test_orchestrator tests.test_config_prompts tests.test_qdrant_ingest tests.test_entities tests.test_models tests.test_cli tests.test_ingest_helpers tests.test_api_engine_endpoints tests.test_api_openai_adapter tests.test_api_config_controls -v` OK |
+
 ## Active Task Board
 
 Use this section for current work only (max 10 items at a time).
 
 | Task ID | Task | Estimate (h) | Actual (h) | Owner | Status | Start | End | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T5.1.1 | Inspect PDF layout and define extraction rules for headings/lists | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | Profiled `DORIN-CURS_SEM2_searchable.pdf` and validation doc in `docs/p5-pdf-structure-profile.md` |
+| T5.1.2 | Implement PDF parser with page-aware structural signals | 5 | 5 | Codex | DONE | 2026-03-04 | 2026-03-04 | Validation PDF parse now succeeds with `pypdf` (`pages_detected=124`) |
+| T5.2.2 | Implement semantic chunker adapter with structure hints | 6 | 6 | Codex | DONE | 2026-03-04 | 2026-03-04 | Semantic strategy wired end-to-end into PDF load + ingestion paths |
+| T5.2.3 | Implement list-preservation policy for numbered/bullet blocks | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | List-aware policy validated by chunking/PDF regression tests |
+| T5.2.4 | Attach metadata to chunk models and serialization path | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | PDF chunks now ingested with `source_file/page/chapter/section/chunk_id` payload fields |
+| T5.2.5 | Add fallback to existing section/sentence chunkers | 3 | 3 | Codex | DONE | 2026-03-04 | 2026-03-04 | Semantic fallback exercised when LlamaIndex path unavailable |
+| T5.2.TEST | Chunking tests for semantic and fallback modes | 2 | 2 | Codex | DONE | 2026-03-04 | 2026-03-04 | `python -m unittest tests.test_qdrant_ingest tests.test_ingest_helpers tests.test_cli tests.test_pdf_structure tests.test_chunking -v` OK |
+| T5.3.1 | Extend loaders to enumerate and parse PDFs from `/data/dataset` | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added dataset PDF discovery helper and wired CLI/shim defaults to exclude validation PDF |
+| T5.3.2 | Update Qdrant ingest payload schema for structured metadata | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | PDF-first payload now includes page/chapter/section/chunk identifiers |
+| T5.3.3 | Update point-id dedup logic to include source/page/chunk identity | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added deterministic PDF point-ID strategy with repeated-run stability test |
+| T5.3.4 | Add ingestion CLI/runtime switches for PDF-first mode | 2 | 2 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added `--pdf-only` mode and set shim to PDF-first ingestion |
+| T5.3.TEST | PDF ingestion tests with idempotency checks | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | E5.3 ingestion/chunking regression suite passes (26 tests) |
+| T5.4.1 | Select NER approach and implement extraction pipeline interface | 3 | 3 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added `knowledge/entities/extractor.py` interface and chunk-level extraction functions |
+| T5.4.2 | Implement medical entity extraction and typed outputs | 6 | 6 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added typed `MedicalEntity` contract and disease/symptom/drug/anatomy extraction |
+| T5.4.3 | Add confidence scoring and threshold-based filtering | 3 | 3 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added `ENTITY_MIN_CONFIDENCE` setting and extraction-time filtering |
+| T5.4.4 | Implement canonical normalization and duplicate merging | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | Alias normalization (`MI`, `HTA`, `BPOC`) and dedup implemented |
+| T5.4.5 | Persist entity annotations linked to `chunk_id` and page | 2 | 2 | Codex | DONE | 2026-03-04 | 2026-03-04 | PDF payloads now include `entities` with source/page/chunk metadata |
+| T5.4.TEST | NER + normalization tests | 2 | 2 | Codex | DONE | 2026-03-04 | 2026-03-04 | NER/model/config/ingest tests pass (`tests.test_entities`, `tests.test_qdrant_ingest`, `tests.test_models`) |
+| T5.5.1 | Add KuzuDB dependency and implement graph client abstraction | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added `kuzu` dependency, graph runtime settings, and `knowledge/graph/client.py` with lazy import + tests |
+| T5.5.2 | Design graph schema for entities, relations, and provenance fields | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added `knowledge/graph/schema.py` with schema statements + `ensure_graph_schema` executor and tests |
+| T5.5.3 | Implement relation extraction for required medical predicates | 6 | 6 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added `knowledge/graph/relations.py` with required predicate extraction and confidence gating |
+| T5.5.4 | Build graph ingestion/upsert pipeline from chunked text and NER output | 6 | 6 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added `knowledge/graph/ingest.py`, schema bootstrap call, and Qdrant ingest integration hooks |
+| T5.5.5 | Add reconciliation for repeated entities/relations across chunks | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added entity/relation reconciliation helpers and deterministic graph IDs |
+| T5.5.TEST | Graph schema and ingestion tests | 2 | 2 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added graph relation/ingest tests and validated full E5.5 suite (46 tests) |
+| T5.6.1 | Implement Graph-RAG retriever that merges vector and graph candidates | 8 | 8 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added hybrid retrieval mode (`vector`/`hybrid`) and graph-candidate merge path in `rag/retrieval/retriever.py` with tests |
+| T5.6.2 | Add orchestration policy for graph traversal depth and merge/rerank | 5 | 5 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added hybrid policy controls (`GRAPH_TRAVERSAL_DEPTH`, merge weights) and orchestrator filter injection with rerank tests |
+| T5.6.3 | Enforce citation output schema in generated answers | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added citation formatter/contract and hybrid-mode response citation enforcement in orchestrator |
+| T5.6.4 | Integrate GitNexus for graph navigation and source linking | 8 | 8 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added `knowledge/graph/gitnexus.py` payload adapter and API endpoint `GET /graph/nexus` with source-link mapping |
+| T5.6.5 | Add API/CLI controls for Graph-RAG and visualization hooks | 3 | 3 | Codex | DONE | 2026-03-04 | 2026-03-04 | Added chat CLI options and API payload controls for retrieval mode + graph policy hook fields |
+| T5.6.6 | Update docs/runbooks for graph setup and troubleshooting | 2 | 2 | Codex | DONE | 2026-03-04 | 2026-03-04 | Updated README with Graph-RAG/GitNexus setup controls and troubleshooting runbook |
+| T5.6.TEST | Integration tests for Graph-RAG, citations, and visualization APIs | 2 | 2 | Codex | DONE | 2026-03-04 | 2026-03-04 | Validated graph/citation/retrieval/API integration suite (85 tests) |
 | T3.1.1 | Create centralized logging configuration | 3 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added `config/logging_config.py` and wired setup in CLI entrypoints |
 | T3.1.2 | Replace `print` usage in first-party modules | 4 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Replaced runtime `print` usage with logger calls in CLI and chat loop |
 | T3.1.3 | Add correlation ID per request/session | 3 | 2 | Codex | DONE | 2026-02-25 | 2026-02-25 | Added correlation IDs in CLI and chat loop |
@@ -217,9 +295,30 @@ Use this section for current work only (max 10 items at a time).
 | 064 | 2026-03-01 | Ran API integration tests for `T4.4.TEST` | Full suite timed out; individual runs OK: `python -m unittest tests.test_api_scaffold -v`, `tests.test_api_engine_endpoints -v`, `tests.test_api_openai_adapter -v`, `tests.test_api_config_controls -v` | Re-run full API suite |
 | 065 | 2026-03-01 | Re-ran full API test suite with faulthandler | `python -X faulthandler -m unittest tests.test_api_scaffold tests.test_api_engine_endpoints tests.test_api_openai_adapter tests.test_api_config_controls -v -f` OK (15 tests) | Run overall unittest suite |
 | 066 | 2026-03-01 | Ran overall test suite | `python -m unittest -v` OK (84 tests, ~19s) | Backlog closed |
+| 067 | 2026-03-04 | Extended backlog/tracker with new PDF-semantic-graph requirements | Added Phase P5 (`E5.1`-`E5.6`, 134h) in `docs/backlog.md`; synchronized tracker totals/status and activated `T5.1.1` | Implement `T5.1.1` parser discovery on `data/dataset/*.pdf` |
+| 068 | 2026-03-04 | Implemented first-pass PDF structure parser and typed chunk metadata | Added parser utilities and structured chunk pipeline in `rag/chunking/load_documents.py`; added `PdfStructuredChunk` in `models/contracts.py`; added tests in `tests/test_pdf_structure.py` | Run E5.1 parser test gate and generate profile artifact |
+| 069 | 2026-03-04 | Completed E5.1 discovery/testing artifacts and recorded validation blocker | Added `docs/p5-pdf-structure-profile.md`; ran `python -m unittest tests.test_load_documents tests.test_pdf_structure tests.test_config_prompts tests.test_models -v` (OK); validation PDF parsing blocked without `pypdf` availability | Unblock dependency installation, then complete `T5.1.2` on validation dataset |
+| 070 | 2026-03-04 | Cleared E5.1 validation blocker after `pypdf` install | Ran validation parse profile on `DORIN_GENERALA...` with `parse_error=null`, `pages_detected=124`, `chunk_count=2534`; marked `T5.1.2` and `E5.1` as DONE | Start E5.2 semantic chunking implementation |
+| 071 | 2026-03-04 | Started E5.2 implementation (semantic chunking baseline) | Added semantic chunking adapter/fallback + list-preserving policy in `rag/chunking/strategies.py`; added config+CLI controls (`config/settings.py`, `run.py`, `ingestion/ingest_vectordb.py`); added tests (`tests/test_chunking.py`, `tests/test_config_prompts.py`, `tests/test_cli.py`) | Continue T5.2.2-T5.2.TEST and wire semantic chunking into PDF ingestion flow |
+| 072 | 2026-03-04 | Wired semantic chunking into PDF load path and expanded test gate | Added `load_pdf_chunks` in `rag/chunking/load_documents.py` to parse+rechunk with metadata retention; updated exports; added PDF semantic loading tests; ran `python -m unittest tests.test_pdf_structure tests.test_chunking tests.test_config_prompts tests.test_cli -v` (OK) | Continue T5.2.4/T5.2.TEST toward full epic completion |
+| 073 | 2026-03-04 | Wired PDF chunk metadata ingestion into Qdrant and closed E5.2 subtask test gates | Extended `knowledge/qdrant/ingest.py` to ingest `load_pdf_chunks` output with metadata-rich payloads; added deterministic PDF point IDs and ingest tests; ran `python -m unittest tests.test_qdrant_ingest tests.test_ingest_helpers tests.test_cli tests.test_pdf_structure tests.test_chunking -v` (OK) | Finish remaining T5.2.2 semantic adapter polish and close E5.2 |
+| 074 | 2026-03-04 | Closed E5.2 semantic chunking epic | Finalized semantic adapter integration across strategy/PDF load/Qdrant ingest paths and revalidated API compatibility (`python -m unittest tests.test_api_engine_endpoints tests.test_api_openai_adapter tests.test_api_config_controls -v` OK) | Start E5.3 (`T5.3.1`) |
+| 075 | 2026-03-04 | Started E5.3 PDF discovery integration with validation-doc exclusion policy | Added `discover_pdf_paths` in `rag/chunking/load_documents.py`; wired `run.py ingest` and `ingestion/ingest_vectordb.py` to enumerate `data/dataset/*.pdf` while excluding `DORIN_GENERALA...`; added loader test and ran `python -m unittest tests.test_load_documents tests.test_qdrant_ingest tests.test_ingest_helpers tests.test_cli -v` (OK) | Continue T5.3.1 and begin T5.3.2 payload schema hardening |
+| 076 | 2026-03-04 | Completed E5.3 PDF-first ingestion pipeline | Added PDF-only ingest mode (`--pdf-only`), finalized metadata-rich PDF payloads and stable point IDs in `knowledge/qdrant/ingest.py`, updated defaults to learn from `DORIN-CURS...` while excluding validation doc, and validated with `python -m unittest tests.test_load_documents tests.test_qdrant_ingest tests.test_ingest_helpers tests.test_cli tests.test_pdf_structure tests.test_chunking -v` plus API compatibility suite | Start E5.4 (`T5.4.1`) |
+| 077 | 2026-03-04 | Completed E5.4 NER baseline with normalization and persistence | Added typed entity model (`MedicalEntity`), rule-based extractor + disease lexicon loading in `knowledge/entities/extractor.py`, confidence threshold config (`ENTITY_MIN_CONFIDENCE`), and entity persistence in PDF ingest payloads; validated with `python -m unittest tests.test_qdrant_ingest tests.test_entities tests.test_config_prompts tests.test_models -v` | Start E5.5 (`T5.5.1`) |
+| 078 | 2026-03-04 | Completed E5.5 task T5.5.1 and activated T5.5.2 | Added Kuzu dependency (`requirements.txt`), graph backend settings (`GRAPH_BACKEND`, `KUZU_DB_PATH`) in `config/settings.py`, and graph client abstraction in `knowledge/graph/client.py`; validated with `python -m unittest tests.test_graph_client tests.test_config_prompts tests.test_qdrant_ingest tests.test_entities tests.test_models -v` (OK) | Implement `T5.5.2` graph schema definition and tests |
+| 079 | 2026-03-04 | Completed E5.5 task T5.5.2 and activated T5.5.3 | Added graph schema module (`knowledge/graph/schema.py`) with node/edge definitions for required predicates and provenance fields (`source_file`, `page`, `chunk_id`, `confidence`) plus schema tests; validated with `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_config_prompts tests.test_qdrant_ingest tests.test_entities tests.test_models -v` (OK) | Implement `T5.5.3` relation extraction module and tests |
+| 080 | 2026-03-04 | Completed E5.5 relation extraction, graph ingest/upsert, reconciliation, and test gate | Added `knowledge/graph/relations.py` (required predicates), `knowledge/graph/ingest.py` (schema bootstrap + upsert pipeline + dedup helpers), `knowledge/graph/ids.py`, wired graph ingest controls into settings/CLI/Qdrant ingest, and added graph tests (`tests.test_graph_relations`, `tests.test_graph_ingest`); validated with `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_graph_relations tests.test_graph_ingest tests.test_qdrant_ingest tests.test_entities tests.test_config_prompts tests.test_models tests.test_cli tests.test_ingest_helpers -v` (OK) | Start E5.6 (`T5.6.1`) |
+| 081 | 2026-03-04 | Completed E5.6 task T5.6.1 and activated T5.6.2 | Added hybrid retrieval baseline in `rag/retrieval/retriever.py` with vector/graph mode dispatch, graph-seeded candidate expansion, and merged ranking; added retrieval mode settings (`RETRIEVAL_MODE`, `GRAPH_RETRIEVAL_TOP_K`) and tests (`tests.test_retriever`, `tests.test_config_prompts`); validated with `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_graph_relations tests.test_graph_ingest tests.test_retriever tests.test_retrieval_filters tests.test_orchestrator tests.test_config_prompts tests.test_qdrant_ingest tests.test_entities tests.test_models tests.test_cli tests.test_ingest_helpers -v` (OK) | Implement `T5.6.2` orchestration merge/rerank policy |
+| 082 | 2026-03-04 | Completed E5.6 task T5.6.2 and activated T5.6.3 | Added orchestration policy controls for graph traversal depth and merge/rerank weighting (`GRAPH_TRAVERSAL_DEPTH`, `HYBRID_VECTOR_WEIGHT`, `HYBRID_GRAPH_WEIGHT`) in settings, injected policy into retrieval filters from orchestrator, and updated hybrid retriever to apply policy-aware traversal/reranking with tests | Implement `T5.6.3` citation schema enforcement and tests |
+| 083 | 2026-03-04 | Completed E5.6 task T5.6.3 and activated T5.6.4 | Added citation schema formatter in `agent/orchestrator/citations.py`, extended retrieval hit metadata contract (`source_file`, `page`, `section`, `chunk_id`), and enforced citation output block in hybrid-mode orchestrator responses; validated with `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_graph_relations tests.test_graph_ingest tests.test_citations tests.test_retriever tests.test_retrieval_filters tests.test_orchestrator tests.test_config_prompts tests.test_qdrant_ingest tests.test_entities tests.test_models tests.test_cli tests.test_ingest_helpers -v` (OK) | Implement `T5.6.4` GitNexus integration and source linking |
+| 084 | 2026-03-04 | Completed E5.6 task T5.6.4 and activated T5.6.5 | Added GitNexus integration adapter (`knowledge/graph/gitnexus.py`) with graph payload + source-link mapping, added API endpoint `GET /graph/nexus` in `api/app.py`, and added tests (`tests.test_gitnexus`, `tests.test_api_engine_endpoints`) with config validation updates; validated with `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_graph_relations tests.test_graph_ingest tests.test_gitnexus tests.test_citations tests.test_retriever tests.test_retrieval_filters tests.test_orchestrator tests.test_config_prompts tests.test_qdrant_ingest tests.test_entities tests.test_models tests.test_cli tests.test_ingest_helpers tests.test_api_engine_endpoints tests.test_api_openai_adapter tests.test_api_config_controls -v` (OK) | Implement `T5.6.5` API/CLI controls for Graph-RAG visualization hooks |
+| 085 | 2026-03-04 | Completed E5.6 task T5.6.5 and activated T5.6.6 | Added Graph-RAG/visualization control hooks in CLI (`run.py` + `chat_loop`) and API (`api/app.py`) to pass retrieval-mode and graph policy controls into request filters, plus tests for CLI/API control propagation | Update docs/runbook for Graph-RAG + GitNexus setup and troubleshooting (`T5.6.6`) |
 
 ## Known Risks and Blockers
 
 - Current environment restrictions prevent downloading external model artifacts during runtime checks.
 - Several modules are placeholders/empty and will require first implementation before integration tests can pass.
 - Legacy compatibility shims remain until planned removal at end of Phase 2, which adds temporary maintenance overhead.
+- LlamaIndex, KuzuDB, and GitNexus integration may require new dependencies and compatibility validation with existing runtime/container setup.
+- PDF parsing quality may vary by source document formatting; OCR fallback may be required for some pages.

@@ -1,0 +1,48 @@
+Help me inspect this codebase and extend the backlog based on the following new requirements.
+Use the same backlog structure as before: Phase / EPIC / Story / Task with proper descriptions and estimates.
+Also include subtotal estimates per Epic and per Phase.
+Also update the backlog-tracker.md file which we will maintain updated after every step we complete.
+
+New requirements:
+
+- use the medical book PDF located in the /data folder as the main dataset
+    - inspect the PDF and detect its structure (chapters, sections, titles, numbered lists)
+    - preserve metadata such as page number, chapter, section and chunk_id
+
+- implement semantic chunking using LlamaIndex
+    - chunk based on meaning and document structure instead of fixed token sizes
+    - ensure numbered lists (1.,2.,3.) and bullet points remain in the same chunk when relevant
+    - attach metadata to every chunk
+
+- implement the ingestion pipeline from the /data folder
+    - parse PDF documents
+    - convert them into structured chunks
+    - store chunks with metadata
+
+- add a NER pipeline
+    - extract medical entities such as diseases, symptoms, drugs, anatomical structures
+    - attach confidence scores
+    - normalize entities to avoid duplicates
+
+- implement relation extraction
+    - detect relations such as:
+        disease -> symptom
+        drug -> treats -> disease
+        condition -> causes -> symptom
+        disease -> differs_from -> disease
+
+- integrate a graph database layer
+    - use KuzuDB for storing entities and relations
+    - design the graph schema (nodes, edges, properties)
+    - build ingestion from chunked text into the graph
+
+- extend the RAG pipeline
+    - keep vector retrieval with Qdrant
+    - implement Graph-RAG combining vector search and graph traversal
+    - answers must include citations (page, section, chunk)
+
+- add graph visualization
+    - integrate GitNexus
+    - allow exploring nodes and relations in the knowledge graph
+    - allow opening the source chunk/page
+

@@ -1,3 +1,3 @@
-from rag.retrieval.retriever import retrieve_top_similar
+from rag.retrieval.retriever import retrieve_hybrid, retrieve_top_similar
 
-__all__ = ["retrieve_top_similar"]
+__all__ = ["retrieve_hybrid", "retrieve_top_similar"]

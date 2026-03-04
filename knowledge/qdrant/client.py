@@ -19,20 +19,12 @@ def ensure_collection(vector_dim: int) -> None:
         raise ValueError("Qdrant collection name is empty")
 
     try:
-        exists = client.collection_exists(COLLECTION)
-    except Exception:
-        exists = False
-
-    if exists:
-        return
-
-    try:
-        client.create_collection(
+        client.get_collection(collection_name=COLLECTION)
+    except (
+        qdrant_exceptions.UnexpectedResponse,
+        qdrant_exceptions.ResponseHandlingException,
+    ):
+        client.recreate_collection(
             collection_name=COLLECTION,
             vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
         )
-    except qdrant_exceptions.UnexpectedResponse as exc:
-        message = str(exc).lower()
-        if "already exists" in message:
-            return
-        raise

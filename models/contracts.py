@@ -72,6 +72,10 @@ class RetrievalHit:
     text: str
     score: float
     source: str = "unknown"
+    source_file: str | None = None
+    page: int | None = None
+    section: str | None = None
+    chunk_id: str | None = None
 
     def __post_init__(self) -> None:
         self.title = self.title.strip()
@@ -83,6 +87,10 @@ class RetrievalHit:
             "text": self.text,
             "score": self.score,
             "source": self.source,
+            "source_file": self.source_file,
+            "page": self.page,
+            "section": self.section,
+            "chunk_id": self.chunk_id,
         }
 
 
@@ -110,6 +118,14 @@ class RetrievalResult:
                 text=str(item.get("text", "")),
                 score=float(item.get("score", 0.0)),
                 source=str(item.get("source", "unknown")),
+                source_file=(
+                    str(item.get("source_file"))
+                    if item.get("source_file") is not None
+                    else None
+                ),
+                page=int(item.get("page")) if item.get("page") is not None else None,
+                section=str(item.get("section")) if item.get("section") is not None else None,
+                chunk_id=str(item.get("chunk_id")) if item.get("chunk_id") is not None else None,
             )
             for item in raw_hits
         ]
@@ -211,4 +227,88 @@ class MedicalItem:
             "description": self.description,
             "source": self.source,
             "category": self.category,
+        }
+
+
+@dataclass
+class PdfStructuredChunk:
+    source_file: str
+    page: int
+    chapter: str
+    section: str
+    chunk_id: str
+    text: str
+    is_list: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "source_file": self.source_file,
+            "page": self.page,
+            "chapter": self.chapter,
+            "section": self.section,
+            "chunk_id": self.chunk_id,
+            "text": self.text,
+            "is_list": self.is_list,
+        }
+
+
+@dataclass
+class MedicalEntity:
+    entity_type: str
+    mention_text: str
+    canonical_form: str
+    confidence: float
+    source_file: str
+    page: int
+    chunk_id: str
+    chapter: str = "unknown"
+    section: str = "unknown"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "entity_type": self.entity_type,
+            "mention_text": self.mention_text,
+            "canonical_form": self.canonical_form,
+            "confidence": self.confidence,
+            "source_file": self.source_file,
+            "page": self.page,
+            "chunk_id": self.chunk_id,
+            "chapter": self.chapter,
+            "section": self.section,
+        }
+
+
+@dataclass
+class MedicalRelation:
+    predicate: str
+    source_entity_id: str
+    source_entity_type: str
+    source_canonical_form: str
+    target_entity_id: str
+    target_entity_type: str
+    target_canonical_form: str
+    confidence: float
+    source_file: str
+    page: int
+    chunk_id: str
+    chapter: str = "unknown"
+    section: str = "unknown"
+    evidence_text: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "predicate": self.predicate,
+            "source_entity_id": self.source_entity_id,
+            "source_entity_type": self.source_entity_type,
+            "source_canonical_form": self.source_canonical_form,
+            "target_entity_id": self.target_entity_id,
+            "target_entity_type": self.target_entity_type,
+            "target_canonical_form": self.target_canonical_form,
+            "confidence": self.confidence,
+            "source_file": self.source_file,
+            "page": self.page,
+            "chunk_id": self.chunk_id,
+            "chapter": self.chapter,
+            "section": self.section,
+            "evidence_text": self.evidence_text,
         }
