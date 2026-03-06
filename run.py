@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+from dataclasses import replace
+from pathlib import Path
 
 from agent.evaluation.benchmark import run_evaluation_smoke
 from agent.orchestrator.chat_loop import run_chat_loop
@@ -15,6 +17,7 @@ from config.settings import (
 )
 from knowledge.qdrant.ingest import ingest
 from rag.chunking.load_documents import discover_pdf_paths
+from rag.retrieval.quality_report import build_quality_report
 from models.serde import serialize_to_json_compatible
 
 logger = logging.getLogger(__name__)
@@ -115,6 +118,29 @@ def _build_parser() -> argparse.ArgumentParser:
         default=SETTINGS.relation_min_confidence,
         help="Minimum confidence threshold for extracted graph relations",
     )
+    ingest_parser.add_argument(
+        "--quality-report",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Emit ingestion/retrieval quality diagnostics after ingest",
+    )
+    ingest_parser.add_argument(
+        "--quality-report-path",
+        default="",
+        help="Optional JSON output path for quality diagnostics report",
+    )
+    ingest_parser.add_argument(
+        "--quality-keyword",
+        action="append",
+        default=None,
+        help="Keyword probe for chunk-level lookup in quality report. Repeat to include multiple values.",
+    )
+    ingest_parser.add_argument(
+        "--quality-keyword-limit",
+        type=int,
+        default=5,
+        help="Maximum number of chunk matches to include per keyword in quality report",
+    )
 
     subparsers.add_parser("eval", help="Run evaluation smoke check")
     return parser
@@ -126,9 +152,8 @@ def main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
 
-    ensure_startup_valid(command=args.command)
-
     if args.command == "chat":
+        ensure_startup_valid(command=args.command)
         chat_filters = {
             "__retrieval_mode": str(args.retrieval_mode),
             "__graph_depth": str(args.graph_depth),
@@ -139,6 +164,12 @@ def main() -> None:
         return
 
     if args.command == "ingest":
+        ingest_settings = replace(
+            SETTINGS,
+            chunking_strategy=args.chunking_strategy,
+            semantic_use_llamaindex=args.semantic_use_llamaindex,
+        )
+        ensure_startup_valid(command=args.command, settings=ingest_settings)
         default_pdf_paths = discover_pdf_paths(
             excluded_paths=[SETTINGS.dataset_validation_pdf_path],
         )
@@ -157,11 +188,34 @@ def main() -> None:
             include_structured_sources=not args.pdf_only,
             graph_ingest_enabled=args.graph_ingest,
             relation_min_confidence=args.relation_min_confidence,
+            chunk_min_chars=SETTINGS.chunk_min_chars,
+            chunk_min_words=SETTINGS.chunk_min_words,
+            list_chunk_min_words=SETTINGS.list_chunk_min_words,
         )
         logger.info("Inserted into Qdrant: %s", inserted)
+        if args.quality_report:
+            report = build_quality_report(
+                pdf_paths=pdf_paths,
+                chunking_strategy=args.chunking_strategy,
+                semantic_chunk_max_chars=args.semantic_chunk_max_chars,
+                semantic_use_llamaindex=args.semantic_use_llamaindex,
+                keyword_queries=args.quality_keyword,
+                keyword_limit=args.quality_keyword_limit,
+                top_k=SETTINGS.default_top_k,
+            )
+            if args.quality_report_path:
+                output_path = Path(args.quality_report_path)
+                output_path.write_text(
+                    json.dumps(report, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+                logger.info("Quality report written to %s", output_path)
+            else:
+                logger.info(json.dumps(report, ensure_ascii=False, indent=2))
         return
 
     if args.command == "eval":
+        ensure_startup_valid(command=args.command)
         result = run_evaluation_smoke()
         payload = serialize_to_json_compatible(result)
         logger.info(json.dumps(payload, ensure_ascii=False, indent=2))

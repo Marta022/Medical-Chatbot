@@ -20,6 +20,7 @@ services:
     tty: true
     volumes:
       - ./data/dataset:/app/data/dataset:ro
+      - hf_cache:/root/.cache/huggingface
     depends_on:
       - qdrant
     restart: unless-stopped
@@ -53,6 +54,7 @@ services:
       - "8000:8000"
     volumes:
       - ./data/dataset:/app/data/dataset:ro
+      - hf_cache:/root/.cache/huggingface
     depends_on:
       - qdrant
     restart: unless-stopped
@@ -104,6 +106,7 @@ volumes:
   qdrant_data:
   openwebui_data:
   ollama_data:
+  hf_cache:
 
 networks:
   medical-net:

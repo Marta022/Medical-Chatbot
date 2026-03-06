@@ -5,6 +5,7 @@ import hashlib
 import json
 import logging
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 from models import MedicalItem
@@ -16,12 +17,21 @@ logger = logging.getLogger(__name__)
 _CHAPTER_PATTERN = re.compile(r"^\s*(capitol(?:ul)?\.?\s*\d+|chapter\s+\d+)\b", re.IGNORECASE)
 _SECTION_PATTERN = re.compile(r"^\s*\d+(?:\.\d+){1,}\s+\S+")
 _NUMBERED_ITEM_PATTERN = re.compile(r"^\s*\d+[\.\)]\s+\S+")
-_BULLET_ITEM_PATTERN = re.compile(r"^\s*[-*•]\s+\S+")
+_SENTENCE_END_PATTERN = re.compile(r"[.!?:;)]$")
+_ROMAN_SECTION_PATTERN = re.compile(r"^\s*[IVXLCDM]+\.\s+\S+", re.IGNORECASE)
+_BULLET_ITEM_PATTERN = re.compile(r"^\s*[-*•◦▪▫‣∙◆◇■□✦✧]\s+\S+")
 _PDF_LITERAL_PATTERN = re.compile(r"\((?P<literal>(?:\\.|[^\\)])*)\)")
 _TM_PATTERN = re.compile(
     r"(?P<a>-?\d+(?:\.\d+)?)\s+(?P<b>-?\d+(?:\.\d+)?)\s+(?P<c>-?\d+(?:\.\d+)?)\s+"
     r"(?P<d>-?\d+(?:\.\d+)?)\s+(?P<x>-?\d+(?:\.\d+)?)\s+(?P<y>-?\d+(?:\.\d+)?)\s+Tm"
 )
+
+
+@dataclass(frozen=True)
+class _OcrTextBlock:
+    x: float
+    y: float
+    text: str
 
 
 def _validate_json_structure(data: object) -> list[str]:
@@ -300,30 +310,309 @@ def _fallback_extract_pdf_pages(pdf_path: str) -> list[str]:
     return pages
 
 
+def _build_lines_from_positioned_fragments(
+    fragments: list[tuple[float, float, str]],
+) -> list[str]:
+    if not fragments:
+        return []
+
+    rows: dict[float, list[tuple[float, str]]] = {}
+    for x_pos, y_pos, text in fragments:
+        clean = re.sub(r"\s+", " ", text).strip()
+        if not clean:
+            continue
+        row_key = round(y_pos * 2) / 2.0
+        rows.setdefault(row_key, []).append((x_pos, clean))
+
+    x_values = sorted(x_pos for parts in rows.values() for x_pos, _ in parts)
+    split_x: float | None = None
+    if len(x_values) >= 12:
+        max_gap = 0.0
+        max_index = 0
+        for index in range(len(x_values) - 1):
+            gap = x_values[index + 1] - x_values[index]
+            if gap > max_gap:
+                max_gap = gap
+                max_index = index
+        left_count = max_index + 1
+        right_count = len(x_values) - left_count
+        if (
+            max_gap >= 75
+            and left_count >= max(4, len(x_values) // 5)
+            and right_count >= max(4, len(x_values) // 5)
+        ):
+            split_x = (x_values[max_index] + x_values[max_index + 1]) / 2.0
+
+    if split_x is None:
+        line_records: list[tuple[float, float, str]] = []
+        for row_y, parts in rows.items():
+            ordered = sorted(parts, key=lambda item: item[0])
+            line_text = " ".join(text for _, text in ordered).strip()
+            if not line_text:
+                continue
+            line_records.append((min(x for x, _ in ordered), row_y, line_text))
+        line_records = sorted(line_records, key=lambda item: item[1], reverse=True)
+        return [record[2] for record in line_records]
+
+    line_records = []
+    for row_y, parts in rows.items():
+        ordered = sorted(parts, key=lambda item: item[0])
+        left_parts = [(x, text) for x, text in ordered if x < split_x]
+        right_parts = [(x, text) for x, text in ordered if x >= split_x]
+        if left_parts:
+            left_text = " ".join(text for _, text in left_parts).strip()
+            if left_text:
+                line_records.append((min(x for x, _ in left_parts), row_y, left_text))
+        if right_parts:
+            right_text = " ".join(text for _, text in right_parts).strip()
+            if right_text:
+                line_records.append((min(x for x, _ in right_parts), row_y, right_text))
+
+    left_col = [record for record in line_records if record[0] < split_x]
+    right_col = [record for record in line_records if record[0] >= split_x]
+    left_col = sorted(left_col, key=lambda item: item[1], reverse=True)
+    right_col = sorted(right_col, key=lambda item: item[1], reverse=True)
+    return [record[2] for record in left_col + right_col]
+
+
+def _extract_page_text_with_columns(page: object) -> str:
+    fragments: list[tuple[float, float, str]] = []
+
+    def _visitor(text: str, _cm: object, tm: object, _font_dict: object, _font_size: object) -> None:
+        try:
+            if not isinstance(tm, (list, tuple)) or len(tm) < 6:
+                return
+            x_pos = float(tm[4])
+            y_pos = float(tm[5])
+            if not text or not text.strip():
+                return
+            fragments.append((x_pos, y_pos, text))
+        except Exception:
+            return
+
+    try:
+        raw_text = page.extract_text(visitor_text=_visitor) or ""
+    except TypeError:
+        # Older pypdf versions may not expose visitor hooks.
+        return (page.extract_text() or "").strip()
+    except Exception:
+        return (page.extract_text() or "").strip()
+
+    rebuilt_lines = _build_lines_from_positioned_fragments(fragments)
+    if rebuilt_lines:
+        return "\n".join(rebuilt_lines).strip()
+    return raw_text.strip()
+
+
+def _normalize_extracted_page_text(text: str) -> str:
+    lines = [re.sub(r"\s+", " ", line).strip() for line in text.splitlines()]
+    lines = [line for line in lines if line]
+    return "\n".join(lines).strip()
+
+
+def _extract_ocr_blocks_from_image(image: object) -> list[_OcrTextBlock]:
+    # Prefer PaddleOCR for higher-quality recognition; keep RapidOCR as a fallback.
+    try:
+        import numpy as np
+        from paddleocr import PaddleOCR
+    except Exception:
+        np = None  # type: ignore[assignment]
+    else:
+        try:
+            # Romanian language model is used when available.
+            ocr_engine = PaddleOCR(use_angle_cls=True, lang="ro", show_log=False)
+            result = ocr_engine.ocr(np.array(image), cls=True)
+        except Exception:
+            result = None
+
+        blocks: list[_OcrTextBlock] = []
+        if result:
+            for page_result in result:
+                if not page_result:
+                    continue
+                for item in page_result:
+                    if not isinstance(item, (list, tuple)) or len(item) < 2:
+                        continue
+                    points = item[0]
+                    rec = item[1]
+                    if not isinstance(rec, (list, tuple)) or not rec:
+                        continue
+                    text = str(rec[0]).strip()
+                    if not text:
+                        continue
+                    try:
+                        xs = [float(point[0]) for point in points]
+                        ys = [float(point[1]) for point in points]
+                        x_pos = min(xs)
+                        y_pos = min(ys)
+                    except Exception:
+                        x_pos = 0.0
+                        y_pos = 0.0
+                    blocks.append(_OcrTextBlock(x=x_pos, y=y_pos, text=text))
+        if blocks:
+            return blocks
+
+    try:
+        import numpy as np
+        from rapidocr_onnxruntime import RapidOCR
+    except Exception:
+        return []
+
+    try:
+        ocr_engine = RapidOCR()
+        result, _ = ocr_engine(np.array(image))
+    except Exception:
+        return []
+
+    if not result:
+        return []
+
+    blocks: list[_OcrTextBlock] = []
+    for item in result:
+        if not isinstance(item, (list, tuple)) or len(item) < 3:
+            continue
+        points, text, _score = item[0], str(item[1]).strip(), item[2]
+        if not text:
+            continue
+        try:
+            xs = [float(point[0]) for point in points]
+            ys = [float(point[1]) for point in points]
+            x_pos = min(xs)
+            y_pos = min(ys)
+        except Exception:
+            x_pos = 0.0
+            y_pos = 0.0
+        blocks.append(_OcrTextBlock(x=x_pos, y=y_pos, text=text))
+    return blocks
+
+
+def _rebuild_text_from_ocr_blocks(blocks: list[_OcrTextBlock]) -> str:
+    if not blocks:
+        return ""
+
+    rows: dict[float, list[_OcrTextBlock]] = {}
+    for block in blocks:
+        row_key = round(block.y / 12.0) * 12.0
+        rows.setdefault(row_key, []).append(block)
+
+    lines: list[str] = []
+    for row_key in sorted(rows.keys()):
+        row = sorted(rows[row_key], key=lambda item: item.x)
+        line = " ".join(item.text.strip() for item in row if item.text.strip())
+        line = re.sub(r"\s+", " ", line).strip()
+        if line:
+            lines.append(line)
+    return "\n".join(lines).strip()
+
+
+def _extract_pages_with_rapidocr(
+    pdf_path: str,
+    *,
+    page_indexes: list[int] | None = None,
+) -> dict[int, str]:
+    try:
+        import pypdfium2 as pdfium
+    except Exception:
+        return {}
+
+    try:
+        document = pdfium.PdfDocument(pdf_path)
+    except Exception:
+        return {}
+
+    try:
+        if page_indexes is None:
+            targets = list(range(len(document)))
+        else:
+            targets = sorted({index for index in page_indexes if 0 <= index < len(document)})
+        extracted: dict[int, str] = {}
+        for index in targets:
+            try:
+                page = document[index]
+                image = page.render(scale=2.0).to_pil()
+                blocks = _extract_ocr_blocks_from_image(image)
+                text = _rebuild_text_from_ocr_blocks(blocks)
+                normalized = _normalize_extracted_page_text(text)
+                if normalized:
+                    extracted[index] = normalized
+            except Exception:
+                continue
+        return extracted
+    finally:
+        try:
+            document.close()
+        except Exception:
+            pass
+
+
+def _extract_pages_with_pymupdf(
+    pdf_path: str,
+    *,
+    page_indexes: list[int] | None = None,
+) -> dict[int, str]:
+    try:
+        import fitz
+    except Exception:
+        return {}
+
+    try:
+        document = fitz.open(pdf_path)
+    except Exception:
+        return {}
+
+    try:
+        if page_indexes is None:
+            targets = list(range(document.page_count))
+        else:
+            targets = sorted(
+                {index for index in page_indexes if 0 <= index < document.page_count}
+            )
+
+        extracted: dict[int, str] = {}
+        for index in targets:
+            try:
+                text = document.load_page(index).get_text("text")
+                normalized = _normalize_extracted_page_text(text or "")
+                if normalized:
+                    extracted[index] = normalized
+            except Exception:
+                continue
+        return extracted
+    finally:
+        try:
+            document.close()
+        except Exception:
+            pass
+
+
 def extract_pdf_pages(pdf_path: str) -> list[str]:
-    """Extract page text from PDF using pypdf if available, else fallback parser."""
+    """Extract page text from PDF using PyMuPDF, then fallback parser/OCR."""
     source = Path(pdf_path)
     if not source.exists():
         raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
-    try:
-        from pypdf import PdfReader  # type: ignore
-
-        reader = PdfReader(str(source))
-        pages: list[str] = []
-        for index, page in enumerate(reader.pages, start=1):
-            text = (page.extract_text() or "").strip()
-            if text:
-                pages.append(text)
-            else:
-                logger.warning("Skipping unreadable page %s from %s", index, pdf_path)
-        if pages:
-            return pages
-    except Exception:
-        logger.info("pypdf unavailable or failed for %s; using fallback extractor", pdf_path)
+    pymupdf_pages = _extract_pages_with_pymupdf(pdf_path)
+    if pymupdf_pages:
+        total_pages = max(pymupdf_pages.keys()) + 1
+        missing_indexes = [index for index in range(total_pages) if index not in pymupdf_pages]
+        if missing_indexes:
+            ocr_pages = _extract_pages_with_rapidocr(pdf_path, page_indexes=missing_indexes)
+            if ocr_pages:
+                logger.info(
+                    "Recovered %s unreadable pages with OCR from %s",
+                    len(ocr_pages),
+                    pdf_path,
+                )
+                pymupdf_pages.update(ocr_pages)
+        logger.info("Recovered %s pages with PyMuPDF from %s", len(pymupdf_pages), pdf_path)
+        return [pymupdf_pages[index] for index in sorted(pymupdf_pages.keys())]
 
     pages = _fallback_extract_pdf_pages(pdf_path)
     if not pages:
+        ocr_pages = _extract_pages_with_rapidocr(pdf_path)
+        if ocr_pages:
+            logger.info("Recovered %s pages with OCR from %s", len(ocr_pages), pdf_path)
+            return [ocr_pages[index] for index in sorted(ocr_pages.keys())]
         raise ValueError(f"Could not extract readable text from PDF: {pdf_path}")
     return pages
 
@@ -336,7 +625,17 @@ def _looks_like_heading(line: str) -> bool:
         return True
     if _SECTION_PATTERN.match(compact):
         return True
+    if _ROMAN_SECTION_PATTERN.match(compact):
+        return True
     if compact.isupper() and 2 <= len(compact.split()) <= 14 and len(compact) <= 120:
+        return True
+    if (
+        len(compact) <= 70
+        and not _SENTENCE_END_PATTERN.search(compact)
+        and compact[:1].isupper()
+        and len(compact.split()) <= 5
+        and "," not in compact
+    ):
         return True
     return False
 
@@ -347,6 +646,55 @@ def _is_numbered_item(line: str) -> bool:
 
 def _is_bullet_item(line: str) -> bool:
     return bool(_BULLET_ITEM_PATTERN.match(line.strip()))
+
+
+def _is_numbered_heading(line: str, next_line: str | None = None) -> bool:
+    compact = re.sub(r"\s+", " ", line).strip()
+    if not _NUMBERED_ITEM_PATTERN.match(compact):
+        return False
+    if _SECTION_PATTERN.match(compact) or _ROMAN_SECTION_PATTERN.match(compact):
+        return True
+
+    # Heuristic: short numbered labels are likely subsection titles
+    # unless immediately followed by another list marker.
+    if len(compact.split()) > 4 or _SENTENCE_END_PATTERN.search(compact):
+        return False
+    if next_line:
+        candidate = re.sub(r"\s+", " ", next_line).strip()
+        if _is_numbered_item(candidate) or _is_bullet_item(candidate):
+            return False
+    return True
+
+
+def _merge_page_lines(lines: list[str]) -> list[str]:
+    merged: list[str] = []
+    for raw_line in lines:
+        line = re.sub(r"\s+", " ", raw_line).strip()
+        if not line:
+            continue
+        if not merged:
+            merged.append(line)
+            continue
+
+        previous = merged[-1]
+        if previous.endswith("-") and line and line[0].islower():
+            merged[-1] = f"{previous[:-1]}{line}"
+            continue
+
+        previous_is_structural = _looks_like_heading(previous) or _is_numbered_item(previous) or _is_bullet_item(previous)
+        line_is_structural = _looks_like_heading(line) or _is_numbered_item(line) or _is_bullet_item(line)
+        should_join = (
+            not previous_is_structural
+            and not line_is_structural
+            and not _SENTENCE_END_PATTERN.search(previous)
+            and (line[0].islower() or line[0] in {"(", "[", ","})
+        )
+        if should_join:
+            merged[-1] = f"{previous} {line}"
+            continue
+
+        merged.append(line)
+    return merged
 
 
 def _chunk_id_for(
@@ -388,6 +736,65 @@ def _build_chunk(
     )
 
 
+def _group_structured_chunks_for_semantic(
+    chunks: list[PdfStructuredChunk],
+    *,
+    group_target_chars: int | None,
+) -> list[PdfStructuredChunk]:
+    if not chunks:
+        return []
+
+    grouped: list[PdfStructuredChunk] = []
+    buffer: list[PdfStructuredChunk] = []
+    current_key: tuple[str, int, str] | None = None
+    current_chars = 0
+
+    def flush_group(items: list[PdfStructuredChunk]) -> None:
+        if not items:
+            return
+        sections = {item.section for item in items if item.section and item.section != "unknown"}
+        section = next(iter(sections)) if len(sections) == 1 else "multiple"
+        payload = "|".join(item.chunk_id for item in items)
+        group_chunk_id = hashlib.sha1(payload.encode("utf-8")).hexdigest()[:16]
+        text = "\n".join(item.text.strip() for item in items if item.text.strip())
+        grouped.append(
+            PdfStructuredChunk(
+                source_file=items[0].source_file,
+                page=items[0].page,
+                chapter=items[0].chapter,
+                section=section,
+                chunk_id=group_chunk_id,
+                text=text,
+                is_list=any(item.is_list for item in items),
+            )
+        )
+
+    for item in chunks:
+        key = (item.source_file, item.page, item.chapter)
+        item_len = len(item.text.strip())
+        if not buffer:
+            buffer = [item]
+            current_key = key
+            current_chars = item_len
+            continue
+        exceeds_group_target = (
+            group_target_chars is not None
+            and group_target_chars > 0
+            and current_chars + item_len > group_target_chars
+        )
+        if key != current_key or exceeds_group_target:
+            flush_group(buffer)
+            buffer = [item]
+            current_key = key
+            current_chars = item_len
+            continue
+        buffer.append(item)
+        current_chars += item_len
+
+    flush_group(buffer)
+    return grouped
+
+
 def parse_pdf_to_structured_chunks(pdf_path: str) -> list[PdfStructuredChunk]:
     """Parse PDF into metadata-preserving chunks with chapter/section/list hints."""
     pages = extract_pdf_pages(pdf_path)
@@ -399,7 +806,7 @@ def parse_pdf_to_structured_chunks(pdf_path: str) -> list[PdfStructuredChunk]:
 
     for page_index, page_text in enumerate(pages, start=1):
         raw_lines = [line.strip() for line in page_text.splitlines()]
-        lines = [line for line in raw_lines if line]
+        lines = _merge_page_lines([line for line in raw_lines if line])
         if not lines:
             logger.warning("Skipping empty extracted page %s from %s", page_index, source_file)
             continue
@@ -413,7 +820,11 @@ def parse_pdf_to_structured_chunks(pdf_path: str) -> list[PdfStructuredChunk]:
                 line_index += 1
                 continue
 
-            if _looks_like_heading(line):
+            next_line: str | None = None
+            if line_index + 1 < len(lines):
+                next_line = re.sub(r"\s+", " ", lines[line_index + 1]).strip()
+
+            if _looks_like_heading(line) or _is_numbered_heading(line, next_line=next_line):
                 if paragraph:
                     chunks.append(
                         _build_chunk(
@@ -526,6 +937,18 @@ def load_pdf_chunks(
     if normalized_strategy == "section":
         return base_chunks
 
+    if normalized_strategy == "semantic":
+        grouped_chunks = _group_structured_chunks_for_semantic(
+            base_chunks,
+            group_target_chars=None,
+        )
+        return chunk_structured_chunks(
+            grouped_chunks,
+            strategy=normalized_strategy,
+            semantic_max_chars=semantic_chunk_max_chars,
+            semantic_use_llamaindex=semantic_use_llamaindex,
+        )
+
     return chunk_structured_chunks(
         base_chunks,
         strategy=normalized_strategy,
@@ -586,3 +1009,6 @@ def profile_pdf_structure(pdf_path: str, max_chunks_preview: int = 10) -> dict[s
         "preview": preview,
         "parse_error": None,
     }
+
+
+

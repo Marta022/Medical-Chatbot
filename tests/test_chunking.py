@@ -53,17 +53,16 @@ class TestChunking(unittest.TestCase):
         self.assertIn("3. Palpitatii frecvente", merged)
         self.assertTrue(any("1. Durere toracica persistenta" in chunk for chunk in chunks))
 
-    def test_chunk_text_semantic_falls_back_without_llamaindex(self) -> None:
+    def test_chunk_text_semantic_raises_without_llamaindex(self) -> None:
         text = "Paragraf introductiv.\n\n- item 1\n- item 2"
         with patch("rag.chunking.strategies._llamaindex_semantic_chunks", return_value=[]):
-            chunks = chunk_text(
-                text,
-                strategy="semantic",
-                semantic_max_chars=80,
-                semantic_use_llamaindex=True,
-            )
-        self.assertGreaterEqual(len(chunks), 1)
-        self.assertTrue(any("item 1" in chunk for chunk in chunks))
+            with self.assertRaises(RuntimeError):
+                chunk_text(
+                    text,
+                    strategy="semantic",
+                    semantic_max_chars=80,
+                    semantic_use_llamaindex=True,
+                )
 
     def test_chunk_structured_chunks_keeps_metadata(self) -> None:
         base = PdfStructuredChunk(

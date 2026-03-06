@@ -69,7 +69,17 @@ class Orchestrator:
         query_en = self._safe_translate_to_english(request.query)
         retrieval_filters = self._build_retrieval_filters(request.filters)
         retrieval_result = self._deps.retrieve(query_en, request.top_k, retrieval_filters)
-        min_score = 0.0 if using_fallback_embeddings() else SETTINGS.retrieval_min_score
+        logger.info(
+            "Retrieval result",
+            extra={
+                "provenance": retrieval_result.provenance,
+                "hit_count": len(retrieval_result.hits),
+                "max_score": retrieval_result.max_score() if retrieval_result.hits else 0.0,
+            },
+        )
+        min_score = SETTINGS.retrieval_min_score
+        if using_fallback_embeddings():
+            min_score = max(min_score * 0.5, 0.05)
         if not retrieval_result.hits or retrieval_result.max_score() < min_score:
             return OrchestratorResponse(
                 response=LOW_CONFIDENCE_MESSAGE,

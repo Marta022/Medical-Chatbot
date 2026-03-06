@@ -11,6 +11,52 @@ from models.contracts import PdfStructuredChunk
 
 
 class TestQdrantIngest(unittest.TestCase):
+    def test_ingest_filters_low_information_pdf_chunks_with_list_exception(self) -> None:
+        ingest_module = importlib.import_module("knowledge.qdrant.ingest")
+        low_fragment = PdfStructuredChunk(
+            source_file="doc.pdf",
+            page=315,
+            chapter="CAPITOLUL 9",
+            section="GPLM",
+            chunk_id="frag-low",
+            text="de colesterol,",
+            is_list=False,
+        )
+        short_list_chunk = PdfStructuredChunk(
+            source_file="doc.pdf",
+            page=315,
+            chapter="CAPITOLUL 9",
+            section="GPLM",
+            chunk_id="frag-list",
+            text="1. Durere toracica",
+            is_list=True,
+        )
+
+        with patch("knowledge.qdrant.ingest.load_medical_items", return_value=[]):
+            with patch(
+                "knowledge.qdrant.ingest.load_pdf_chunks",
+                return_value=[low_fragment, short_list_chunk],
+            ):
+                with patch("knowledge.qdrant.ingest.load_disease_terms", return_value=set()):
+                    with patch("knowledge.qdrant.ingest.embed_texts", return_value=[[0.3, 0.4]]):
+                        with patch("knowledge.qdrant.ingest.vector_size", return_value=2):
+                            with patch("knowledge.qdrant.ingest.ensure_collection"):
+                                with patch("knowledge.qdrant.ingest.client", MagicMock()) as client_mock:
+                                    count = ingest_module.ingest(
+                                        "a.json",
+                                        "b.csv",
+                                        pdf_paths=["doc.pdf"],
+                                        include_structured_sources=False,
+                                        chunk_min_chars=40,
+                                        chunk_min_words=5,
+                                        list_chunk_min_words=2,
+                                    )
+
+        self.assertEqual(count, 1)
+        inserted = client_mock.upsert.call_args.kwargs["points"]
+        self.assertEqual(len(inserted), 1)
+        self.assertEqual(inserted[0].payload["chunk_id"], "frag-list")
+
     def test_ingest_builds_points(self) -> None:
         ingest_module = importlib.import_module("knowledge.qdrant.ingest")
         item = MedicalItem(title="A", description="B", source="json", category="C")

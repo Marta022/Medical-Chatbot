@@ -1,0 +1,18 @@
+Problem:
+Retrieval quality is poor even when the answer exists in the PDF. Example: asking about “Sindromul Cushing” returns unrelated chunks. The PDF extraction is correct (text exists), but chunking produces very small fragments (bullet lines, incomplete sentences).
+
+Tasks:
+1. Improve chunking for PDFs with bullet lists and 2-column layouts:
+   - merge broken lines into paragraphs
+   - avoid chunks < 40 characters or < 8 words
+   - target chunk size ~500–800 characters with overlap.
+
+2. Ensure embeddings are always paraphrase-multilingual-mpnet-base-v2 (768 dim) and fail if fallback hash embeddings are used.
+
+3. Add a simple keyword fallback retrieval if vector search returns weak results.
+
+4. Add a debug utility to:
+   - print chunk statistics (count, average size, % very small chunks)
+   - search chunks by keyword to verify ingestion.
+
+Keep the existing architecture and commands unchanged.

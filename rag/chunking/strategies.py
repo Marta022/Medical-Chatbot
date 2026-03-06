@@ -155,8 +155,11 @@ def semantic_chunks(
 
     if use_llamaindex:
         semantic = _llamaindex_semantic_chunks(prepared_text)
-        if semantic:
-            return semantic
+        if not semantic:
+            raise RuntimeError(
+                "Semantic chunking requires a working llama-index semantic splitter."
+            )
+        return semantic
     return _merge_text_blocks(blocks, max_chars=max_chars)
 
 

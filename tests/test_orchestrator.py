@@ -149,7 +149,7 @@ class TestOrchestrator(unittest.TestCase):
         self.assertEqual(llm_called["count"], 0)
         self.assertIsNone(result.evaluator)
 
-    def test_fallback_embeddings_disable_min_score_gate(self) -> None:
+    def test_fallback_embeddings_keep_strict_min_score_gate(self) -> None:
         llm_called = {"count": 0}
 
         deps = OrchestratorDependencies(
@@ -166,9 +166,9 @@ class TestOrchestrator(unittest.TestCase):
         with patch("agent.orchestrator.orchestrator.using_fallback_embeddings", return_value=True):
             result = Orchestrator(deps=deps).run(QueryRequest(query="test", top_k=1))
 
-        self.assertEqual(llm_called["count"], 1)
+        self.assertEqual(llm_called["count"], 0)
         self.assertIsNotNone(result.response)
-        self.assertNotIn("Nu am suficiente informatii relevante", result.response)
+        self.assertIn("Nu am suficiente informatii relevante", result.response)
 
     def test_retry_appends_guidance_to_user_message(self) -> None:
         messages: list[str] = []

@@ -1,6 +1,6 @@
 # Backlog Tracker
 
-Last updated: 2026-03-04  
+Last updated: 2026-03-05  
 Tracking scope: tasks defined in `docs/backlog.md`
 
 ## Tracking Rules
@@ -19,8 +19,8 @@ Status legend:
 
 | Metric | Value |
 | --- | --- |
-| Planned effort | 372h |
-| Completed effort | 372h |
+| Planned effort | 420h |
+| Completed effort | 420h |
 | In-progress effort | 0h |
 | Remaining effort | 0h |
 | Overall completion | 100% |
@@ -35,6 +35,8 @@ Status legend:
 | P3 Code Quality and Observability | 40 | 40 | 0 | 0 | DONE |
 | P4 Runtime and Delivery | 60 | 60 | 0 | 0 | DONE |
 | P5 Semantic Knowledge and Graph-RAG Expansion | 134 | 134 | 0 | 0 | DONE |
+| P6 Retrieval Quality Hardening | 26 | 26 | 0 | 0 | DONE |
+| P7 Query Recall and Lexical Fallback | 22 | 22 | 0 | 0 | DONE |
 
 ## Epic Progress
 
@@ -62,6 +64,8 @@ Status legend:
 | E5.4 | Medical NER Pipeline and Entity Normalization | 20 | 20 | DONE | Rule-based NER extractor, confidence gating, canonical normalization, and chunk-linked entity persistence added with tests |
 | E5.5 | Relation Extraction and Kuzu Graph Storage | 26 | 26 | DONE | Relation extraction, graph ingestion/upsert, reconciliation logic, and graph integration tests completed |
 | E5.6 | Graph-RAG, Citation Guarantees, and Visualization | 32 | 32 | DONE | Hybrid retrieval, orchestration policy, citation schema, GitNexus integration, API/CLI controls, docs, and integration tests completed |
+| E6.1 | Chunk and Retrieval Quality Stabilization | 26 | 26 | DONE | `T6.1.1`-`T6.1.TEST` completed with startup guards, semantic grouping refactor, chunk quality filters, rerank/confidence hardening, diagnostics report, and regression evidence |
+| E7.1 | Keyword Fallback and Chunk Debug Tooling | 22 | 22 | DONE | Added column-aware PDF extraction, keyword fallback retrieval, provenance labels, quality keyword probes, baseline artifact, and regression tests |
 
 ## Phase 0 Completion Record
 
@@ -153,12 +157,46 @@ Status legend:
 | T5.6.6 | 2 | 2 | DONE | Updated README runbook for Graph-RAG/GitNexus setup, controls, and troubleshooting |
 | T5.6.TEST | 2 | 2 | DONE | `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_graph_relations tests.test_graph_ingest tests.test_gitnexus tests.test_citations tests.test_retriever tests.test_retrieval_filters tests.test_orchestrator tests.test_config_prompts tests.test_qdrant_ingest tests.test_entities tests.test_models tests.test_cli tests.test_ingest_helpers tests.test_api_engine_endpoints tests.test_api_openai_adapter tests.test_api_config_controls -v` OK |
 
+## Phase 6 Planned Task Register
+
+| Task ID | Estimate (h) | Actual (h) | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| T6.1.1 | 4 | 4 | DONE | Added startup checks in `config/settings.py` for fallback embeddings and semantic dependency readiness; updated ingest CLI validation path in `run.py`; tests: `python -m unittest tests.test_config_prompts tests.test_cli -v` OK |
+| T6.1.2 | 5 | 5 | DONE | Added semantic pre-grouping in `rag/chunking/load_documents.py` (`_group_structured_chunks_for_semantic`) and semantic-load integration; tests: `python -m unittest tests.test_pdf_structure tests.test_chunking -v` OK; quality probe on primary PDF: semantic chunks `7304 -> 1825`, short ratio `<40 chars` `0.259 -> 0.032` |
+| T6.1.3 | 4 | 4 | DONE | Added chunk quality gate in `knowledge/qdrant/ingest.py` with list-aware exception path and settings wiring (`config/settings.py`, `run.py`, `.env.example`); tests: `python -m unittest tests.test_qdrant_ingest tests.test_config_prompts tests.test_cli -v` OK |
+| T6.1.4 | 5 | 5 | DONE | Added retrieval rerank pass in `rag/retrieval/retriever.py` with query-overlap scoring and configurable candidate window; hardened low-confidence fallback policy in `agent/orchestrator/orchestrator.py`; tests: `python -m unittest tests.test_retriever tests.test_orchestrator tests.test_retrieval_filters tests.test_config_prompts -v` OK |
+| T6.1.5 | 4 | 4 | DONE | Added quality diagnostics module `rag/retrieval/quality_report.py` with chunk metrics and retrieval probes; wired ingest CLI flags (`--quality-report`, `--quality-report-path`) in `run.py`; tests: `python -m unittest tests.test_quality_report tests.test_cli tests.test_qdrant_ingest tests.test_config_prompts -v` OK |
+| T6.1.TEST | 4 | 4 | DONE | Added benchmark artifact `docs/p6-retrieval-quality-report.md`; regression suite: `python -m unittest tests.test_pdf_structure tests.test_chunking tests.test_qdrant_ingest tests.test_retriever tests.test_retrieval_filters tests.test_orchestrator tests.test_quality_report tests.test_config_prompts tests.test_cli -v` OK (64 tests) |
+
+## Phase 7 Planned Task Register
+
+| Task ID | Estimate (h) | Actual (h) | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| T7.1.1 | 2 | 2 | DONE | Added baseline artifacts `docs/p7-recall-baseline.md` and `docs/p7-recall-baseline.json` with weak-recall probes including `sindromul cushing` |
+| T7.1.2 | 5 | 5 | DONE | Added column-aware extraction + row reflow in `rag/chunking/load_documents.py` (`_extract_page_text_with_columns`, `_build_lines_from_positioned_fragments`) and merged line normalization |
+| T7.1.3 | 5 | 5 | DONE | Added keyword fallback retrieval path and trigger policy in `rag/retrieval/retriever.py` (`_keyword_fallback_hits`) with config controls |
+| T7.1.4 | 3 | 3 | DONE | Added retrieval provenance in `models/contracts.py` and retriever return paths (`vector`, `keyword_fallback`, `hybrid`, `hybrid+keyword_fallback`) |
+| T7.1.5 | 3 | 3 | DONE | Extended quality debug utility (`rag/retrieval/quality_report.py`, `run.py`) with keyword chunk probes and avg word statistics |
+| T7.1.TEST | 4 | 4 | DONE | Regression tests added/updated and validated via `python -m unittest -v` (158 tests OK) |
+
 ## Active Task Board
 
 Use this section for current work only (max 10 items at a time).
 
 | Task ID | Task | Estimate (h) | Actual (h) | Owner | Status | Start | End | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T7.1.TEST | Add regression tests and before/after probe validation for fallback recall | 4 | 4 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added/updated tests for PDF column reflow, keyword fallback retrieval, quality probes, CLI and config; full suite passed |
+| T7.1.5 | Extend debug utility with keyword chunk search and chunk-stat output modes | 3 | 3 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added keyword probe args and chunk-level debug probe output in quality report |
+| T7.1.4 | Add fallback merge/ranking and retrieval provenance labeling | 3 | 3 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added retrieval provenance contract and orchestrator retrieval logging metadata |
+| T7.1.3 | Implement keyword fallback retrieval path with confidence trigger policy | 5 | 5 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added scroll-based lexical candidate scoring fallback with confidence threshold controls |
+| T7.1.2 | Improve two-column reconstruction and bullet line-stitch normalization before semantic chunking | 5 | 5 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added column-aware PDF visitor extraction and merged-line dehyphenation/continuation logic |
+| T7.1.1 | Build weak-recall probe set and baseline retrieval report from current corpus | 2 | 2 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added P7 baseline report artifacts with weak-recall and keyword evidence |
+| T6.1.TEST | Add and run regression tests for chunk quality and retrieval relevance | 4 | 4 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added P6 quality benchmark artifact and ran combined regression suite (64 tests) |
+| T6.1.5 | Add ingestion/retrieval quality report (short-chunk ratio, sample hit diagnostics) | 4 | 4 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added quality report builder and ingest CLI emission/output options with tests |
+| T6.1.4 | Add retrieval rerank pass and stronger low-confidence filtering policy | 5 | 5 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added rerank logic and stricter fallback confidence policy with retriever/orchestrator regression tests |
+| T6.1.3 | Add chunk quality filters (`min chars/words`) with list-aware exceptions | 4 | 4 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added ingest-time quality filtering with configurable thresholds and list-aware exceptions |
+| T6.1.2 | Rework semantic rechunking to operate on larger structural groups (not only micro-fragments) | 5 | 5 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added page/chapter semantic pre-grouping and verified reduced fragment rate on primary PDF |
+| T6.1.1 | Add startup guard for embedding backend readiness and semantic dependency checks | 4 | 4 | Codex | DONE | 2026-03-05 | 2026-03-05 | Implemented strict startup checks and ingest CLI-aware validation overrides |
 | T5.1.1 | Inspect PDF layout and define extraction rules for headings/lists | 4 | 4 | Codex | DONE | 2026-03-04 | 2026-03-04 | Profiled `DORIN-CURS_SEM2_searchable.pdf` and validation doc in `docs/p5-pdf-structure-profile.md` |
 | T5.1.2 | Implement PDF parser with page-aware structural signals | 5 | 5 | Codex | DONE | 2026-03-04 | 2026-03-04 | Validation PDF parse now succeeds with `pypdf` (`pages_detected=124`) |
 | T5.2.2 | Implement semantic chunker adapter with structure hints | 6 | 6 | Codex | DONE | 2026-03-04 | 2026-03-04 | Semantic strategy wired end-to-end into PDF load + ingestion paths |
@@ -314,6 +352,15 @@ Use this section for current work only (max 10 items at a time).
 | 083 | 2026-03-04 | Completed E5.6 task T5.6.3 and activated T5.6.4 | Added citation schema formatter in `agent/orchestrator/citations.py`, extended retrieval hit metadata contract (`source_file`, `page`, `section`, `chunk_id`), and enforced citation output block in hybrid-mode orchestrator responses; validated with `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_graph_relations tests.test_graph_ingest tests.test_citations tests.test_retriever tests.test_retrieval_filters tests.test_orchestrator tests.test_config_prompts tests.test_qdrant_ingest tests.test_entities tests.test_models tests.test_cli tests.test_ingest_helpers -v` (OK) | Implement `T5.6.4` GitNexus integration and source linking |
 | 084 | 2026-03-04 | Completed E5.6 task T5.6.4 and activated T5.6.5 | Added GitNexus integration adapter (`knowledge/graph/gitnexus.py`) with graph payload + source-link mapping, added API endpoint `GET /graph/nexus` in `api/app.py`, and added tests (`tests.test_gitnexus`, `tests.test_api_engine_endpoints`) with config validation updates; validated with `python -m unittest tests.test_graph_client tests.test_graph_schema tests.test_graph_relations tests.test_graph_ingest tests.test_gitnexus tests.test_citations tests.test_retriever tests.test_retrieval_filters tests.test_orchestrator tests.test_config_prompts tests.test_qdrant_ingest tests.test_entities tests.test_models tests.test_cli tests.test_ingest_helpers tests.test_api_engine_endpoints tests.test_api_openai_adapter tests.test_api_config_controls -v` (OK) | Implement `T5.6.5` API/CLI controls for Graph-RAG visualization hooks |
 | 085 | 2026-03-04 | Completed E5.6 task T5.6.5 and activated T5.6.6 | Added Graph-RAG/visualization control hooks in CLI (`run.py` + `chat_loop`) and API (`api/app.py`) to pass retrieval-mode and graph policy controls into request filters, plus tests for CLI/API control propagation | Update docs/runbook for Graph-RAG + GitNexus setup and troubleshooting (`T5.6.6`) |
+| 086 | 2026-03-05 | Added retrieval quality hardening extension to backlog/tracker | Added Phase P6 / Epic E6.1 with tasks `T6.1.1`-`T6.1.TEST`; updated planned effort totals and phase/epic status tables | Start implementation at `T6.1.1` |
+| 087 | 2026-03-05 | Completed `T6.1.1` startup guard implementation | Added startup checks for fallback embeddings and semantic dependency readiness (`config/settings.py`), made ingest startup validation respect CLI chunking flags (`run.py`), updated `.env.example`, and added validation tests | Proceed with `T6.1.2` semantic rechunking refactor |
+| 088 | 2026-03-05 | Completed `T6.1.2` semantic grouping refactor | Added semantic pre-grouping over page/chapter structural groups before semantic rechunking, expanded PDF structure tests, and validated reduced short-fragment chunks on primary PDF | Proceed with `T6.1.3` chunk quality filters |
+| 089 | 2026-03-05 | Completed `T6.1.3` chunk quality filtering | Added ingest-time chunk quality filtering (`min chars/words`) with list-aware exceptions and config wiring, plus regression tests for filtered fragments vs retained list chunks | Proceed with `T6.1.4` retrieval rerank and confidence hardening |
+| 090 | 2026-03-05 | Completed `T6.1.4` retrieval rerank and confidence hardening | Added query-overlap rerank in retriever, added rerank config controls, tightened fallback-embedding low-confidence gate in orchestrator, and expanded retriever/orchestrator config tests | Proceed with `T6.1.5` quality diagnostics report |
+| 091 | 2026-03-05 | Completed `T6.1.5` quality diagnostics report | Added chunk/retrieval diagnostics builder (`rag/retrieval/quality_report.py`), wired optional ingest report output flags in CLI, and validated with quality/CLI/ingest/config test suite | Proceed with `T6.1.TEST` final regression and benchmark evidence |
+| 092 | 2026-03-05 | Completed `T6.1.TEST` and closed P6 | Added benchmark artifact `docs/p6-retrieval-quality-report.md`, executed full P6 regression suite (64 tests, OK), and closed Epic E6.1 / Phase P6 with tracker roll-up updates | Backlog scope complete |
+| 093 | 2026-03-05 | Added new backlog phase P7 from `rag_improvements` requirements | Extended `docs/backlog.md` with Phase P7 / Epic E7.1 and task estimates; synchronized tracker totals, phase/epic status tables, and active task board | Start `T7.1.1` baseline probe report |
+| 094 | 2026-03-05 | Completed E7.1 implementation and test gate | Added two-column PDF extraction/reflow and line normalization, keyword fallback retrieval with confidence trigger, retrieval provenance labels, quality-report keyword chunk probes + CLI options, and baseline artifacts (`docs/p7-recall-baseline.md`, `.json`); validated with `python -m unittest -v` (158 tests OK) | Backlog scope complete |
 
 ## Known Risks and Blockers
 

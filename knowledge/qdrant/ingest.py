@@ -99,6 +99,9 @@ def ingest(
     qdrant_upsert_batch_size: int = 128,
     qdrant_upsert_max_retries: int = 3,
     qdrant_upsert_retry_delay_seconds: float = 0.5,
+    chunk_min_chars: int = 1,
+    chunk_min_words: int = 1,
+    list_chunk_min_words: int = 1,
 ) -> int:
     ensure_collection(vector_size())
 
@@ -116,9 +119,23 @@ def ingest(
             if not chunks:
                 chunks = [base_text]
 
-            vectors = embed_texts(chunks)
+            filtered_chunks = [
+                chunk
+                for chunk in chunks
+                if _passes_chunk_quality(
+                    chunk,
+                    is_list=False,
+                    min_chars=chunk_min_chars,
+                    min_words=chunk_min_words,
+                    list_min_words=list_chunk_min_words,
+                )
+            ]
+            if not filtered_chunks:
+                continue
+
+            vectors = embed_texts(filtered_chunks)
             for chunk_index, (chunk, vector) in enumerate(
-                zip(chunks, vectors, strict=False),
+                zip(filtered_chunks, vectors, strict=False),
                 start=1,
             ):
                 payload = {
@@ -151,10 +168,23 @@ def ingest(
         )
         if not pdf_chunks:
             continue
-        graph_chunks.extend(pdf_chunks)
+        filtered_pdf_chunks = [
+            chunk
+            for chunk in pdf_chunks
+            if _passes_chunk_quality(
+                chunk.text,
+                is_list=chunk.is_list,
+                min_chars=chunk_min_chars,
+                min_words=chunk_min_words,
+                list_min_words=list_chunk_min_words,
+            )
+        ]
+        if not filtered_pdf_chunks:
+            continue
+        graph_chunks.extend(filtered_pdf_chunks)
 
-        vectors = embed_texts([chunk.text for chunk in pdf_chunks])
-        for pdf_chunk, vector in zip(pdf_chunks, vectors, strict=False):
+        vectors = embed_texts([chunk.text for chunk in filtered_pdf_chunks])
+        for pdf_chunk, vector in zip(filtered_pdf_chunks, vectors, strict=False):
             entities = extract_entities_from_chunk(
                 pdf_chunk,
                 disease_terms=disease_terms,
@@ -198,3 +228,20 @@ def ingest(
         retry_delay_seconds=qdrant_upsert_retry_delay_seconds,
     )
     return len(points)
+
+
+def _passes_chunk_quality(
+    text: str,
+    *,
+    is_list: bool,
+    min_chars: int,
+    min_words: int,
+    list_min_words: int,
+) -> bool:
+    normalized = " ".join((text or "").split()).strip()
+    if not normalized:
+        return False
+    words = len(normalized.split())
+    if is_list:
+        return words >= max(list_min_words, 1)
+    return len(normalized) >= max(min_chars, 1) and words >= max(min_words, 1)

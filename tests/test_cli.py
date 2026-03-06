@@ -21,6 +21,10 @@ class TestCLI(unittest.TestCase):
         self.assertIn("pdf_path", ingest_option_dests)
         self.assertIn("skip_pdf_ingest", ingest_option_dests)
         self.assertIn("pdf_only", ingest_option_dests)
+        self.assertIn("quality_report", ingest_option_dests)
+        self.assertIn("quality_report_path", ingest_option_dests)
+        self.assertIn("quality_keyword", ingest_option_dests)
+        self.assertIn("quality_keyword_limit", ingest_option_dests)
         chat_option_dests = {action.dest for action in command_actions[0].choices["chat"]._actions}
         self.assertIn("retrieval_mode", chat_option_dests)
         self.assertIn("graph_depth", chat_option_dests)

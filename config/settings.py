@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from importlib.util import find_spec
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -43,6 +44,11 @@ class AppSettings:
     ollama_model: str = "gemma2:2b"
     default_top_k: int = 3
     retrieval_min_score: float = 0.2
+    retrieval_rerank_enabled: bool = True
+    retrieval_rerank_top_k: int = 12
+    keyword_fallback_enabled: bool = True
+    keyword_fallback_min_score: float = 0.18
+    keyword_fallback_candidate_limit: int = 1500
     dataset_json_path: str = "data/dataset/disease_database.json"
     dataset_csv_path: str = "data/dataset/dataset_sheet1.csv"
     dataset_primary_pdf_path: str = "data/dataset/DORIN-CURS_SEM2_searchable.pdf"
@@ -52,7 +58,12 @@ class AppSettings:
     chunking_strategy: str = "section"
     semantic_chunk_max_chars: int = 700
     semantic_use_llamaindex: bool = True
+    allow_semantic_chunk_fallback: bool = False
+    allow_fallback_embeddings: bool = False
     entity_min_confidence: float = 0.65
+    chunk_min_chars: int = 40
+    chunk_min_words: int = 8
+    list_chunk_min_words: int = 2
     graph_backend: str = "kuzu"
     kuzu_db_path: str = "knowledge/graph/kuzu_storage"
     graph_ingest_enabled: bool = True
@@ -78,6 +89,11 @@ def load_settings() -> AppSettings:
         ollama_model=os.getenv("OLLAMA_MODEL", "gemma2:2b").strip(),
         default_top_k=_env_int("DEFAULT_TOP_K", 3),
         retrieval_min_score=float(os.getenv("RETRIEVAL_MIN_SCORE", "0.2").strip()),
+        retrieval_rerank_enabled=_env_bool("RETRIEVAL_RERANK_ENABLED", True),
+        retrieval_rerank_top_k=_env_int("RETRIEVAL_RERANK_TOP_K", 12),
+        keyword_fallback_enabled=_env_bool("KEYWORD_FALLBACK_ENABLED", True),
+        keyword_fallback_min_score=float(os.getenv("KEYWORD_FALLBACK_MIN_SCORE", "0.18").strip()),
+        keyword_fallback_candidate_limit=_env_int("KEYWORD_FALLBACK_CANDIDATE_LIMIT", 1500),
         dataset_json_path=os.getenv(
             "DATASET_JSON_PATH",
             "data/dataset/disease_database.json",
@@ -97,7 +113,12 @@ def load_settings() -> AppSettings:
         chunking_strategy=os.getenv("CHUNKING_STRATEGY", "section").strip().lower(),
         semantic_chunk_max_chars=_env_int("SEMANTIC_CHUNK_MAX_CHARS", 700),
         semantic_use_llamaindex=_env_bool("SEMANTIC_USE_LLAMAINDEX", True),
+        allow_semantic_chunk_fallback=_env_bool("ALLOW_SEMANTIC_CHUNK_FALLBACK", False),
+        allow_fallback_embeddings=_env_bool("ALLOW_FALLBACK_EMBEDDINGS", False),
         entity_min_confidence=float(os.getenv("ENTITY_MIN_CONFIDENCE", "0.65").strip()),
+        chunk_min_chars=_env_int("CHUNK_MIN_CHARS", 40),
+        chunk_min_words=_env_int("CHUNK_MIN_WORDS", 8),
+        list_chunk_min_words=_env_int("LIST_CHUNK_MIN_WORDS", 2),
         graph_backend=os.getenv("GRAPH_BACKEND", "kuzu").strip().lower(),
         kuzu_db_path=os.getenv("KUZU_DB_PATH", "knowledge/graph/kuzu_storage").strip(),
         graph_ingest_enabled=_env_bool("GRAPH_INGEST_ENABLED", True),
@@ -134,6 +155,12 @@ def validate_startup(
         errors.append("DEFAULT_TOP_K must be greater than 0.")
     if current.retrieval_min_score < 0:
         errors.append("RETRIEVAL_MIN_SCORE must be >= 0.")
+    if current.retrieval_rerank_top_k <= 0:
+        errors.append("RETRIEVAL_RERANK_TOP_K must be greater than 0.")
+    if current.keyword_fallback_min_score < 0:
+        errors.append("KEYWORD_FALLBACK_MIN_SCORE must be >= 0.")
+    if current.keyword_fallback_candidate_limit <= 0:
+        errors.append("KEYWORD_FALLBACK_CANDIDATE_LIMIT must be greater than 0.")
     if current.llm_provider not in SUPPORTED_LLM_PROVIDERS:
         providers = sorted(SUPPORTED_LLM_PROVIDERS)
         errors.append(
@@ -146,8 +173,34 @@ def validate_startup(
         )
     if current.semantic_chunk_max_chars <= 0:
         errors.append("SEMANTIC_CHUNK_MAX_CHARS must be greater than 0.")
+    if command in {"ingest"} and current.chunking_strategy == "semantic" and not current.semantic_use_llamaindex:
+        errors.append(
+            "Semantic chunking is strict in this project. Set SEMANTIC_USE_LLAMAINDEX=true."
+        )
+    if (
+        command in {"ingest"}
+        and current.chunking_strategy == "semantic"
+        and current.semantic_use_llamaindex
+    ):
+        if not _llamaindex_semantic_available():
+            errors.append(
+                "Semantic chunking requires llama-index-core in runtime when "
+                "SEMANTIC_USE_LLAMAINDEX=true. Install dependency before ingest."
+            )
+    if command in {"chat", "ingest"} and not current.allow_fallback_embeddings:
+        if _using_fallback_embeddings():
+            errors.append(
+                "Embedding backend is running in deterministic fallback mode. "
+                "Provide cached model artifacts or set ALLOW_FALLBACK_EMBEDDINGS=true."
+            )
     if not 0 <= current.entity_min_confidence <= 1:
         errors.append("ENTITY_MIN_CONFIDENCE must be between 0 and 1.")
+    if current.chunk_min_chars <= 0:
+        errors.append("CHUNK_MIN_CHARS must be greater than 0.")
+    if current.chunk_min_words <= 0:
+        errors.append("CHUNK_MIN_WORDS must be greater than 0.")
+    if current.list_chunk_min_words <= 0:
+        errors.append("LIST_CHUNK_MIN_WORDS must be greater than 0.")
     if current.graph_backend not in SUPPORTED_GRAPH_BACKENDS:
         backends = sorted(SUPPORTED_GRAPH_BACKENDS)
         errors.append(
@@ -193,6 +246,20 @@ def validate_startup(
             errors.append("OPENAI_API_KEY is required when LLM_PROVIDER=openai for chat.")
 
     return errors
+
+
+def _llamaindex_semantic_available() -> bool:
+    return find_spec("llama_index.core.node_parser") is not None
+
+
+def _using_fallback_embeddings() -> bool:
+    try:
+        from rag.retrieval.embeddings import embed_query, using_fallback_embeddings
+
+        embed_query("startup-check")
+        return using_fallback_embeddings()
+    except Exception:
+        return True
 
 
 def ensure_startup_valid(

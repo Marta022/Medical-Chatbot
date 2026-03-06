@@ -97,6 +97,7 @@ class RetrievalHit:
 @dataclass
 class RetrievalResult:
     hits: list[RetrievalHit] = field(default_factory=list)
+    provenance: str = "vector"
 
     def titles(self) -> list[str]:
         return [hit.title for hit in self.hits]
@@ -107,7 +108,10 @@ class RetrievalResult:
         return [hit.text for hit in self.hits]
 
     def to_dict(self) -> dict[str, Any]:
-        return {"hits": [hit.to_dict() for hit in self.hits]}
+        return {
+            "hits": [hit.to_dict() for hit in self.hits],
+            "provenance": self.provenance,
+        }
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> RetrievalResult:
@@ -129,7 +133,7 @@ class RetrievalResult:
             )
             for item in raw_hits
         ]
-        return cls(hits=hits)
+        return cls(hits=hits, provenance=str(value.get("provenance", "vector")))
 
     def max_score(self) -> float:
         if not self.hits:

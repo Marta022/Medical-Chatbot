@@ -1,7 +1,7 @@
 # Medical Chatbot Backlog
 
-Date: 2026-03-04  
-Version: 4.0  
+Date: 2026-03-05  
+Version: 4.2  
 Estimation unit: engineering hours (`h`)  
 Source inputs: `docs/raw_idea/licenta_title.txt`, `docs/raw_idea/raw_backlog.txt`, `docs/raw_idea/new_backlog.txt`, repository inspection
 
@@ -27,10 +27,10 @@ Key findings from repository review:
 - `ingestion/ingest_vectordb.py` imports `ensure_collection`, but `vector_db/qdrant_client.py` does not provide it.
 - Docker assets now exist (`Dockerfile`, `docker-compose.yml`), but container smoke tests are currently blocked by Docker layer extraction/cache corruption in the local environment.
 
-## Execution Status Snapshot (2026-03-04)
+## Execution Status Snapshot (2026-03-05)
 
-- Overall status: `IN_PROGRESS` (scope extension approved)
-- Active phase: `P5` (Knowledge Graph and Graph-RAG Expansion)
+- Overall status: `DONE` (Phase P7 completed)
+- Active phase: `P7` (Query Recall and Lexical Fallback)
 - Current active task: `None` (all planned backlog tasks completed)
 - Current blocker: none
 - Source of truth: `docs/backlog-tracker.md`
@@ -112,7 +112,9 @@ These conditions apply to all implementation epics:
 | P3 | Code Quality and Observability | 3 | 40 |
 | P4 | Runtime and Delivery | 4 | 60 |
 | P5 | Semantic Knowledge and Graph-RAG Expansion | 6 | 134 |
-|  | **Grand Total** | **22** | **372** |
+| P6 | Retrieval Quality Hardening | 1 | 26 |
+| P7 | Query Recall and Lexical Fallback | 1 | 22 |
+|  | **Grand Total** | **24** | **420** |
 
 ## Phase P0: Product Definition and Planning (28h)
 
@@ -931,6 +933,102 @@ Acceptance criteria:
 | S5.6 | T5.6.TEST | Integration tests for Graph-RAG, citations, and visualization APIs | Graph-RAG test evidence | 2 |
 |  |  | **Epic subtotal** |  | **32** |
 
+## Phase P6: Retrieval Quality Hardening (26h)
+
+Goal: improve real-world retrieval quality by removing fragmentary chunks, enforcing embedding readiness, and tightening ranking controls.
+
+### Epic E6.1: Chunk and Retrieval Quality Stabilization (26h)
+
+Technical description:
+- enforce high-quality semantic chunking defaults and reject fragmentary chunks
+- ensure embeddings backend is real-model based for production-like runs
+- add rerank and quality-gate controls to reduce low-value retrieval hits
+
+Primary files:
+- `config/settings.py`
+- `rag/chunking/strategies.py`
+- `rag/chunking/load_documents.py`
+- `knowledge/qdrant/ingest.py`
+- `rag/retrieval/retriever.py`
+- `agent/orchestrator/orchestrator.py`
+- `tests/*`
+
+Deliverables:
+- chunk quality policy (`min chars/words`, list-aware exceptions)
+- startup/runtime guardrails for embeddings and semantic chunking dependencies
+- retrieval rerank and threshold hardening
+- ingestion quality report artifact
+
+Dependencies:
+- E5.6
+
+Acceptance criteria:
+- ingestion rejects or merges low-information chunks (for example isolated tokens)
+- runtime fails fast (or explicit override required) when fallback embeddings are active
+- semantic chunking mode has explicit behavior when LlamaIndex is unavailable
+- retrieval output quality improves on tracked probe queries (fewer low-information hits)
+- `T6.1.TEST` completed with regression tests and before/after quality metrics
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S6.1 | T6.1.1 | Add startup guard for embedding backend readiness and semantic dependency checks | Startup validation and override controls | 4 |
+| S6.1 | T6.1.2 | Rework semantic rechunking to operate on larger structural groups (not only micro-fragments) | Improved semantic chunking pipeline | 5 |
+| S6.1 | T6.1.3 | Add chunk quality filters (`min chars/words`) with list-aware exceptions | Chunk quality gate in ingestion | 4 |
+| S6.2 | T6.1.4 | Add retrieval rerank pass and stronger low-confidence filtering policy | Retrieval ranking hardening | 5 |
+| S6.2 | T6.1.5 | Add ingestion/retrieval quality report (short-chunk ratio, sample hit diagnostics) | Quality report command/output | 4 |
+| S6.2 | T6.1.TEST | Add and run regression tests for chunk quality and retrieval relevance | Test and benchmark evidence | 4 |
+|  |  | **Epic subtotal** |  | **26** |
+
+## Phase P7: Query Recall and Lexical Fallback (22h)
+
+Goal: close remaining retrieval gaps from `docs/raw_idea/rag_improvements.txt`, especially weak recall cases where relevant PDF content exists but vector-only retrieval misses it.
+
+### Epic E7.1: Keyword Fallback and Chunk Debug Tooling (22h)
+
+Technical description:
+- improve PDF normalization for two-column and fragmented bullet text before chunking
+- enforce column-aware reading order reconstruction (left column before right column, per page)
+- add deterministic keyword fallback retrieval when vector/hybrid confidence is weak
+- add operator debug commands for chunk statistics and keyword chunk lookup
+
+Primary files:
+- `rag/chunking/load_documents.py`
+- `rag/chunking/strategies.py`
+- `rag/retrieval/retriever.py`
+- `agent/orchestrator/orchestrator.py`
+- `rag/retrieval/quality_report.py`
+- `run.py`
+- `tests/*`
+
+Deliverables:
+- stronger line-merge policy for two-column/bullet-heavy PDF pages
+- deterministic two-column reflow policy with dehyphenation and line-join rules
+- keyword fallback retriever with configurable trigger threshold
+- retrieval provenance marker (`vector`, `keyword_fallback`, `hybrid`)
+- debug utility command for chunk stats and keyword lookup
+- before/after probe report including `Sindromul Cushing`
+
+Dependencies:
+- E6.1
+
+Acceptance criteria:
+- when vector confidence is below threshold, keyword fallback is attempted automatically
+- fallback retrieval returns at least one relevant chunk for tracked weak-recall probes where corpus evidence exists
+- two-column pages no longer interleave adjacent left/right column lines in produced chunk text
+- debug utility prints chunk count, average length, short-chunk ratio, and top keyword matches
+- provenance of final context is visible in logs/debug output
+- `T7.1.TEST` completed with regression tests and probe evidence
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S7.1 | T7.1.1 | Build weak-recall probe set and baseline retrieval report from current corpus | Baseline probe report | 2 |
+| S7.1 | T7.1.2 | Improve two-column reconstruction and bullet line-stitch normalization before semantic chunking | Updated PDF normalization flow | 5 |
+| S7.1 | T7.1.3 | Implement keyword fallback retrieval path with confidence trigger policy | Keyword fallback retriever | 5 |
+| S7.2 | T7.1.4 | Add fallback merge/ranking and retrieval provenance labeling | Provenance-aware retrieval result | 3 |
+| S7.2 | T7.1.5 | Extend debug utility with keyword chunk search and chunk-stat output modes | CLI/debug reporting updates | 3 |
+| S7.2 | T7.1.TEST | Add regression tests and before/after probe validation for fallback recall | Test and probe evidence | 4 |
+|  |  | **Epic subtotal** |  | **22** |
+
 ## Recommended Execution Order
 
 1. P0 (planning/governance baseline)
@@ -939,6 +1037,8 @@ Acceptance criteria:
 4. P3 (quality and observability)
 5. P4 (containers, API, release documentation)
 6. P5 (semantic chunking, knowledge graph, Graph-RAG, visualization)
+7. P6 (retrieval quality hardening and operational quality gates)
+8. P7 (query recall hardening via lexical fallback and debug tooling)
 
 Priority constraints:
 - complete E1.4 before major P2 work
@@ -947,6 +1047,8 @@ Priority constraints:
 - complete E5.1 before E5.2 and E5.3
 - complete E5.4 before E5.5
 - complete E5.5 before E5.6 Graph-RAG rollout
+- complete E5.6 before E6.1 retrieval hardening rollout
+- complete E6.1 before E7.1 lexical fallback rollout
 
 ## Handover Checklist for New Developers
 

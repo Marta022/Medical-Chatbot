@@ -47,12 +47,14 @@ class TestModels(unittest.TestCase):
             hits=[
                 RetrievalHit(title="A", text="alpha", score=0.9),
                 RetrievalHit(title="B", text="beta", score=0.5),
-            ]
+            ],
+            provenance="vector",
         )
         self.assertEqual(result.titles(), ["A", "B"])
         lines = result.context_lines(with_score=True)
         self.assertTrue(lines[0].startswith("alpha"))
         self.assertIn("(0.9000)", lines[0])
+        self.assertEqual(result.to_dict()["provenance"], "vector")
 
     def test_llm_request_builds_messages(self) -> None:
         request = LLMRequest(
