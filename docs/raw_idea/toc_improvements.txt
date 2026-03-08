@@ -1,0 +1,20 @@
+Add an agent-based TOC interpretation step.
+
+The agent should not extract raw PDF text directly. Instead, it should take OCR/layout-extracted TOC lines from page 2 and convert them into structured entries:
+- chapter
+- subchapter
+- printed_start_page
+- original_toc_text
+
+Then use these TOC entries to drive section text extraction from the PDF.
+
+Important:
+- do not trust TOC page numbers blindly
+- when extracting section text, confirm the printed page number using the page header / printed page marker in the real document
+- search around the expected page with a small configurable offset window
+- only finalize a section start when the TOC page number is validated against the real page header and, if possible, the section title
+- after page validation, extract the section text until the next validated section start
+
+Keep the pipeline modular and save both:
+1. structured TOC entries
+2. final section JSON with validated page mapping

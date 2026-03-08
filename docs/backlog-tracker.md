@@ -1,6 +1,6 @@
 # Backlog Tracker
 
-Last updated: 2026-03-05  
+Last updated: 2026-03-07  
 Tracking scope: tasks defined in `docs/backlog.md`
 
 ## Tracking Rules
@@ -19,8 +19,8 @@ Status legend:
 
 | Metric | Value |
 | --- | --- |
-| Planned effort | 420h |
-| Completed effort | 420h |
+| Planned effort | 478h |
+| Completed effort | 478h |
 | In-progress effort | 0h |
 | Remaining effort | 0h |
 | Overall completion | 100% |
@@ -37,6 +37,8 @@ Status legend:
 | P5 Semantic Knowledge and Graph-RAG Expansion | 134 | 134 | 0 | 0 | DONE |
 | P6 Retrieval Quality Hardening | 26 | 26 | 0 | 0 | DONE |
 | P7 Query Recall and Lexical Fallback | 22 | 22 | 0 | 0 | DONE |
+| P8 TOC-Driven PDF JSON Extraction Pipeline | 30 | 30 | 0 | 0 | DONE |
+| P9 TOC Agent Validation and Anchored Extraction | 28 | 28 | 0 | 0 | DONE |
 
 ## Epic Progress
 
@@ -66,6 +68,8 @@ Status legend:
 | E5.6 | Graph-RAG, Citation Guarantees, and Visualization | 32 | 32 | DONE | Hybrid retrieval, orchestration policy, citation schema, GitNexus integration, API/CLI controls, docs, and integration tests completed |
 | E6.1 | Chunk and Retrieval Quality Stabilization | 26 | 26 | DONE | `T6.1.1`-`T6.1.TEST` completed with startup guards, semantic grouping refactor, chunk quality filters, rerank/confidence hardening, diagnostics report, and regression evidence |
 | E7.1 | Keyword Fallback and Chunk Debug Tooling | 22 | 22 | DONE | Added column-aware PDF extraction, keyword fallback retrieval, provenance labels, quality keyword probes, baseline artifact, and regression tests |
+| E8.1 | TOC Metadata and Content Extraction Pipeline | 30 | 30 | DONE | `T8.1.1`-`T8.1.TEST` completed with TOC extraction/parsing/page-range resolver, fallback section extraction, cleanup/aggregation, JSON export CLI, and regression evidence |
+| E9.1 | Agent-Interpreted TOC and Validated Section Anchoring | 28 | 28 | DONE | Completed agent TOC preprocessing/interpretation, printed-page validation resolver, validated boundary extraction, dual JSON export, CLI/config controls, and regression tests |
 
 ## Phase 0 Completion Record
 
@@ -179,12 +183,49 @@ Status legend:
 | T7.1.5 | 3 | 3 | DONE | Extended quality debug utility (`rag/retrieval/quality_report.py`, `run.py`) with keyword chunk probes and avg word statistics |
 | T7.1.TEST | 4 | 4 | DONE | Regression tests added/updated and validated via `python -m unittest -v` (158 tests OK) |
 
+## Phase 8 Planned Task Register
+
+| Task ID | Estimate (h) | Actual (h) | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| T8.1.1 | 3 | 3 | DONE | Added typed contracts in `models/contracts.py`, config surface in `config/settings.py` + `.env.example`, and spec doc `docs/p8-toc-pipeline-spec.md`; validated with `python -m unittest tests.test_models tests.test_config_prompts -v` |
+| T8.1.2 | 5 | 5 | DONE | Added TOC extraction primitives in `rag/chunking/load_documents.py` (`extract_toc_page_lines`, layout detection, native/OCR block extraction) enforcing left-column then right-column order; validated with `python -m unittest tests.test_pdf_structure -v` |
+| T8.1.3 | 4 | 4 | DONE | Added TOC row parser in `rag/chunking/load_documents.py` (`extract_toc_page_records`, `parse_toc_entries`) using horizontal-position indentation to classify chapter/subchapter; validated with `python -m unittest tests.test_pdf_structure -v` |
+| T8.1.4 | 3 | 3 | DONE | Added page offset + end-page inference resolver in `rag/chunking/load_documents.py` (`resolve_toc_page_ranges`) with optional max-page clamp; validated with `python -m unittest tests.test_pdf_structure -v` |
+| T8.1.5 | 6 | 6 | DONE | Added section range extractor in `rag/chunking/load_documents.py` (`extract_section_text_range`) with PyMuPDF-first page extraction and PP-Structure/OCR fallback while preserving two-column order; validated with `python -m unittest tests.test_pdf_structure -v` |
+| T8.1.6 | 3 | 3 | DONE | Added cleanup + aggregation layer in `rag/chunking/load_documents.py` (`_clean_section_page_texts`, `aggregate_toc_section_contents`) to remove repeated headers/footers/page numbers and build per-section text payloads; validated with `python -m unittest tests.test_pdf_structure -v` |
+| T8.1.7 | 2 | 2 | DONE | Added end-to-end JSON exporter in `rag/chunking/load_documents.py` (`export_toc_sections_to_json`) and CLI command `toc-export` in `run.py`; validated with `python -m unittest tests.test_cli tests.test_pdf_structure -v` |
+| T8.1.TEST | 4 | 4 | DONE | Final regression gate passed with `python -m unittest tests.test_models tests.test_config_prompts tests.test_cli tests.test_pdf_structure -v` (66 tests OK) |
+
+## Phase 9 Planned Task Register
+
+| Task ID | Estimate (h) | Actual (h) | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| T9.1.1 | 3 | 3 | DONE | Added P9 typed contracts (`TocAgentEntry`, `TocPageValidationConfig`, `TocValidatedEntry`, `TocValidationResult`) in `models/contracts.py`; added interface functions (`interpret_toc_entries_with_agent`, `validate_toc_start_pages`) in `rag/chunking/load_documents.py`; validated with `python -m unittest tests.test_models tests.test_pdf_structure -v` |
+| T9.1.2 | 4 | 4 | DONE | Added `preprocess_toc_records_for_agent` and wired deterministic normalization/line-merge flow before interpretation in `rag/chunking/load_documents.py`; validated with `python -m unittest tests.test_pdf_structure -v` |
+| T9.1.3 | 4 | 4 | DONE | Extended `interpret_toc_entries_with_agent` with normalized input path and deterministic default interpreter; added interpreter injection and preprocessing tests in `tests/test_pdf_structure.py` |
+| T9.1.4 | 5 | 5 | DONE | Implemented printed-page validation resolver in `validate_toc_start_pages` with marker/title checks, offset window search, and status/method metadata; added validation tests |
+| T9.1.5 | 4 | 4 | DONE | Implemented validated-boundary extraction (`aggregate_validated_toc_section_contents`) to extract sections from validated start to next validated start |
+| T9.1.6 | 2 | 2 | DONE | Added dual-output pipeline `export_toc_sections_with_validation_to_json` writing structured TOC entries and validated section JSON |
+| T9.1.7 | 2 | 2 | DONE | Added CLI/config controls for validation window, title-hint strictness, and TOC entries output path (`run.py`, `config/settings.py`) |
+| T9.1.TEST | 4 | 4 | DONE | Regression gate passed: `python -m unittest tests.test_models tests.test_pdf_structure tests.test_cli tests.test_config_prompts -v` (77 tests OK) |
+
 ## Active Task Board
 
 Use this section for current work only (max 10 items at a time).
 
 | Task ID | Task | Estimate (h) | Actual (h) | Owner | Status | Start | End | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T9.1.TEST | Add and run tests for TOC interpretation, page validation, and section boundary correctness | 4 | 4 | Codex | DONE | 2026-03-07 | 2026-03-07 | Ran regression suite for models/PDF/CLI/config and validated full S9.1 pipeline behavior |
+| T9.1.7 | Add CLI/config controls for validation window and strictness knobs | 2 | 2 | Codex | DONE | 2026-03-07 | 2026-03-07 | Added `--page-validation-window`, `--require-title-hint`, and `--toc-entries-json-path` with settings/env integration |
+| T9.1.1 | Define typed contracts and module interfaces for agent TOC interpretation and page validation | 3 | 3 | Codex | DONE | 2026-03-07 | 2026-03-07 | Added P9 contracts + interface hooks and validated with model/PDF structure unit tests |
+| T8.1.TEST | Add and run tests for TOC parsing, page mapping, fallback extraction, and JSON schema integrity | 4 | 4 | Codex | DONE | 2026-03-07 | 2026-03-07 | Full T8 test gate completed across models/config/CLI/PDF structure |
+| T8.1.7 | Add JSON export and CLI/main entrypoint for end-to-end pipeline execution | 2 | 2 | Codex | DONE | 2026-03-07 | 2026-03-07 | Added `toc-export` CLI command and JSON export orchestration path with tests |
+| T8.1.6 | Add text cleanup for repeated headers, footers, and page numbers; aggregate final per-section text | 3 | 3 | Codex | DONE | 2026-03-07 | 2026-03-07 | Added cleanup of repeated header/footer/page-number artifacts and TOC section aggregation helper with tests |
+| T8.1.5 | Implement section content extraction (`PyMuPDF` first, `PaddleOCR/PP-Structure` fallback) with multi-column order preservation | 6 | 6 | Codex | DONE | 2026-03-07 | 2026-03-07 | Added page-range content extraction with native-first and PP-Structure/OCR fallback plus two-column order reconstruction |
+| T8.1.4 | Implement page-offset correction and `end_page` inference from next TOC entry | 3 | 3 | Codex | DONE | 2026-03-07 | 2026-03-07 | Added TOC page range resolver with configurable page offset and next-entry end-page inference |
+| T8.1.3 | Parse TOC rows into chapter/subchapter entries using indentation and horizontal position | 4 | 4 | Codex | DONE | 2026-03-07 | 2026-03-07 | Added typed TOC hierarchy parser with x-position indentation logic and tests |
+| T8.1.2 | Implement TOC page OCR, layout detection, and deterministic two-column reading-order reconstruction | 5 | 5 | Codex | DONE | 2026-03-07 | 2026-03-07 | Added TOC native/OCR block extraction, two-column layout detection, and left->right reading-order reconstruction with tests |
+| T8.1.1 | Define pipeline modules, typed contracts, and config surface for TOC/content extraction | 3 | 3 | Codex | DONE | 2026-03-07 | 2026-03-07 | Added TOC extraction contracts, env/config controls, validation rules, and task spec doc; tests passed |
 | T7.1.TEST | Add regression tests and before/after probe validation for fallback recall | 4 | 4 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added/updated tests for PDF column reflow, keyword fallback retrieval, quality probes, CLI and config; full suite passed |
 | T7.1.5 | Extend debug utility with keyword chunk search and chunk-stat output modes | 3 | 3 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added keyword probe args and chunk-level debug probe output in quality report |
 | T7.1.4 | Add fallback merge/ranking and retrieval provenance labeling | 3 | 3 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added retrieval provenance contract and orchestrator retrieval logging metadata |
@@ -361,6 +402,17 @@ Use this section for current work only (max 10 items at a time).
 | 092 | 2026-03-05 | Completed `T6.1.TEST` and closed P6 | Added benchmark artifact `docs/p6-retrieval-quality-report.md`, executed full P6 regression suite (64 tests, OK), and closed Epic E6.1 / Phase P6 with tracker roll-up updates | Backlog scope complete |
 | 093 | 2026-03-05 | Added new backlog phase P7 from `rag_improvements` requirements | Extended `docs/backlog.md` with Phase P7 / Epic E7.1 and task estimates; synchronized tracker totals, phase/epic status tables, and active task board | Start `T7.1.1` baseline probe report |
 | 094 | 2026-03-05 | Completed E7.1 implementation and test gate | Added two-column PDF extraction/reflow and line normalization, keyword fallback retrieval with confidence trigger, retrieval provenance labels, quality-report keyword chunk probes + CLI options, and baseline artifacts (`docs/p7-recall-baseline.md`, `.json`); validated with `python -m unittest -v` (158 tests OK) | Backlog scope complete |
+| 095 | 2026-03-07 | Added new backlog phase P8 from `json_format` requirements | Extended `docs/backlog.md` with Phase P8 / Epic E8.1 and tasks `T8.1.1`-`T8.1.TEST`; synchronized tracker planned totals, phase/epic progress, active task board, and added Phase 8 task register | Start `T8.1.1` TOC pipeline scaffolding |
+| 096 | 2026-03-07 | Completed `T8.1.1` contracts/config/spec baseline | Added TOC pipeline contracts (`TocExtractionConfig`, `TocEntry`, `TocSectionContent`) in `models/contracts.py`, added TOC config surface + validation in `config/settings.py` and `.env.example`, authored `docs/p8-toc-pipeline-spec.md`, and added regression coverage in model/config tests; validated with `python -m unittest tests.test_models tests.test_config_prompts -v` | Proceed to `T8.1.2` TOC OCR/layout and two-column reading-order reconstruction |
+| 097 | 2026-03-07 | Completed `T8.1.2` TOC OCR/layout extraction baseline | Added TOC-focused extraction utilities in `rag/chunking/load_documents.py`: native block extraction (`_extract_toc_blocks_with_pymupdf`), OCR fallback block extraction (`_extract_toc_blocks_with_ocr`), two-column layout detection (`_detect_two_column_layout`), deterministic two-column line ordering (`_build_toc_lines_from_blocks`), and public `extract_toc_page_lines`; added regression tests in `tests/test_pdf_structure.py`; validated with `python -m unittest tests.test_pdf_structure -v` | Proceed to `T8.1.3` TOC hierarchy parser |
+| 098 | 2026-03-07 | Completed `T8.1.3` TOC hierarchy parser | Added TOC record extraction and hierarchy parsing helpers in `rag/chunking/load_documents.py` (`_build_toc_line_records_from_blocks`, `extract_toc_page_records`, `_parse_toc_row`, `parse_toc_entries`) to classify chapter/subchapter from horizontal indentation and preserve `original_toc_text`; expanded `tests/test_pdf_structure.py` with TOC parser coverage; validated with `python -m unittest tests.test_pdf_structure -v` | Proceed to `T8.1.4` page-offset and end-page inference |
+| 099 | 2026-03-07 | Completed `T8.1.4` TOC page-range resolver | Added `resolve_toc_page_ranges` in `rag/chunking/load_documents.py` to apply configurable page offsets and infer `end_page` from subsequent entry starts, with optional `max_pdf_page` clamp; expanded `tests/test_pdf_structure.py` with page-range tests; validated with `python -m unittest tests.test_pdf_structure -v` | Proceed to `T8.1.5` section text extraction pipeline |
+| 100 | 2026-03-07 | Completed `T8.1.5` section extraction with fallback | Added page-level extraction helpers in `rag/chunking/load_documents.py` (`_extract_page_blocks_with_pymupdf`, `_extract_page_blocks_with_pp_structure`, `_build_section_page_text`) and `extract_section_text_range` for TOC-driven section ranges with PyMuPDF-first then PP-Structure/OCR fallback and two-column order preservation; expanded `tests/test_pdf_structure.py` with section-range extraction tests; validated with `python -m unittest tests.test_pdf_structure -v` | Proceed to `T8.1.6` cleanup and aggregation layer |
+| 101 | 2026-03-07 | Completed `T8.1.6` cleanup and aggregation layer | Added `_clean_section_page_texts` and `aggregate_toc_section_contents` in `rag/chunking/load_documents.py` to remove repeated header/footer/page-number artifacts and produce final per-section text payloads from resolved TOC ranges; added regression tests in `tests/test_pdf_structure.py`; validated with `python -m unittest tests.test_pdf_structure -v` | Proceed to `T8.1.7` JSON export and CLI entrypoint |
+| 102 | 2026-03-07 | Completed `T8.1.7` JSON export and CLI entrypoint | Added `export_toc_sections_to_json` in `rag/chunking/load_documents.py` and wired new `toc-export` subcommand in `run.py` with TOC extraction options; added/updated tests in `tests/test_cli.py` and `tests/test_pdf_structure.py`; validated with `python -m unittest tests.test_cli tests.test_pdf_structure -v` | Proceed to `T8.1.TEST` final regression and sample-output validation |
+| 103 | 2026-03-07 | Completed `T8.1.TEST` and closed Phase P8 | Ran full T8 regression gate: `python -m unittest tests.test_models tests.test_config_prompts tests.test_cli tests.test_pdf_structure -v` (66 tests OK); marked `E8.1` and `P8` as DONE with zero remaining effort | Backlog scope complete |
+| 104 | 2026-03-07 | Started Story 9.1 and completed `T9.1.1` contracts/interface baseline | Added new P9 contracts in `models/contracts.py` (`TocAgentEntry`, `TocPageValidationConfig`, `TocValidatedEntry`, `TocValidationResult`), exposed model exports, added interface hooks in `rag/chunking/load_documents.py` (`interpret_toc_entries_with_agent`, `validate_toc_start_pages`), and added regression tests in `tests/test_models.py` and `tests/test_pdf_structure.py`; validated with `python -m unittest tests.test_models tests.test_pdf_structure -v` | Continue with `T9.1.2` TOC-line preprocessing |
+| 105 | 2026-03-07 | Completed Story 9.1 end-to-end and closed Phase P9 | Implemented TOC preprocessing + agent interpretation flow, printed-page validation resolver with offset window/title checks, validated-boundary section extraction, dual JSON exporter (`toc entries` + `validated sections`), CLI/config controls, and expanded regression coverage; validated with `python -m unittest tests.test_models tests.test_pdf_structure tests.test_cli tests.test_config_prompts -v` (77 tests OK) | Backlog scope complete |
 
 ## Known Risks and Blockers
 
@@ -369,3 +421,5 @@ Use this section for current work only (max 10 items at a time).
 - Legacy compatibility shims remain until planned removal at end of Phase 2, which adds temporary maintenance overhead.
 - LlamaIndex, KuzuDB, and GitNexus integration may require new dependencies and compatibility validation with existing runtime/container setup.
 - PDF parsing quality may vary by source document formatting; OCR fallback may be required for some pages.
+- PaddleOCR/PP-Structure runtime dependencies may require additional system packages and can be slower on CPU-only environments.
+- TOC page-number offset mismatches versus real PDF indices may require tuning and manual validation on first runs.

@@ -1,0 +1,51 @@
+Add a new phase in backlog for this requirements, with tasks and estimations:
+Create a modular Python pipeline for `data/datasets/DORIN-CURS_SEM2_searchable.pdf`.
+
+Goal:
+Use page 2 as the table of contents page to extract document structure metadata, then use that metadata to extract the real content from the PDF and save everything as JSON.
+
+Stage 1 — TOC metadata extraction
+- Use page 1 (the second page from the document) as the TOC page
+- Run OCR
+- Run layout detection
+- Reconstruct reading order
+- The TOC has 2 columns: read the left column top-to-bottom first, then the right column top-to-bottom
+- Extract TOC entries into this structure:
+  - chapter
+  - subchapter
+  - start_page
+  - end_page
+  - original_toc_text
+- Use indentation / horizontal position to distinguish chapter vs subchapter
+- Compute end_page from the next entry's start_page minus 1
+- Ignore useless entries like "Contents" or abbreviations if not relevant
+- Add configurable page offset because TOC page numbers may differ from real PDF indexes
+
+Stage 2 — Content extraction
+- For each TOC entry, extract the real text from start_page to end_page
+- First try native text extraction with PyMuPDF
+- If text is missing or poor, fall back to PaddleOCR / PP-Structure
+- The layout is structured in two columns so add also layout detection
+- Preserve correct reading order for multi-column pages
+- Clean repeated headers, footers, and page numbers
+
+Output:
+Save a JSON file like this:
+
+[
+  {
+    "chapter": "...",
+    "subchapter": "...",
+    "start_page": 7,
+    "end_page": 8,
+    "original_toc_text": "...",
+    "text": "full extracted content for that section"
+  }
+]
+
+Technical requirements:
+- Use PyMuPDF for PDF reading/rendering
+- Use PaddleOCR / PP-Structure for OCR and layout detection
+- Keep the code modular and robust
+- Add clear functions and a main entry point
+- Save the final output as JSON

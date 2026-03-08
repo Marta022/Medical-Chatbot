@@ -33,6 +33,9 @@ class TestConfigAndPrompts(unittest.TestCase):
         self.assertGreater(settings.semantic_chunk_max_chars, 0)
         self.assertGreater(settings.retrieval_rerank_top_k, 0)
         self.assertGreaterEqual(settings.entity_min_confidence, 0)
+        self.assertGreaterEqual(settings.toc_page_index, 0)
+        self.assertGreater(settings.toc_expected_columns, 0)
+        self.assertGreaterEqual(settings.toc_page_validation_window, 0)
 
     def test_prompt_helpers_return_expected_content(self) -> None:
         self.assertTrue(prompts.get_base_system_prompt())
@@ -113,6 +116,23 @@ class TestConfigAndPrompts(unittest.TestCase):
         errors = validate_startup(command="eval", settings=settings)
         self.assertTrue(any("KEYWORD_FALLBACK_MIN_SCORE must be >= 0." in item for item in errors))
         self.assertTrue(any("KEYWORD_FALLBACK_CANDIDATE_LIMIT must be greater than 0." in item for item in errors))
+
+    def test_validate_startup_rejects_invalid_toc_settings(self) -> None:
+        settings = AppSettings(
+            toc_page_index=-1,
+            toc_expected_columns=0,
+            toc_page_validation_window=-1,
+            toc_min_native_text_chars=0,
+            toc_output_json_path="",
+            toc_entries_output_json_path="",
+        )
+        errors = validate_startup(command="eval", settings=settings)
+        self.assertTrue(any("TOC_PAGE_INDEX must be >= 0." in item for item in errors))
+        self.assertTrue(any("TOC_EXPECTED_COLUMNS must be greater than 0." in item for item in errors))
+        self.assertTrue(any("TOC_PAGE_VALIDATION_WINDOW must be >= 0." in item for item in errors))
+        self.assertTrue(any("TOC_MIN_NATIVE_TEXT_CHARS must be greater than 0." in item for item in errors))
+        self.assertTrue(any("TOC_OUTPUT_JSON_PATH is required." in item for item in errors))
+        self.assertTrue(any("TOC_ENTRIES_OUTPUT_JSON_PATH is required." in item for item in errors))
 
     def test_validate_startup_requires_gitnexus_url_when_enabled(self) -> None:
         settings = AppSettings(gitnexus_enabled=True, gitnexus_base_url="")

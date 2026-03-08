@@ -1,9 +1,9 @@
 # Medical Chatbot Backlog
 
-Date: 2026-03-05  
-Version: 4.2  
+Date: 2026-03-07  
+Version: 4.4  
 Estimation unit: engineering hours (`h`)  
-Source inputs: `docs/raw_idea/licenta_title.txt`, `docs/raw_idea/raw_backlog.txt`, `docs/raw_idea/new_backlog.txt`, repository inspection
+Source inputs: `docs/raw_idea/licenta_title.txt`, `docs/raw_idea/raw_backlog.txt`, `docs/raw_idea/new_backlog.txt`, `docs/raw_idea/json_format.txt`, repository inspection
 
 ## Goal of This Backlog
 
@@ -27,10 +27,10 @@ Key findings from repository review:
 - `ingestion/ingest_vectordb.py` imports `ensure_collection`, but `vector_db/qdrant_client.py` does not provide it.
 - Docker assets now exist (`Dockerfile`, `docker-compose.yml`), but container smoke tests are currently blocked by Docker layer extraction/cache corruption in the local environment.
 
-## Execution Status Snapshot (2026-03-05)
+## Execution Status Snapshot (2026-03-07)
 
-- Overall status: `DONE` (Phase P7 completed)
-- Active phase: `P7` (Query Recall and Lexical Fallback)
+- Overall status: `DONE` (Phase P9 completed)
+- Active phase: `P9` (TOC Agent Validation and Anchored Extraction)
 - Current active task: `None` (all planned backlog tasks completed)
 - Current blocker: none
 - Source of truth: `docs/backlog-tracker.md`
@@ -114,7 +114,9 @@ These conditions apply to all implementation epics:
 | P5 | Semantic Knowledge and Graph-RAG Expansion | 6 | 134 |
 | P6 | Retrieval Quality Hardening | 1 | 26 |
 | P7 | Query Recall and Lexical Fallback | 1 | 22 |
-|  | **Grand Total** | **24** | **420** |
+| P8 | TOC-Driven PDF JSON Extraction Pipeline | 1 | 30 |
+| P9 | TOC Agent Validation and Anchored Extraction | 1 | 28 |
+|  | **Grand Total** | **26** | **478** |
 
 ## Phase P0: Product Definition and Planning (28h)
 
@@ -1029,6 +1031,116 @@ Acceptance criteria:
 | S7.2 | T7.1.TEST | Add regression tests and before/after probe validation for fallback recall | Test and probe evidence | 4 |
 |  |  | **Epic subtotal** |  | **22** |
 
+## Phase P8: TOC-Driven PDF JSON Extraction Pipeline (30h)
+
+Goal: build a modular extraction pipeline for `data/dataset/DORIN-CURS_SEM2_searchable.pdf` that uses the TOC page to drive section-aware content extraction and outputs structured JSON.
+
+### Epic E8.1: TOC Metadata and Content Extraction Pipeline (30h)
+
+Technical description:
+- implement Stage 1 TOC metadata extraction using page index `1` (the second PDF page)
+- run OCR + layout detection + deterministic two-column reading order (left column first, then right)
+- derive chapter/subchapter hierarchy using indentation/horizontal position
+- infer `end_page` from next TOC entry and support configurable page offset correction
+- implement Stage 2 section text extraction with PyMuPDF first, then PaddleOCR/PP-Structure fallback
+- preserve multi-column reading order and remove repeated headers/footers/page numbers
+- export final section records to JSON with required schema and a main entry point
+
+Primary files:
+- `rag/chunking/load_documents.py`
+- `rag/chunking/strategies.py`
+- `ingestion/*`
+- `run.py`
+- `models/contracts.py`
+- `docs/*`
+- `tests/*`
+
+Deliverables:
+- modular TOC parser and metadata model
+- TOC-aware section content extractor with OCR/layout fallback
+- configurable page offset behavior
+- JSON output writer for final section records
+- validation report for TOC parsing and content extraction quality
+
+Dependencies:
+- E7.1
+
+Acceptance criteria:
+- TOC extraction reads page index `1` and enforces two-column order (left then right)
+- each TOC entry includes: `chapter`, `subchapter`, `start_page`, `end_page`, `original_toc_text`
+- irrelevant TOC items (for example `Contents` and abbreviations-only rows) are filtered
+- `end_page` is correctly inferred from subsequent TOC entry starts with configurable page offset correction
+- section extraction attempts PyMuPDF first and falls back to PaddleOCR/PP-Structure when text quality is poor
+- multi-column page reading order is preserved and repeated headers/footers/page numbers are cleaned
+- output JSON matches required schema and includes `text` for each entry
+- `T8.1.TEST` completed with parser/content regression tests and sample output verification
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S8.1 | T8.1.1 | Define pipeline modules, typed contracts, and config surface for TOC/content extraction | Pipeline spec + model updates | 3 |
+| S8.1 | T8.1.2 | Implement TOC page OCR, layout detection, and deterministic two-column reading-order reconstruction | TOC extraction core | 5 |
+| S8.1 | T8.1.3 | Parse TOC rows int\
+o chapter/subchapter entries using indentation and horizontal position | TOC hierarchy parser | 4 |
+| S8.1 | T8.1.4 | Implement page-offset correction and `end_page` inference from next TOC entry | Page range resolver | 3 |
+| S8.2 | T8.1.5 | Implement section content extraction (`PyMuPDF` first, `PaddleOCR/PP-Structure` fallback) with multi-column order preservation | Section text extractor | 6 |
+| S8.2 | T8.1.6 | Add text cleanup for repeated headers, footers, and page numbers; aggregate final per-section text | Content normalization layer | 3 |
+| S8.2 | T8.1.7 | Add JSON export and CLI/main entrypoint for end-to-end pipeline execution | JSON output command | 2 |
+| S8.2 | T8.1.TEST | Add and run tests for TOC parsing, page mapping, fallback extraction, and JSON schema integrity | Test + sample output evidence | 4 |
+|  |  | **Epic subtotal** |  | **30** |
+
+## Phase P9: TOC Agent Validation and Anchored Extraction (28h)
+
+Goal: add an agent-based TOC interpretation and page-validation layer that converts OCR/layout TOC lines into structured entries, validates printed page mapping against real page headers, and extracts section text using validated anchors.
+
+### Epic E9.1: Agent-Interpreted TOC and Validated Section Anchoring (28h)
+
+Technical description:
+- take OCR/layout-extracted TOC lines from page index `1` (second PDF page) and run an agent interpretation step for structure
+- output TOC entries with: `chapter`, `subchapter`, `printed_start_page`, `original_toc_text`
+- do not trust TOC numbers directly; validate expected pages against real document page markers/headers
+- search around expected page with a configurable offset window and optional title match checks
+- finalize section starts only after validation, then extract text until the next validated section start
+- save both artifacts: structured TOC entries and final section JSON with validated page mapping
+
+Primary files:
+- `rag/chunking/load_documents.py`
+- `rag/chunking/strategies.py`
+- `agent/reasoning/*`
+- `models/contracts.py`
+- `run.py`
+- `docs/*`
+- `tests/*`
+
+Deliverables:
+- agent-based TOC interpreter module
+- page-anchor validation and mapping resolver
+- section extractor driven by validated section boundaries
+- dual JSON outputs (TOC entries + final sections)
+- validation report for page mapping quality
+
+Dependencies:
+- E8.1
+
+Acceptance criteria:
+- TOC interpretation consumes OCR/layout lines and outputs normalized entries with `chapter`, `subchapter`, `printed_start_page`, `original_toc_text`
+- expected section starts are validated against real page headers/printed markers before extraction begins
+- configurable search window is used when expected page mapping is uncertain
+- section extraction starts at validated anchors and ends at next validated start
+- both outputs are saved: structured TOC entries and final section JSON with validated mapping metadata
+- `T9.1.TEST` completed with regression tests for mapping validation and boundary extraction
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S9.1 | T9.1.1 | Define typed contracts and module interfaces for agent TOC interpretation and page validation | Contracts + interface spec | 3 |
+| S9.1 | T9.1.2 | Build TOC-line preprocessing from OCR/layout blocks for deterministic agent input ordering | Normalized TOC-line feed | 4 |
+| S9.1 | T9.1.3 | Implement agent TOC interpretation into `chapter/subchapter/printed_start_page/original_toc_text` | Structured TOC interpreter | 4 |
+| S9.2 | T9.1.4 | Implement printed-page validation resolver using header/page markers and configurable offset window | Page validation resolver | 5 |
+| S9.2 | T9.1.5 | Implement validated boundary extraction: section text from current validated start to next validated start | Anchored section extractor | 4 |
+| S9.2 | T9.1.6 | Export structured TOC JSON and final section JSON with validated page mapping fields | Dual JSON export pipeline | 2 |
+| S9.2 | T9.1.7 | Add CLI/config controls for validation window and strictness knobs | Runtime/config controls | 2 |
+| S9.2 | T9.1.TEST | Add and run tests for TOC interpretation, page validation, and section boundary correctness | Test + validation evidence | 4 |
+|  |  | **Epic subtotal** |  | **28** |
+
 ## Recommended Execution Order
 
 1. P0 (planning/governance baseline)
@@ -1039,6 +1151,8 @@ Acceptance criteria:
 6. P5 (semantic chunking, knowledge graph, Graph-RAG, visualization)
 7. P6 (retrieval quality hardening and operational quality gates)
 8. P7 (query recall hardening via lexical fallback and debug tooling)
+9. P8 (TOC-driven PDF metadata and section extraction pipeline)
+10. P9 (agent-based TOC interpretation with validated section anchoring)
 
 Priority constraints:
 - complete E1.4 before major P2 work
@@ -1049,6 +1163,8 @@ Priority constraints:
 - complete E5.5 before E5.6 Graph-RAG rollout
 - complete E5.6 before E6.1 retrieval hardening rollout
 - complete E6.1 before E7.1 lexical fallback rollout
+- complete E7.1 before E8.1 TOC-driven JSON extraction rollout
+- complete E8.1 before E9.1 agent-validated TOC extraction rollout
 
 ## Handover Checklist for New Developers
 

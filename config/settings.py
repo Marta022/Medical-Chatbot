@@ -32,6 +32,16 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
+def _env_float(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        return float(raw.strip())
+    except ValueError:
+        return default
+
+
 @dataclass(frozen=True)
 class AppSettings:
     qdrant_url: str = "http://localhost:6333"
@@ -55,6 +65,16 @@ class AppSettings:
     dataset_validation_pdf_path: str = (
         "data/dataset/DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf"
     )
+    toc_pdf_path: str = "data/dataset/DORIN-CURS_SEM2_searchable.pdf"
+    toc_page_index: int = 1
+    toc_expected_columns: int = 2
+    toc_page_offset: int = 0
+    toc_page_validation_window: int = 2
+    toc_require_title_hint: bool = False
+    toc_min_native_text_chars: int = 120
+    toc_use_pp_structure_fallback: bool = True
+    toc_output_json_path: str = "data/dataset/dorin_sem2_toc_sections.json"
+    toc_entries_output_json_path: str = "data/dataset/dorin_sem2_toc_entries.json"
     chunking_strategy: str = "section"
     semantic_chunk_max_chars: int = 700
     semantic_use_llamaindex: bool = True
@@ -88,11 +108,11 @@ def load_settings() -> AppSettings:
         openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip(),
         ollama_model=os.getenv("OLLAMA_MODEL", "gemma2:2b").strip(),
         default_top_k=_env_int("DEFAULT_TOP_K", 3),
-        retrieval_min_score=float(os.getenv("RETRIEVAL_MIN_SCORE", "0.2").strip()),
+        retrieval_min_score=_env_float("RETRIEVAL_MIN_SCORE", 0.2),
         retrieval_rerank_enabled=_env_bool("RETRIEVAL_RERANK_ENABLED", True),
         retrieval_rerank_top_k=_env_int("RETRIEVAL_RERANK_TOP_K", 12),
         keyword_fallback_enabled=_env_bool("KEYWORD_FALLBACK_ENABLED", True),
-        keyword_fallback_min_score=float(os.getenv("KEYWORD_FALLBACK_MIN_SCORE", "0.18").strip()),
+        keyword_fallback_min_score=_env_float("KEYWORD_FALLBACK_MIN_SCORE", 0.18),
         keyword_fallback_candidate_limit=_env_int("KEYWORD_FALLBACK_CANDIDATE_LIMIT", 1500),
         dataset_json_path=os.getenv(
             "DATASET_JSON_PATH",
@@ -110,24 +130,43 @@ def load_settings() -> AppSettings:
             "DATASET_VALIDATION_PDF_PATH",
             "data/dataset/DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf",
         ).strip(),
+        toc_pdf_path=os.getenv(
+            "TOC_PDF_PATH",
+            "data/dataset/DORIN-CURS_SEM2_searchable.pdf",
+        ).strip(),
+        toc_page_index=_env_int("TOC_PAGE_INDEX", 1),
+        toc_expected_columns=_env_int("TOC_EXPECTED_COLUMNS", 2),
+        toc_page_offset=_env_int("TOC_PAGE_OFFSET", 0),
+        toc_page_validation_window=_env_int("TOC_PAGE_VALIDATION_WINDOW", 2),
+        toc_require_title_hint=_env_bool("TOC_REQUIRE_TITLE_HINT", False),
+        toc_min_native_text_chars=_env_int("TOC_MIN_NATIVE_TEXT_CHARS", 120),
+        toc_use_pp_structure_fallback=_env_bool("TOC_USE_PP_STRUCTURE_FALLBACK", True),
+        toc_output_json_path=os.getenv(
+            "TOC_OUTPUT_JSON_PATH",
+            "data/dataset/dorin_sem2_toc_sections.json",
+        ).strip(),
+        toc_entries_output_json_path=os.getenv(
+            "TOC_ENTRIES_OUTPUT_JSON_PATH",
+            "data/dataset/dorin_sem2_toc_entries.json",
+        ).strip(),
         chunking_strategy=os.getenv("CHUNKING_STRATEGY", "section").strip().lower(),
         semantic_chunk_max_chars=_env_int("SEMANTIC_CHUNK_MAX_CHARS", 700),
         semantic_use_llamaindex=_env_bool("SEMANTIC_USE_LLAMAINDEX", True),
         allow_semantic_chunk_fallback=_env_bool("ALLOW_SEMANTIC_CHUNK_FALLBACK", False),
         allow_fallback_embeddings=_env_bool("ALLOW_FALLBACK_EMBEDDINGS", False),
-        entity_min_confidence=float(os.getenv("ENTITY_MIN_CONFIDENCE", "0.65").strip()),
+        entity_min_confidence=_env_float("ENTITY_MIN_CONFIDENCE", 0.65),
         chunk_min_chars=_env_int("CHUNK_MIN_CHARS", 40),
         chunk_min_words=_env_int("CHUNK_MIN_WORDS", 8),
         list_chunk_min_words=_env_int("LIST_CHUNK_MIN_WORDS", 2),
         graph_backend=os.getenv("GRAPH_BACKEND", "kuzu").strip().lower(),
         kuzu_db_path=os.getenv("KUZU_DB_PATH", "knowledge/graph/kuzu_storage").strip(),
         graph_ingest_enabled=_env_bool("GRAPH_INGEST_ENABLED", True),
-        relation_min_confidence=float(os.getenv("RELATION_MIN_CONFIDENCE", "0.7").strip()),
+        relation_min_confidence=_env_float("RELATION_MIN_CONFIDENCE", 0.7),
         retrieval_mode=os.getenv("RETRIEVAL_MODE", "vector").strip().lower(),
         graph_retrieval_top_k=_env_int("GRAPH_RETRIEVAL_TOP_K", 3),
         graph_traversal_depth=_env_int("GRAPH_TRAVERSAL_DEPTH", 1),
-        hybrid_vector_weight=float(os.getenv("HYBRID_VECTOR_WEIGHT", "1.0").strip()),
-        hybrid_graph_weight=float(os.getenv("HYBRID_GRAPH_WEIGHT", "0.9").strip()),
+        hybrid_vector_weight=_env_float("HYBRID_VECTOR_WEIGHT", 1.0),
+        hybrid_graph_weight=_env_float("HYBRID_GRAPH_WEIGHT", 0.9),
         gitnexus_enabled=_env_bool("GITNEXUS_ENABLED", False),
         gitnexus_base_url=os.getenv("GITNEXUS_BASE_URL", "http://localhost:8088").strip(),
     )
@@ -161,6 +200,18 @@ def validate_startup(
         errors.append("KEYWORD_FALLBACK_MIN_SCORE must be >= 0.")
     if current.keyword_fallback_candidate_limit <= 0:
         errors.append("KEYWORD_FALLBACK_CANDIDATE_LIMIT must be greater than 0.")
+    if current.toc_page_index < 0:
+        errors.append("TOC_PAGE_INDEX must be >= 0.")
+    if current.toc_expected_columns <= 0:
+        errors.append("TOC_EXPECTED_COLUMNS must be greater than 0.")
+    if current.toc_page_validation_window < 0:
+        errors.append("TOC_PAGE_VALIDATION_WINDOW must be >= 0.")
+    if current.toc_min_native_text_chars <= 0:
+        errors.append("TOC_MIN_NATIVE_TEXT_CHARS must be greater than 0.")
+    if not current.toc_output_json_path:
+        errors.append("TOC_OUTPUT_JSON_PATH is required.")
+    if not current.toc_entries_output_json_path:
+        errors.append("TOC_ENTRIES_OUTPUT_JSON_PATH is required.")
     if current.llm_provider not in SUPPORTED_LLM_PROVIDERS:
         providers = sorted(SUPPORTED_LLM_PROVIDERS)
         errors.append(
@@ -240,6 +291,8 @@ def validate_startup(
                 "Validation dataset PDF not found at "
                 f"'{current.dataset_validation_pdf_path}'."
             )
+        if not Path(current.toc_pdf_path).exists():
+            errors.append(f"TOC source PDF not found at '{current.toc_pdf_path}'.")
 
     if command in {"chat"} and current.llm_provider == "openai":
         if not os.getenv("OPENAI_API_KEY"):

@@ -12,6 +12,14 @@ from models import (
     QueryRequest,
     RetrievalHit,
     RetrievalResult,
+    TocEntry,
+    TocAgentEntry,
+    TocExtractionConfig,
+    TocPageValidationConfig,
+    TocSectionContent,
+    TocValidatedEntry,
+    TocValidatedSectionContent,
+    TocValidationResult,
     evaluator_result_from_dict,
     llm_response_from_dict,
     serialize_to_json_compatible,
@@ -122,6 +130,93 @@ class TestModels(unittest.TestCase):
         self.assertEqual(payload["predicate"], "drug_treats_disease")
         self.assertEqual(payload["source_entity_type"], "drug")
         self.assertEqual(payload["target_entity_type"], "disease")
+
+    def test_toc_extraction_config_to_dict(self) -> None:
+        config = TocExtractionConfig(
+            pdf_path="data/dataset/DORIN-CURS_SEM2_searchable.pdf",
+            toc_page_index=1,
+            expected_columns=2,
+            page_offset=0,
+        )
+        payload = config.to_dict()
+        self.assertEqual(payload["toc_page_index"], 1)
+        self.assertEqual(payload["expected_columns"], 2)
+        self.assertTrue(payload["use_pp_structure_fallback"])
+
+    def test_toc_entry_validation_and_to_dict(self) -> None:
+        entry = TocEntry(
+            chapter="Capitol 1",
+            subchapter="1.1",
+            start_page=7,
+            end_page=9,
+            original_toc_text="1.1 Introducere .... 7",
+        )
+        payload = entry.to_dict()
+        self.assertEqual(payload["chapter"], "Capitol 1")
+        self.assertEqual(payload["start_page"], 7)
+
+        with self.assertRaises(ValueError):
+            TocEntry(
+                chapter="Capitol 1",
+                subchapter=None,
+                start_page=10,
+                end_page=8,
+                original_toc_text="invalid range",
+            )
+
+    def test_toc_section_content_rejects_empty_text(self) -> None:
+        with self.assertRaises(ValueError):
+            TocSectionContent(
+                chapter="Capitol 1",
+                subchapter=None,
+                start_page=7,
+                end_page=8,
+                original_toc_text="1.1",
+                text="   ",
+            )
+
+    def test_toc_agent_entry_to_dict(self) -> None:
+        entry = TocAgentEntry(
+            chapter="Capitol 1",
+            subchapter="1.1 Anatomie",
+            printed_start_page=7,
+            original_toc_text="1.1 Anatomie .... 7",
+        )
+        payload = entry.to_dict()
+        self.assertEqual(payload["chapter"], "Capitol 1")
+        self.assertEqual(payload["printed_start_page"], 7)
+
+    def test_toc_page_validation_contracts(self) -> None:
+        config = TocPageValidationConfig(expected_page_offset=2, search_window=3)
+        entry = TocValidatedEntry(
+            chapter="Capitol 1",
+            subchapter=None,
+            printed_start_page=7,
+            validated_start_page=9,
+            original_toc_text="Capitol 1 .... 7",
+            page_validation_status="MATCHED",
+            page_validation_method="header_marker",
+        )
+        result = TocValidationResult(entries=[entry], config=config)
+        payload = result.to_dict()
+        self.assertEqual(payload["config"]["search_window"], 3)
+        self.assertEqual(payload["entries"][0]["validated_start_page"], 9)
+
+    def test_toc_validated_section_content_to_dict(self) -> None:
+        section = TocValidatedSectionContent(
+            chapter="Capitol 1",
+            subchapter="1.1 Anatomie",
+            printed_start_page=7,
+            validated_start_page=9,
+            validated_end_page=11,
+            original_toc_text="1.1 Anatomie .... 7",
+            page_validation_status="MATCHED_HEADER",
+            page_validation_method="window_search",
+            text="Continut sectiune",
+        )
+        payload = section.to_dict()
+        self.assertEqual(payload["validated_start_page"], 9)
+        self.assertEqual(payload["validated_end_page"], 11)
 
 
 if __name__ == "__main__":

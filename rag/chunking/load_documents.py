@@ -7,9 +7,19 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from models import MedicalItem
-from models.contracts import PdfStructuredChunk
+from models.contracts import (
+    PdfStructuredChunk,
+    TocAgentEntry,
+    TocEntry,
+    TocPageValidationConfig,
+    TocSectionContent,
+    TocValidatedEntry,
+    TocValidatedSectionContent,
+    TocValidationResult,
+)
 from rag.chunking.strategies import chunk_structured_chunks
 
 logger = logging.getLogger(__name__)
@@ -25,6 +35,14 @@ _TM_PATTERN = re.compile(
     r"(?P<a>-?\d+(?:\.\d+)?)\s+(?P<b>-?\d+(?:\.\d+)?)\s+(?P<c>-?\d+(?:\.\d+)?)\s+"
     r"(?P<d>-?\d+(?:\.\d+)?)\s+(?P<x>-?\d+(?:\.\d+)?)\s+(?P<y>-?\d+(?:\.\d+)?)\s+Tm"
 )
+_TOC_LINE_PATTERN = re.compile(
+    r"^\s*(?P<title>.+?)(?:\s*[.\u2024\u2025\u2026]{2,}\s*|\s+)(?P<page>\d{1,4})\s*$"
+)
+_PAGE_NUMBER_LINE_PATTERN = re.compile(r"^\s*(?:pagina|page)?\s*\d{1,4}\s*$", re.IGNORECASE)
+_PRINTED_PAGE_MARKER_PATTERN = re.compile(
+    r"^\s*(?:pag(?:ina)?\.?\s*)?(?P<page>\d{1,4})\s*$",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -32,6 +50,28 @@ class _OcrTextBlock:
     x: float
     y: float
     text: str
+
+
+@dataclass(frozen=True)
+class _LayoutDetectionResult:
+    column_count: int
+    split_x: float | None
+    method: str
+
+
+@dataclass(frozen=True)
+class _TocLineRecord:
+    x: float
+    text: str
+
+
+def _split_block_text_lines(raw_text: str) -> list[str]:
+    parts = []
+    for line in str(raw_text).splitlines():
+        clean = re.sub(r"\s+", " ", line).strip()
+        if clean:
+            parts.append(clean)
+    return parts
 
 
 def _validate_json_structure(data: object) -> list[str]:
@@ -503,6 +543,1066 @@ def _rebuild_text_from_ocr_blocks(blocks: list[_OcrTextBlock]) -> str:
         if line:
             lines.append(line)
     return "\n".join(lines).strip()
+
+
+def _detect_two_column_layout(blocks: list[_OcrTextBlock]) -> _LayoutDetectionResult:
+    if len(blocks) < 8:
+        return _LayoutDetectionResult(column_count=1, split_x=None, method="insufficient_blocks")
+
+    anchors = sorted(block.x for block in blocks)
+    if len(anchors) < 8:
+        return _LayoutDetectionResult(column_count=1, split_x=None, method="insufficient_anchors")
+
+    max_gap = 0.0
+    max_index = 0
+    for index in range(len(anchors) - 1):
+        gap = anchors[index + 1] - anchors[index]
+        if gap > max_gap:
+            max_gap = gap
+            max_index = index
+
+    left_count = max_index + 1
+    right_count = len(anchors) - left_count
+    min_count = max(3, len(anchors) // 5)
+    if max_gap >= 40 and left_count >= min_count and right_count >= min_count:
+        split_x = (anchors[max_index] + anchors[max_index + 1]) / 2.0
+        return _LayoutDetectionResult(column_count=2, split_x=split_x, method="x_gap")
+    return _LayoutDetectionResult(column_count=1, split_x=None, method="single_column")
+
+
+def _build_toc_line_records_from_blocks(
+    blocks: list[_OcrTextBlock],
+    *,
+    expected_columns: int,
+) -> list[_TocLineRecord]:
+    if not blocks:
+        return []
+
+    layout = _detect_two_column_layout(blocks)
+
+    # Group nearby text blocks into visual rows before ordering inside columns.
+    rows: dict[float, list[_OcrTextBlock]] = {}
+    for block in blocks:
+        clean = re.sub(r"\s+", " ", block.text).strip()
+        if not clean:
+            continue
+        row_key = round(block.y / 8.0) * 8.0
+        rows.setdefault(row_key, []).append(_OcrTextBlock(x=block.x, y=block.y, text=clean))
+
+    if not rows:
+        return []
+
+    if expected_columns == 2 and layout.column_count == 2 and layout.split_x is not None:
+        row_records: list[tuple[float, float, str]] = []
+        for row_y in sorted(rows.keys()):
+            ordered = sorted(rows[row_y], key=lambda item: item.x)
+            left_items = [item for item in ordered if item.x < layout.split_x]
+            right_items = [item for item in ordered if item.x >= layout.split_x]
+            if left_items:
+                left_line = " ".join(item.text for item in left_items).strip()
+                if left_line:
+                    row_records.append(
+                        (row_y, min(item.x for item in left_items), left_line)
+                    )
+            if right_items:
+                right_line = " ".join(item.text for item in right_items).strip()
+                if right_line:
+                    row_records.append(
+                        (row_y, min(item.x for item in right_items), right_line)
+                    )
+
+        if not row_records:
+            return []
+
+        left = [row for row in row_records if row[1] < layout.split_x]
+        right = [row for row in row_records if row[1] >= layout.split_x]
+        left = sorted(left, key=lambda item: item[0])
+        right = sorted(right, key=lambda item: item[0])
+        return [_TocLineRecord(x=row[1], text=row[2]) for row in left + right]
+
+    row_records: list[tuple[float, float, str]] = []
+    for row_y in sorted(rows.keys()):
+        ordered = sorted(rows[row_y], key=lambda item: item.x)
+        line = " ".join(item.text for item in ordered).strip()
+        if not line:
+            continue
+        min_x = min(item.x for item in ordered)
+        row_records.append((row_y, min_x, line))
+    if not row_records:
+        return []
+
+    row_records = sorted(row_records, key=lambda item: item[0])
+    return [_TocLineRecord(x=row[1], text=row[2]) for row in row_records]
+
+
+def _build_toc_lines_from_blocks(
+    blocks: list[_OcrTextBlock],
+    *,
+    expected_columns: int,
+) -> list[str]:
+    records = _build_toc_line_records_from_blocks(
+        blocks,
+        expected_columns=expected_columns,
+    )
+    return [record.text for record in records]
+
+
+def _extract_toc_blocks_with_pymupdf(
+    pdf_path: str,
+    page_index: int,
+) -> list[_OcrTextBlock]:
+    try:
+        import fitz
+    except Exception:
+        return []
+
+    try:
+        document = fitz.open(pdf_path)
+    except Exception:
+        return []
+
+    try:
+        if page_index < 0 or page_index >= document.page_count:
+            return []
+        page = document.load_page(page_index)
+        raw_blocks = page.get_text("blocks") or []
+        blocks: list[_OcrTextBlock] = []
+        for block in raw_blocks:
+            if not isinstance(block, (list, tuple)) or len(block) < 5:
+                continue
+            x0, y0, _x1, _y1, text = block[:5]
+            lines = _split_block_text_lines(str(text))
+            if not lines:
+                continue
+            try:
+                x_pos = float(x0)
+                y_pos = float(y0)
+            except Exception:
+                continue
+            for line_index, line in enumerate(lines):
+                blocks.append(_OcrTextBlock(x=x_pos, y=y_pos + (line_index * 4.0), text=line))
+        return blocks
+    finally:
+        try:
+            document.close()
+        except Exception:
+            pass
+
+
+def _extract_toc_blocks_with_ocr(
+    pdf_path: str,
+    page_index: int,
+) -> list[_OcrTextBlock]:
+    try:
+        import pypdfium2 as pdfium
+    except Exception:
+        return []
+
+    try:
+        document = pdfium.PdfDocument(pdf_path)
+    except Exception:
+        return []
+
+    try:
+        if page_index < 0 or page_index >= len(document):
+            return []
+        page = document[page_index]
+        image = page.render(scale=2.0).to_pil()
+        return _extract_ocr_blocks_from_image(image)
+    except Exception:
+        return []
+    finally:
+        try:
+            document.close()
+        except Exception:
+            pass
+
+
+def extract_toc_page_lines(
+    pdf_path: str,
+    *,
+    toc_page_index: int = 1,
+    expected_columns: int = 2,
+    min_native_text_chars: int = 120,
+) -> list[str]:
+    source = Path(pdf_path)
+    if not source.exists():
+        raise FileNotFoundError(f"PDF file not found: {pdf_path}")
+    if toc_page_index < 0:
+        raise ValueError("toc_page_index must be >= 0")
+    if expected_columns <= 0:
+        raise ValueError("expected_columns must be > 0")
+    if min_native_text_chars <= 0:
+        raise ValueError("min_native_text_chars must be > 0")
+
+    native_blocks = _extract_toc_blocks_with_pymupdf(pdf_path, toc_page_index)
+    native_chars = sum(len(block.text.strip()) for block in native_blocks)
+    if native_blocks and native_chars >= min_native_text_chars:
+        lines = _build_toc_lines_from_blocks(native_blocks, expected_columns=expected_columns)
+        if lines:
+            logger.info(
+                "TOC page %s extracted via PyMuPDF blocks with %s lines from %s",
+                toc_page_index,
+                len(lines),
+                pdf_path,
+            )
+            return lines
+
+    ocr_blocks = _extract_toc_blocks_with_ocr(pdf_path, toc_page_index)
+    lines = _build_toc_lines_from_blocks(ocr_blocks, expected_columns=expected_columns)
+    if lines:
+        logger.info(
+            "TOC page %s extracted via OCR blocks with %s lines from %s",
+            toc_page_index,
+            len(lines),
+            pdf_path,
+        )
+        return lines
+
+    if native_blocks:
+        # Last fallback: keep native block ordering if layout-based grouping failed.
+        ordered = sorted(native_blocks, key=lambda item: (item.y, item.x))
+        fallback_lines = [item.text for item in ordered if item.text.strip()]
+        if fallback_lines:
+            logger.warning(
+                "TOC extraction fallback used native ordering on page %s from %s",
+                toc_page_index,
+                pdf_path,
+            )
+            return fallback_lines
+
+    raise ValueError(f"Could not extract readable TOC lines from page {toc_page_index} in {pdf_path}")
+
+
+def extract_toc_page_records(
+    pdf_path: str,
+    *,
+    toc_page_index: int = 1,
+    expected_columns: int = 2,
+    min_native_text_chars: int = 120,
+) -> list[tuple[float, str]]:
+    source = Path(pdf_path)
+    if not source.exists():
+        raise FileNotFoundError(f"PDF file not found: {pdf_path}")
+    if toc_page_index < 0:
+        raise ValueError("toc_page_index must be >= 0")
+    if expected_columns <= 0:
+        raise ValueError("expected_columns must be > 0")
+    if min_native_text_chars <= 0:
+        raise ValueError("min_native_text_chars must be > 0")
+
+    native_blocks = _extract_toc_blocks_with_pymupdf(pdf_path, toc_page_index)
+    native_chars = sum(len(block.text.strip()) for block in native_blocks)
+    if native_blocks and native_chars >= min_native_text_chars:
+        records = _build_toc_line_records_from_blocks(
+            native_blocks,
+            expected_columns=expected_columns,
+        )
+        if records:
+            return [(record.x, record.text) for record in records]
+
+    ocr_blocks = _extract_toc_blocks_with_ocr(pdf_path, toc_page_index)
+    records = _build_toc_line_records_from_blocks(
+        ocr_blocks,
+        expected_columns=expected_columns,
+    )
+    if records:
+        return [(record.x, record.text) for record in records]
+
+    if native_blocks:
+        ordered = sorted(native_blocks, key=lambda item: (item.y, item.x))
+        fallback = [
+            (item.x, item.text.strip())
+            for item in ordered
+            if item.text and item.text.strip()
+        ]
+        if fallback:
+            return fallback
+    return []
+
+
+def _parse_toc_row(line: str) -> tuple[str, int] | None:
+    compact = re.sub(r"\s+", " ", line).strip()
+    if not compact:
+        return None
+    match = _TOC_LINE_PATTERN.match(compact)
+    if not match:
+        return None
+    title = re.sub(r"\s+", " ", match.group("title")).strip(" .\t")
+    if not title:
+        return None
+    return title, int(match.group("page"))
+
+
+def parse_toc_entries(
+    toc_records: list[tuple[float, str]],
+    *,
+    ignored_terms: tuple[str, ...] = ("contents", "cuprins"),
+) -> list[TocEntry]:
+    if not toc_records:
+        return []
+
+    x_values = sorted(x for x, _ in toc_records)
+    base_x = x_values[0]
+    indent_threshold = 12.0
+    distinct = sorted({round(x, 1) for x in x_values})
+    if len(distinct) >= 2:
+        min_gap = min(
+            distinct[index + 1] - distinct[index]
+            for index in range(len(distinct) - 1)
+        )
+        indent_threshold = max(8.0, min(20.0, min_gap * 0.7))
+
+    ignored = {term.strip().lower() for term in ignored_terms if term.strip()}
+    entries: list[TocEntry] = []
+    current_chapter = ""
+
+    for x_pos, original_line in toc_records:
+        parsed = _parse_toc_row(original_line)
+        if not parsed:
+            continue
+        title, start_page = parsed
+        if title.strip().lower() in ignored:
+            continue
+
+        is_subchapter = (x_pos - base_x) >= indent_threshold
+        if is_subchapter:
+            chapter = current_chapter or title
+            subchapter = title
+        else:
+            chapter = title
+            subchapter = None
+            current_chapter = chapter
+
+        entries.append(
+            TocEntry(
+                chapter=chapter,
+                subchapter=subchapter,
+                start_page=start_page,
+                end_page=start_page,
+                original_toc_text=original_line.strip(),
+            )
+        )
+
+    return entries
+
+
+def preprocess_toc_records_for_agent(
+    toc_records: list[tuple[float, str]],
+    *,
+    ignored_terms: tuple[str, ...] = ("contents", "cuprins"),
+) -> list[tuple[float, str]]:
+    """Normalize raw TOC OCR/layout records into deterministic rows for interpretation."""
+    if not toc_records:
+        return []
+
+    ignored = {term.strip().lower() for term in ignored_terms if term.strip()}
+    normalized: list[tuple[float, str]] = []
+    current_x: float | None = None
+    current_text = ""
+
+    def _flush() -> None:
+        nonlocal current_x, current_text
+        compact = re.sub(r"\s+", " ", current_text).strip(" .\t")
+        if not compact or current_x is None:
+            current_x = None
+            current_text = ""
+            return
+        parsed = _parse_toc_row(compact)
+        if parsed is not None:
+            title, _ = parsed
+            if title.strip().lower() not in ignored:
+                normalized.append((current_x, compact))
+            current_x = None
+            current_text = ""
+            return
+        current_text = compact
+
+    for x_pos, raw_text in toc_records:
+        clean = re.sub(r"\s+", " ", str(raw_text)).strip()
+        if not clean:
+            continue
+        if current_x is None:
+            current_x = float(x_pos)
+            current_text = clean
+        else:
+            same_indent = abs(float(x_pos) - current_x) <= 12.0
+            if same_indent:
+                candidate = f"{current_text} {clean}".strip()
+                if _parse_toc_row(candidate) is not None:
+                    current_text = candidate
+                    _flush()
+                    continue
+            _flush()
+            current_x = float(x_pos)
+            current_text = clean
+        if _parse_toc_row(current_text) is not None:
+            _flush()
+
+    _flush()
+    return normalized
+
+
+def _default_agent_toc_interpreter(
+    toc_records: list[tuple[float, str]],
+    *,
+    ignored_terms: tuple[str, ...] = ("contents", "cuprins"),
+) -> list[TocAgentEntry]:
+    parsed_entries = parse_toc_entries(toc_records, ignored_terms=ignored_terms)
+    return [
+        TocAgentEntry(
+            chapter=entry.chapter,
+            subchapter=entry.subchapter,
+            printed_start_page=entry.start_page,
+            original_toc_text=entry.original_toc_text,
+        )
+        for entry in parsed_entries
+    ]
+
+
+def interpret_toc_entries_with_agent(
+    toc_records: list[tuple[float, str]],
+    *,
+    ignored_terms: tuple[str, ...] = ("contents", "cuprins"),
+    agent_interpreter: Callable[[list[tuple[float, str]]], list[TocAgentEntry]] | None = None,
+) -> list[TocAgentEntry]:
+    """Build agent-level TOC entries from OCR/layout lines.
+
+    The optional `agent_interpreter` hook lets us inject an LLM-driven parser
+    while keeping a deterministic parser fallback.
+    """
+    normalized_records = preprocess_toc_records_for_agent(
+        toc_records,
+        ignored_terms=ignored_terms,
+    )
+    if agent_interpreter is not None:
+        interpreted = agent_interpreter(normalized_records)
+        return [entry for entry in interpreted if isinstance(entry, TocAgentEntry)]
+
+    return _default_agent_toc_interpreter(normalized_records, ignored_terms=ignored_terms)
+
+
+def validate_toc_start_pages(
+    agent_entries: list[TocAgentEntry],
+    *,
+    config: TocPageValidationConfig,
+    pdf_path: str | None = None,
+    expected_columns: int = 2,
+    min_native_text_chars: int = 120,
+    use_pp_structure_fallback: bool = True,
+    page_text_provider: Callable[[int], str] | None = None,
+    page_validator: Callable[[TocAgentEntry, TocPageValidationConfig], TocValidatedEntry] | None = None,
+) -> TocValidationResult:
+    """Resolve printed TOC page numbers to validated PDF start pages.
+
+    A concrete validator can be injected later (header/title anchored lookup).
+    Until then, the default behavior maps by expected offset.
+    """
+    def _default_page_text_provider(page_number: int) -> str:
+        if not pdf_path:
+            return ""
+        native_blocks = _extract_page_blocks_with_pymupdf(pdf_path, page_number - 1)
+        native_text = _build_section_page_text(
+            native_blocks,
+            expected_columns=expected_columns,
+        )
+        if len(native_text) >= min_native_text_chars:
+            return native_text
+        if use_pp_structure_fallback:
+            fallback_blocks = _extract_page_blocks_with_pp_structure(pdf_path, page_number - 1)
+            fallback_text = _build_section_page_text(
+                fallback_blocks,
+                expected_columns=expected_columns,
+            )
+            if fallback_text:
+                return fallback_text
+        return native_text
+
+    provider = page_text_provider or _default_page_text_provider
+    max_page = _pdf_page_count(pdf_path) if pdf_path else None
+
+    validated: list[TocValidatedEntry] = []
+    for entry in agent_entries:
+        if page_validator is not None:
+            validated_entry = page_validator(entry, config)
+            validated.append(validated_entry)
+            continue
+
+        expected_page = max(1, entry.printed_start_page + config.expected_page_offset)
+        candidate_pages = range(
+            max(1, expected_page - config.search_window),
+            expected_page + config.search_window + 1,
+        )
+        if max_page is not None:
+            candidate_pages = [page for page in candidate_pages if page <= max_page]
+
+        best_candidate: tuple[int, int, bool, bool, str | None] | None = None
+        title_hint = entry.subchapter or entry.chapter
+        normalized_hint = re.sub(r"\s+", " ", title_hint).strip().lower()
+
+        for page_number in candidate_pages:
+            page_text = provider(page_number)
+            if not page_text.strip():
+                continue
+            marker = _match_printed_page_marker(page_text, entry.printed_start_page)
+            has_marker = marker is not None
+            has_title = bool(normalized_hint) and _text_contains_title_hint(page_text, normalized_hint)
+            if config.require_title_hint and not has_title:
+                continue
+
+            score = 0
+            if has_marker:
+                score += 3
+            if has_title:
+                score += 2
+            distance = abs(page_number - expected_page)
+            if best_candidate is None:
+                best_candidate = (score, distance, has_marker, has_title, marker)
+                best_page = page_number
+                continue
+            best_score, best_distance, _, _, _ = best_candidate
+            if score > best_score or (score == best_score and distance < best_distance):
+                best_candidate = (score, distance, has_marker, has_title, marker)
+                best_page = page_number
+
+        if best_candidate is None:
+            mapped_page = expected_page
+            if max_page is not None:
+                mapped_page = min(mapped_page, max_page)
+            validated.append(
+                TocValidatedEntry(
+                    chapter=entry.chapter,
+                    subchapter=entry.subchapter,
+                    printed_start_page=entry.printed_start_page,
+                    validated_start_page=mapped_page,
+                    original_toc_text=entry.original_toc_text,
+                    page_validation_status="OFFSET_MAPPED",
+                    page_validation_method="offset_only",
+                )
+            )
+            continue
+
+        _, _, has_marker, has_title, marker = best_candidate
+        if has_marker and has_title:
+            status = "MATCHED_HEADER_AND_TITLE"
+        elif has_marker:
+            status = "MATCHED_HEADER"
+        elif has_title:
+            status = "MATCHED_TITLE"
+        else:
+            status = "OFFSET_MAPPED"
+        validated.append(
+            TocValidatedEntry(
+                chapter=entry.chapter,
+                subchapter=entry.subchapter,
+                printed_start_page=entry.printed_start_page,
+                validated_start_page=best_page,
+                original_toc_text=entry.original_toc_text,
+                page_validation_status=status,
+                page_validation_method="window_search",
+                matched_page_marker=marker,
+                matched_title_hint=title_hint if has_title else None,
+            )
+        )
+
+    return TocValidationResult(entries=validated, config=config)
+
+
+def _match_printed_page_marker(page_text: str, printed_start_page: int) -> str | None:
+    for line in page_text.splitlines():
+        clean = re.sub(r"\s+", " ", line).strip()
+        match = _PRINTED_PAGE_MARKER_PATTERN.match(clean)
+        if not match:
+            continue
+        if int(match.group("page")) == printed_start_page:
+            return clean
+    return None
+
+
+def _text_contains_title_hint(page_text: str, title_hint: str) -> bool:
+    if not title_hint.strip():
+        return False
+    compact_text = re.sub(r"\s+", " ", page_text).strip().lower()
+    compact_hint = re.sub(r"\s+", " ", title_hint).strip().lower()
+    if compact_hint in compact_text:
+        return True
+    hint_tokens = [token for token in re.findall(r"[a-z0-9]+", compact_hint) if len(token) > 2]
+    if not hint_tokens:
+        return False
+    matched_tokens = sum(1 for token in hint_tokens if token in compact_text)
+    return matched_tokens >= max(2, len(hint_tokens) // 2)
+
+
+def resolve_toc_page_ranges(
+    toc_entries: list[TocEntry],
+    *,
+    page_offset: int = 0,
+    max_pdf_page: int | None = None,
+) -> list[TocEntry]:
+    if not toc_entries:
+        return []
+
+    resolved: list[TocEntry] = []
+    adjusted_starts = [max(1, entry.start_page + page_offset) for entry in toc_entries]
+    total_entries = len(toc_entries)
+
+    for index, entry in enumerate(toc_entries):
+        start_page = adjusted_starts[index]
+        if index + 1 < total_entries:
+            next_start = adjusted_starts[index + 1]
+            end_page = max(start_page, next_start - 1)
+        elif max_pdf_page is not None:
+            end_page = max(start_page, max_pdf_page)
+        else:
+            end_page = start_page
+
+        if max_pdf_page is not None:
+            start_page = min(start_page, max_pdf_page)
+            end_page = min(end_page, max_pdf_page)
+            end_page = max(start_page, end_page)
+
+        resolved.append(
+            TocEntry(
+                chapter=entry.chapter,
+                subchapter=entry.subchapter,
+                start_page=start_page,
+                end_page=end_page,
+                original_toc_text=entry.original_toc_text,
+            )
+        )
+
+    return resolved
+
+
+def _extract_page_blocks_with_pymupdf(
+    pdf_path: str,
+    page_index: int,
+) -> list[_OcrTextBlock]:
+    try:
+        import fitz
+    except Exception:
+        return []
+
+    try:
+        document = fitz.open(pdf_path)
+    except Exception:
+        return []
+
+    try:
+        if page_index < 0 or page_index >= document.page_count:
+            return []
+        page = document.load_page(page_index)
+        raw_blocks = page.get_text("blocks") or []
+        blocks: list[_OcrTextBlock] = []
+        for block in raw_blocks:
+            if not isinstance(block, (list, tuple)) or len(block) < 5:
+                continue
+            x0, y0, _x1, _y1, text = block[:5]
+            lines = _split_block_text_lines(str(text))
+            if not lines:
+                continue
+            try:
+                x_pos = float(x0)
+                y_pos = float(y0)
+            except Exception:
+                continue
+            for line_index, line in enumerate(lines):
+                blocks.append(_OcrTextBlock(x=x_pos, y=y_pos + (line_index * 4.0), text=line))
+        return blocks
+    finally:
+        try:
+            document.close()
+        except Exception:
+            pass
+
+
+def _extract_page_blocks_with_pp_structure(
+    pdf_path: str,
+    page_index: int,
+) -> list[_OcrTextBlock]:
+    try:
+        import pypdfium2 as pdfium
+    except Exception:
+        return []
+
+    try:
+        document = pdfium.PdfDocument(pdf_path)
+    except Exception:
+        return []
+
+    try:
+        if page_index < 0 or page_index >= len(document):
+            return []
+        page = document[page_index]
+        image = page.render(scale=2.0).to_pil()
+
+        try:
+            import numpy as np
+            from paddleocr import PPStructure
+        except Exception:
+            return _extract_ocr_blocks_from_image(image)
+
+        try:
+            engine = PPStructure(show_log=False)
+            result = engine(np.array(image))
+        except Exception:
+            return _extract_ocr_blocks_from_image(image)
+
+        blocks: list[_OcrTextBlock] = []
+        for item in result or []:
+            if not isinstance(item, dict):
+                continue
+            bbox = item.get("bbox")
+            if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
+                continue
+            try:
+                x0 = float(bbox[0])
+                y0 = float(bbox[1])
+            except Exception:
+                x0 = 0.0
+                y0 = 0.0
+
+            rec_lines = item.get("res")
+            if not isinstance(rec_lines, list):
+                continue
+            for rec in rec_lines:
+                if not isinstance(rec, dict):
+                    continue
+                text = re.sub(r"\s+", " ", str(rec.get("text", ""))).strip()
+                if not text:
+                    continue
+                blocks.append(_OcrTextBlock(x=x0, y=y0, text=text))
+
+        if blocks:
+            return blocks
+        return _extract_ocr_blocks_from_image(image)
+    finally:
+        try:
+            document.close()
+        except Exception:
+            pass
+
+
+def _build_section_page_text(
+    blocks: list[_OcrTextBlock],
+    *,
+    expected_columns: int,
+) -> str:
+    lines = _build_toc_lines_from_blocks(blocks, expected_columns=expected_columns)
+    if not lines:
+        return ""
+    return _normalize_extracted_page_text("\n".join(lines))
+
+
+def _clean_section_page_texts(page_texts: list[str]) -> str:
+    if not page_texts:
+        return ""
+
+    pages_lines: list[list[str]] = []
+    for page_text in page_texts:
+        lines = [
+            re.sub(r"\s+", " ", line).strip()
+            for line in page_text.splitlines()
+            if re.sub(r"\s+", " ", line).strip()
+        ]
+        lines = [line for line in lines if not _PAGE_NUMBER_LINE_PATTERN.match(line)]
+        pages_lines.append(lines)
+
+    first_counts: dict[str, int] = {}
+    last_counts: dict[str, int] = {}
+    for lines in pages_lines:
+        if not lines:
+            continue
+        first_counts[lines[0]] = first_counts.get(lines[0], 0) + 1
+        if len(lines) > 1:
+            last_counts[lines[-1]] = last_counts.get(lines[-1], 0) + 1
+
+    threshold = max(2, len(pages_lines) // 2 + len(pages_lines) % 2)
+    repeated_headers = {line for line, count in first_counts.items() if count >= threshold}
+    repeated_footers = {line for line, count in last_counts.items() if count >= threshold}
+
+    cleaned_pages: list[str] = []
+    for lines in pages_lines:
+        if not lines:
+            continue
+        working = list(lines)
+        if working and working[0] in repeated_headers:
+            working = working[1:]
+        if working and working[-1] in repeated_footers:
+            working = working[:-1]
+        if working:
+            cleaned_pages.append("\n".join(working))
+
+    return _normalize_extracted_page_text("\n".join(cleaned_pages))
+
+
+def extract_section_text_range(
+    pdf_path: str,
+    *,
+    start_page: int,
+    end_page: int,
+    expected_columns: int = 2,
+    min_native_text_chars: int = 120,
+    use_pp_structure_fallback: bool = True,
+) -> str:
+    source = Path(pdf_path)
+    if not source.exists():
+        raise FileNotFoundError(f"PDF file not found: {pdf_path}")
+    if start_page <= 0:
+        raise ValueError("start_page must be > 0")
+    if end_page < start_page:
+        raise ValueError("end_page must be >= start_page")
+    if expected_columns <= 0:
+        raise ValueError("expected_columns must be > 0")
+    if min_native_text_chars <= 0:
+        raise ValueError("min_native_text_chars must be > 0")
+
+    page_texts: list[str] = []
+    for page_number in range(start_page, end_page + 1):
+        page_index = page_number - 1
+        native_blocks = _extract_page_blocks_with_pymupdf(pdf_path, page_index)
+        native_text = _build_section_page_text(
+            native_blocks,
+            expected_columns=expected_columns,
+        )
+        if len(native_text) >= min_native_text_chars:
+            page_texts.append(native_text)
+            continue
+
+        if use_pp_structure_fallback:
+            fallback_blocks = _extract_page_blocks_with_pp_structure(pdf_path, page_index)
+            fallback_text = _build_section_page_text(
+                fallback_blocks,
+                expected_columns=expected_columns,
+            )
+            if fallback_text:
+                page_texts.append(fallback_text)
+                continue
+
+        if native_text:
+            page_texts.append(native_text)
+
+    return _clean_section_page_texts(page_texts)
+
+
+def aggregate_toc_section_contents(
+    pdf_path: str,
+    toc_entries: list[TocEntry],
+    *,
+    expected_columns: int = 2,
+    min_native_text_chars: int = 120,
+    use_pp_structure_fallback: bool = True,
+) -> list[TocSectionContent]:
+    sections: list[TocSectionContent] = []
+    for entry in toc_entries:
+        text = extract_section_text_range(
+            pdf_path,
+            start_page=entry.start_page,
+            end_page=entry.end_page,
+            expected_columns=expected_columns,
+            min_native_text_chars=min_native_text_chars,
+            use_pp_structure_fallback=use_pp_structure_fallback,
+        )
+        if not text.strip():
+            continue
+        sections.append(
+            TocSectionContent(
+                chapter=entry.chapter,
+                subchapter=entry.subchapter,
+                start_page=entry.start_page,
+                end_page=entry.end_page,
+                original_toc_text=entry.original_toc_text,
+                text=text,
+            )
+        )
+    return sections
+
+
+def aggregate_validated_toc_section_contents(
+    pdf_path: str,
+    validated_entries: list[TocValidatedEntry],
+    *,
+    expected_columns: int = 2,
+    min_native_text_chars: int = 120,
+    use_pp_structure_fallback: bool = True,
+) -> list[TocValidatedSectionContent]:
+    if not validated_entries:
+        return []
+
+    max_page = _pdf_page_count(pdf_path)
+    sections: list[TocValidatedSectionContent] = []
+    total_entries = len(validated_entries)
+
+    for index, entry in enumerate(validated_entries):
+        start_page = entry.validated_start_page
+        if index + 1 < total_entries:
+            end_page = max(start_page, validated_entries[index + 1].validated_start_page - 1)
+        elif max_page is not None:
+            end_page = max(start_page, max_page)
+        else:
+            end_page = start_page
+
+        if max_page is not None:
+            start_page = min(start_page, max_page)
+            end_page = min(end_page, max_page)
+            end_page = max(start_page, end_page)
+
+        text = extract_section_text_range(
+            pdf_path,
+            start_page=start_page,
+            end_page=end_page,
+            expected_columns=expected_columns,
+            min_native_text_chars=min_native_text_chars,
+            use_pp_structure_fallback=use_pp_structure_fallback,
+        )
+        if not text.strip():
+            continue
+        sections.append(
+            TocValidatedSectionContent(
+                chapter=entry.chapter,
+                subchapter=entry.subchapter,
+                printed_start_page=entry.printed_start_page,
+                validated_start_page=start_page,
+                validated_end_page=end_page,
+                original_toc_text=entry.original_toc_text,
+                page_validation_status=entry.page_validation_status,
+                page_validation_method=entry.page_validation_method,
+                matched_page_marker=entry.matched_page_marker,
+                matched_title_hint=entry.matched_title_hint,
+                text=text,
+            )
+        )
+    return sections
+
+
+def _pdf_page_count(pdf_path: str) -> int | None:
+    try:
+        import fitz
+    except Exception:
+        fitz = None  # type: ignore[assignment]
+    if fitz is not None:
+        try:
+            document = fitz.open(pdf_path)
+            try:
+                return int(document.page_count)
+            finally:
+                document.close()
+        except Exception:
+            pass
+
+    try:
+        import pypdfium2 as pdfium
+    except Exception:
+        return None
+
+    try:
+        document = pdfium.PdfDocument(pdf_path)
+        try:
+            return int(len(document))
+        finally:
+            document.close()
+    except Exception:
+        return None
+
+
+def export_toc_sections_to_json(
+    pdf_path: str,
+    *,
+    output_json_path: str,
+    toc_page_index: int = 1,
+    expected_columns: int = 2,
+    page_offset: int = 0,
+    min_native_text_chars: int = 120,
+    use_pp_structure_fallback: bool = True,
+    ignored_terms: tuple[str, ...] = ("contents", "cuprins"),
+) -> list[TocSectionContent]:
+    records = extract_toc_page_records(
+        pdf_path,
+        toc_page_index=toc_page_index,
+        expected_columns=expected_columns,
+        min_native_text_chars=min_native_text_chars,
+    )
+    entries = parse_toc_entries(records, ignored_terms=ignored_terms)
+    max_page = _pdf_page_count(pdf_path)
+    resolved_entries = resolve_toc_page_ranges(
+        entries,
+        page_offset=page_offset,
+        max_pdf_page=max_page,
+    )
+    sections = aggregate_toc_section_contents(
+        pdf_path,
+        resolved_entries,
+        expected_columns=expected_columns,
+        min_native_text_chars=min_native_text_chars,
+        use_pp_structure_fallback=use_pp_structure_fallback,
+    )
+
+    output_path = Path(output_json_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = [section.to_dict() for section in sections]
+    output_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return sections
+
+
+def export_toc_sections_with_validation_to_json(
+    pdf_path: str,
+    *,
+    output_json_path: str,
+    toc_entries_json_path: str,
+    toc_page_index: int = 1,
+    expected_columns: int = 2,
+    page_offset: int = 0,
+    page_validation_window: int = 2,
+    require_title_hint: bool = False,
+    min_native_text_chars: int = 120,
+    use_pp_structure_fallback: bool = True,
+    ignored_terms: tuple[str, ...] = ("contents", "cuprins"),
+) -> tuple[list[TocAgentEntry], list[TocValidatedSectionContent]]:
+    records = extract_toc_page_records(
+        pdf_path,
+        toc_page_index=toc_page_index,
+        expected_columns=expected_columns,
+        min_native_text_chars=min_native_text_chars,
+    )
+    toc_entries = interpret_toc_entries_with_agent(records, ignored_terms=ignored_terms)
+
+    validation = validate_toc_start_pages(
+        toc_entries,
+        config=TocPageValidationConfig(
+            expected_page_offset=page_offset,
+            search_window=page_validation_window,
+            require_title_hint=require_title_hint,
+        ),
+        pdf_path=pdf_path,
+        expected_columns=expected_columns,
+        min_native_text_chars=min_native_text_chars,
+        use_pp_structure_fallback=use_pp_structure_fallback,
+    )
+    sections = aggregate_validated_toc_section_contents(
+        pdf_path,
+        validation.entries,
+        expected_columns=expected_columns,
+        min_native_text_chars=min_native_text_chars,
+        use_pp_structure_fallback=use_pp_structure_fallback,
+    )
+
+    toc_entries_path = Path(toc_entries_json_path)
+    toc_entries_path.parent.mkdir(parents=True, exist_ok=True)
+    toc_entries_path.write_text(
+        json.dumps([entry.to_dict() for entry in toc_entries], ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    output_path = Path(output_json_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps([section.to_dict() for section in sections], ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return toc_entries, sections
 
 
 def _extract_pages_with_rapidocr(
@@ -1009,6 +2109,3 @@ def profile_pdf_structure(pdf_path: str, max_chunks_preview: int = 10) -> dict[s
         "preview": preview,
         "parse_error": None,
     }
-
-
-

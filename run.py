@@ -16,7 +16,10 @@ from config.settings import (
     ensure_startup_valid,
 )
 from knowledge.qdrant.ingest import ingest
-from rag.chunking.load_documents import discover_pdf_paths
+from rag.chunking.load_documents import (
+    discover_pdf_paths,
+    export_toc_sections_with_validation_to_json,
+)
 from rag.retrieval.quality_report import build_quality_report
 from models.serde import serialize_to_json_compatible
 
@@ -142,6 +145,68 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Maximum number of chunk matches to include per keyword in quality report",
     )
 
+    toc_parser = subparsers.add_parser(
+        "toc-export",
+        help="Extract TOC-driven section content from PDF and export JSON",
+    )
+    toc_parser.add_argument(
+        "--pdf-path",
+        default=SETTINGS.toc_pdf_path,
+        help="Path to source PDF used for TOC-driven extraction",
+    )
+    toc_parser.add_argument(
+        "--output-json-path",
+        default=SETTINGS.toc_output_json_path,
+        help="Output JSON path for extracted TOC sections",
+    )
+    toc_parser.add_argument(
+        "--toc-page-index",
+        type=int,
+        default=SETTINGS.toc_page_index,
+        help="TOC page index (0-based) in source PDF",
+    )
+    toc_parser.add_argument(
+        "--expected-columns",
+        type=int,
+        default=SETTINGS.toc_expected_columns,
+        help="Expected page column count for reading-order reconstruction",
+    )
+    toc_parser.add_argument(
+        "--page-offset",
+        type=int,
+        default=SETTINGS.toc_page_offset,
+        help="Offset applied to TOC page numbers to map to real PDF pages",
+    )
+    toc_parser.add_argument(
+        "--page-validation-window",
+        type=int,
+        default=SETTINGS.toc_page_validation_window,
+        help="Search window around expected mapped page for printed-page/title validation",
+    )
+    toc_parser.add_argument(
+        "--require-title-hint",
+        action=argparse.BooleanOptionalAction,
+        default=SETTINGS.toc_require_title_hint,
+        help="Require section title hint match when validating mapped TOC pages",
+    )
+    toc_parser.add_argument(
+        "--min-native-text-chars",
+        type=int,
+        default=SETTINGS.toc_min_native_text_chars,
+        help="Minimum native page text length before OCR/PP-Structure fallback",
+    )
+    toc_parser.add_argument(
+        "--use-pp-structure-fallback",
+        action=argparse.BooleanOptionalAction,
+        default=SETTINGS.toc_use_pp_structure_fallback,
+        help="Enable PP-Structure/OCR fallback for low-quality native extraction",
+    )
+    toc_parser.add_argument(
+        "--toc-entries-json-path",
+        default=SETTINGS.toc_entries_output_json_path,
+        help="Output JSON path for structured TOC entries used by the validated extractor",
+    )
+
     subparsers.add_parser("eval", help="Run evaluation smoke check")
     return parser
 
@@ -219,6 +284,28 @@ def main() -> None:
         result = run_evaluation_smoke()
         payload = serialize_to_json_compatible(result)
         logger.info(json.dumps(payload, ensure_ascii=False, indent=2))
+        return
+
+    if args.command == "toc-export":
+        toc_entries, sections = export_toc_sections_with_validation_to_json(
+            args.pdf_path,
+            output_json_path=args.output_json_path,
+            toc_entries_json_path=args.toc_entries_json_path,
+            toc_page_index=args.toc_page_index,
+            expected_columns=args.expected_columns,
+            page_offset=args.page_offset,
+            page_validation_window=args.page_validation_window,
+            require_title_hint=args.require_title_hint,
+            min_native_text_chars=args.min_native_text_chars,
+            use_pp_structure_fallback=args.use_pp_structure_fallback,
+        )
+        logger.info(
+            "TOC export completed: %s TOC entries written to %s; %s sections written to %s",
+            len(toc_entries),
+            args.toc_entries_json_path,
+            len(sections),
+            args.output_json_path,
+        )
         return
 
     parser.error(f"Unknown command: {args.command}")
