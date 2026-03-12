@@ -1,4 +1,9 @@
-from rag.chunking.load_documents import discover_pdf_paths, load_medical_items, load_pdf_chunks
+from rag.chunking.load_documents import (
+    discover_markdown_paths,
+    discover_pdf_paths,
+    load_medical_items,
+    load_pdf_chunks,
+)
 from rag.chunking.strategies import (
     chunk_structured_chunks,
     chunk_text,
@@ -11,6 +16,7 @@ from rag.chunking.strategies import (
 
 __all__ = [
     "load_medical_items",
+    "discover_markdown_paths",
     "discover_pdf_paths",
     "load_pdf_chunks",
     "chunk_structured_chunks",

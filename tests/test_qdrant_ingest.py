@@ -224,7 +224,7 @@ class TestQdrantIngest(unittest.TestCase):
         self.assertEqual(count, 1)
         point = client_mock.upsert.call_args.kwargs["points"][0]
         self.assertEqual(point.payload["chunk_id"], "chunk-ner")
-        self.assertEqual(point.payload["page"], 12)
+        self.assertNotIn("page", point.payload)
         self.assertEqual(point.payload["source_file"], "doc.pdf")
         self.assertTrue(point.payload["entities"])
         self.assertTrue(any(ent["canonical_form"] == "myocardial infarction" for ent in point.payload["entities"]))

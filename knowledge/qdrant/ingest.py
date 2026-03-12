@@ -1,3 +1,18 @@
+"""Qdrant ingestion pipeline.
+
+What this module does:
+- Builds vector points from two source families:
+    1) structured tabular data (JSON/CSV medical items)
+    2) corpus chunks (PDF/Markdown parsed as `PdfStructuredChunk`)
+- Enriches PDF/Markdown chunks with detected entities.
+- Optionally forwards chunk data to graph ingestion.
+- Upserts points to Qdrant with batching + retry logic.
+
+Design note:
+- IDs are deterministic (`build_point_id`, `build_pdf_point_id`) so repeated ingest
+    runs update existing points instead of creating uncontrolled duplicates.
+"""
+
 from __future__ import annotations
 
 import hashlib
@@ -195,7 +210,6 @@ def ingest(
                 "title": pdf_chunk.section,
                 "source": "pdf",
                 "source_file": pdf_chunk.source_file,
-                "page": pdf_chunk.page,
                 "chapter": pdf_chunk.chapter,
                 "section": pdf_chunk.section,
                 "chunk_id": pdf_chunk.chunk_id,

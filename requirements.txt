@@ -14,11 +14,8 @@ flask==3.0.2
 
 # Data processing
 pandas==2.2.0
-pymupdf==1.26.4
-pypdfium2==4.30.0
-rapidocr-onnxruntime==1.4.3
-paddleocr==2.8.1
 llama-index-core==0.11.23
+llama-index-embeddings-openai>=0.2.0,<0.3.0
 kuzu>=0.6.0
 
 # Translation

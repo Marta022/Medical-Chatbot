@@ -5,7 +5,12 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from agent.reasoning.providers import anthropic_client, local_gemma_client, openai_client
+from agent.reasoning.providers import (
+    anthropic_client,
+    local_gemma_client,
+    local_qwen_client,
+    openai_client,
+)
 
 
 class TestProviderClients(unittest.TestCase):
@@ -43,6 +48,17 @@ class TestProviderClients(unittest.TestCase):
                 temperature=0.1,
             )
         self.assertEqual(result, "ok")
+
+    def test_qwen_call_uses_ollama_transport(self) -> None:
+        with patch("agent.reasoning.providers.local_qwen_client.ollama_call", return_value="ok") as mocked:
+            result = local_qwen_client.qwen_call(
+                messages=[{"role": "user", "content": "hi"}],
+                model="qwen3.5",
+                temperature=0.1,
+            )
+
+        self.assertEqual(result, "ok")
+        mocked.assert_called_once()
 
 
 if __name__ == "__main__":

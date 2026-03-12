@@ -1,3 +1,20 @@
+"""Chunking strategy implementations used before embedding.
+
+Purpose:
+- Convert large text blocks into retrieval-friendly chunks.
+- Preserve structural signals (headings/lists) where possible.
+
+Available strategies:
+- `section`: structure-aware grouping from markdown-like lines.
+- `sentence`: fixed number of sentences per chunk.
+- `window`: overlapping sentence windows.
+- `semantic`: strict LlamaIndex semantic splitter path.
+
+`chunk_text(...)` is the strategy router for raw text.
+`chunk_structured_chunks(...)` applies the same logic to `PdfStructuredChunk`
+objects while preserving source metadata.
+"""
+
 from __future__ import annotations
 
 import hashlib
@@ -8,6 +25,7 @@ from models.contracts import PdfStructuredChunk
 _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 _NUMBERED_ITEM_PATTERN = re.compile(r"^\s*\d+[\.\)]\s+\S+")
 _BULLET_ITEM_PATTERN = re.compile(r"^\s*[-*\u2022]\s+\S+")
+_MARKDOWN_HEADING_PATTERN = re.compile(r"^\s*(#{1,3})\s+\S+")
 
 
 def split_sentences(text: str) -> list[str]:
@@ -48,12 +66,15 @@ def section_chunks(text: str) -> list[str]:
     cleaned = text.strip()
     if not cleaned:
         return []
-    lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
-    return lines
+    return _group_lines_with_markdown_structure(cleaned)
 
 
 def _is_list_item(line: str) -> bool:
     return bool(_NUMBERED_ITEM_PATTERN.match(line) or _BULLET_ITEM_PATTERN.match(line))
+
+
+def _is_markdown_heading(line: str) -> bool:
+    return bool(_MARKDOWN_HEADING_PATTERN.match(line))
 
 
 def _is_list_block(block: str) -> bool:
@@ -61,7 +82,7 @@ def _is_list_block(block: str) -> bool:
     return bool(lines and _is_list_item(lines[0]))
 
 
-def _group_lines_with_list_preservation(text: str) -> list[str]:
+def _group_lines_with_markdown_structure(text: str) -> list[str]:
     blocks: list[str] = []
     paragraph: list[str] = []
     list_block: list[str] = []
@@ -75,6 +96,16 @@ def _group_lines_with_list_preservation(text: str) -> list[str]:
             if paragraph:
                 blocks.append(" ".join(paragraph))
                 paragraph = []
+            continue
+
+        if _is_markdown_heading(line):
+            if list_block:
+                blocks.append("\n".join(list_block))
+                list_block = []
+            if paragraph:
+                blocks.append(" ".join(paragraph))
+                paragraph = []
+            blocks.append(line)
             continue
 
         if _is_list_item(line):
@@ -99,24 +130,6 @@ def _group_lines_with_list_preservation(text: str) -> list[str]:
     if paragraph:
         blocks.append(" ".join(paragraph))
     return blocks
-
-
-def _merge_text_blocks(blocks: list[str], max_chars: int) -> list[str]:
-    if not blocks:
-        return []
-    merged: list[str] = []
-    current = ""
-    for block in blocks:
-        separator = "\n" if _is_list_block(block) else " "
-        candidate = block if not current else f"{current}{separator}{block}"
-        if len(candidate) <= max_chars or not current:
-            current = candidate
-            continue
-        merged.append(current.strip())
-        current = block
-    if current:
-        merged.append(current.strip())
-    return [chunk for chunk in merged if chunk]
 
 
 def _llamaindex_semantic_chunks(text: str) -> list[str]:
@@ -148,19 +161,21 @@ def semantic_chunks(
     cleaned = text.strip()
     if not cleaned:
         return []
-    blocks = _group_lines_with_list_preservation(cleaned)
+    blocks = _group_lines_with_markdown_structure(cleaned)
     if not blocks:
         return []
     prepared_text = "\n\n".join(blocks)
 
-    if use_llamaindex:
-        semantic = _llamaindex_semantic_chunks(prepared_text)
-        if not semantic:
-            raise RuntimeError(
-                "Semantic chunking requires a working llama-index semantic splitter."
-            )
-        return semantic
-    return _merge_text_blocks(blocks, max_chars=max_chars)
+    if not use_llamaindex:
+        raise RuntimeError(
+            "Semantic chunking requires llama-index semantic splitter."
+        )
+    semantic = _llamaindex_semantic_chunks(prepared_text)
+    if not semantic:
+        raise RuntimeError(
+            "Semantic chunking requires a working llama-index semantic splitter."
+        )
+    return semantic
 
 
 def chunk_text(

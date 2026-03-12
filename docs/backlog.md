@@ -27,10 +27,10 @@ Key findings from repository review:
 - `ingestion/ingest_vectordb.py` imports `ensure_collection`, but `vector_db/qdrant_client.py` does not provide it.
 - Docker assets now exist (`Dockerfile`, `docker-compose.yml`), but container smoke tests are currently blocked by Docker layer extraction/cache corruption in the local environment.
 
-## Execution Status Snapshot (2026-03-05)
+## Execution Status Snapshot (2026-03-09)
 
-- Overall status: `DONE` (Phase P7 completed)
-- Active phase: `P7` (Query Recall and Lexical Fallback)
+- Overall status: `DONE` (Phase P8 completed)
+- Active phase: `P8` (LLM-Assisted PDF Text Extraction to Markdown)
 - Current active task: `None` (all planned backlog tasks completed)
 - Current blocker: none
 - Source of truth: `docs/backlog-tracker.md`
@@ -114,7 +114,8 @@ These conditions apply to all implementation epics:
 | P5 | Semantic Knowledge and Graph-RAG Expansion | 6 | 134 |
 | P6 | Retrieval Quality Hardening | 1 | 26 |
 | P7 | Query Recall and Lexical Fallback | 1 | 22 |
-|  | **Grand Total** | **24** | **420** |
+| P8 | LLM-Assisted PDF Text Extraction to Markdown | 1 | 26 |
+|  | **Grand Total** | **25** | **446** |
 
 ## Phase P0: Product Definition and Planning (28h)
 
@@ -1029,6 +1030,56 @@ Acceptance criteria:
 | S7.2 | T7.1.TEST | Add regression tests and before/after probe validation for fallback recall | Test and probe evidence | 4 |
 |  |  | **Epic subtotal** |  | **22** |
 
+## Phase P8: LLM-Assisted PDF Text Extraction to Markdown (26h)
+
+Goal: implement a robust PDF-to-Markdown extraction pipeline for `data/dataset/DORIN-CURS-searchable.pdf` that starts from page 6, preserves source meaning/structure, and scales to large documents.
+
+### Epic E8.1: PyMuPDF Extraction + LLM Cleanup Pipeline (26h)
+
+Technical description:
+- extract page text using PyMuPDF (`fitz`) with deterministic page iteration starting at page index 6
+- normalize PDF line breaks and preserve heading/list structure before LLM cleanup
+- call LLM per page to clean and structure text into markdown while preserving original content fidelity
+- write page markdown files to `output/page_{number}.md` and concatenate to `output/document.md`
+- integrate with existing CLI/config/model contracts and keep performance acceptable for `300+` pages
+
+Primary files:
+- `rag/chunking/load_documents.py` or new extraction module under existing package layout
+- `agent/reasoning/providers/*` and/or `llm_hub/*` integration points
+- `models/contracts.py`
+- `run.py`
+- `tests/*`
+
+Deliverables:
+- page-by-page extraction and normalization pipeline using `fitz`
+- LLM cleanup prompt/profile for markdown structuring with minimal semantic drift
+- deterministic output writer for per-page markdown and merged document artifact
+- CLI/config flags for input PDF, start page, output directory, and provider settings
+- validation artifacts for large-document runtime and output quality
+
+Dependencies:
+- E7.1
+
+Acceptance criteria:
+- extraction starts from page 6 by default and can be configured
+- each processed page generates `output/page_{number}.md` in sequence
+- merged output `output/document.md` is generated after all pages
+- broken line breaks are reduced without deleting core source facts
+- headings and list structures are preserved where source layout allows
+- pipeline can run end-to-end on PDFs with `300+` pages without crashing
+- `T8.1.TEST` completed with unit and integration evidence
+
+| Story ID | Task ID | Task | Output Artifact | Estimate (h) |
+| --- | --- | --- | --- | --- |
+| S8.1 | T8.1.1 | Define extraction contract and prompt policy for page-level markdown conversion | Technical design note + prompt contract | 2 |
+| S8.1 | T8.1.2 | Implement PyMuPDF page iterator and text extraction starting at configurable page index (default 6) | Extraction module with fitz backend | 4 |
+| S8.1 | T8.1.3 | Implement line-break normalization and heading/list preservation heuristics pre-LLM | Normalization pipeline | 4 |
+| S8.2 | T8.1.4 | Integrate page-level LLM cleanup/structuring call into existing provider/router infrastructure | LLM cleanup integration | 5 |
+| S8.2 | T8.1.5 | Implement markdown writer for `output/page_{number}.md` and final concatenation to `output/document.md` | Output writer + merge command | 4 |
+| S8.2 | T8.1.6 | Add CLI/config wiring and runtime controls for input, start page, output path, and batching | CLI/config integration | 3 |
+| S8.2 | T8.1.TEST | Add tests for extraction quality, output artifacts, and large-PDF execution safety | Test and validation evidence | 4 |
+|  |  | **Epic subtotal** |  | **26** |
+
 ## Recommended Execution Order
 
 1. P0 (planning/governance baseline)
@@ -1039,6 +1090,7 @@ Acceptance criteria:
 6. P5 (semantic chunking, knowledge graph, Graph-RAG, visualization)
 7. P6 (retrieval quality hardening and operational quality gates)
 8. P7 (query recall hardening via lexical fallback and debug tooling)
+9. P8 (LLM-assisted PDF extraction and markdown publishing pipeline)
 
 Priority constraints:
 - complete E1.4 before major P2 work
@@ -1049,6 +1101,7 @@ Priority constraints:
 - complete E5.5 before E5.6 Graph-RAG rollout
 - complete E5.6 before E6.1 retrieval hardening rollout
 - complete E6.1 before E7.1 lexical fallback rollout
+- complete E7.1 before E8.1 text-extraction pipeline rollout
 
 ## Handover Checklist for New Developers
 

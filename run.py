@@ -1,3 +1,15 @@
+"""CLI entrypoint and command router for the project.
+
+Quick structure map:
+- `chat`: runs the orchestration loop (guardrails -> retrieval -> LLM -> evaluator).
+- `ingest`: pushes structured datasets (JSON/CSV) and corpus files (PDF/Markdown) into Qdrant.
+- `extract-markdown`: converts PDF pages to markdown artifacts used by the ingest flow.
+- `eval`: runs smoke evaluation checks.
+
+This file should stay thin: parse arguments, validate startup constraints, then delegate
+to domain modules (`knowledge`, `rag`, `agent`).
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -12,11 +24,12 @@ from config.logging_config import new_correlation_id, setup_logging
 from config.settings import (
     SETTINGS,
     SUPPORTED_CHUNKING_STRATEGIES,
+    SUPPORTED_LLM_PROVIDERS,
     SUPPORTED_RETRIEVAL_MODES,
     ensure_startup_valid,
 )
 from knowledge.qdrant.ingest import ingest
-from rag.chunking.load_documents import discover_pdf_paths
+from rag.chunking.load_documents import discover_markdown_paths, extract_pdf_to_markdown
 from rag.retrieval.quality_report import build_quality_report
 from models.serde import serialize_to_json_compatible
 
@@ -75,6 +88,12 @@ def _build_parser() -> argparse.ArgumentParser:
         action="append",
         default=None,
         help="PDF corpus path. Repeat to include multiple files.",
+    )
+    ingest_parser.add_argument(
+        "--markdown-path",
+        action="append",
+        default=None,
+        help="Markdown corpus path for direct ingest (for example output/document.md). Repeat to include multiple files.",
     )
     ingest_parser.add_argument(
         "--skip-pdf-ingest",
@@ -142,6 +161,45 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Maximum number of chunk matches to include per keyword in quality report",
     )
 
+    extract_parser = subparsers.add_parser(
+        "extract-markdown",
+        help="Extract PDF pages to markdown with page-level LLM cleanup",
+    )
+    extract_parser.add_argument(
+        "--pdf-path",
+        default=SETTINGS.dataset_primary_pdf_path,
+        help="Input PDF path to process",
+    )
+    extract_parser.add_argument(
+        "--start-page",
+        type=int,
+        default=6,
+        help="Human page number to start processing from (inclusive)",
+    )
+    extract_parser.add_argument(
+        "--end-page",
+        type=int,
+        default=None,
+        help="Optional human page number to stop at (inclusive)",
+    )
+    extract_parser.add_argument(
+        "--output-dir",
+        default="output",
+        help="Directory where page markdown files and merged document are written",
+    )
+    extract_parser.add_argument(
+        "--max-pages-per-run",
+        type=int,
+        default=0,
+        help="Optional processing cap for batching long PDFs (0 means no cap)",
+    )
+    extract_parser.add_argument(
+        "--provider",
+        choices=sorted(SUPPORTED_LLM_PROVIDERS),
+        default=SETTINGS.llm_provider,
+        help="LLM provider used for page-level markdown cleanup",
+    )
+
     subparsers.add_parser("eval", help="Run evaluation smoke check")
     return parser
 
@@ -170,21 +228,24 @@ def main() -> None:
             semantic_use_llamaindex=args.semantic_use_llamaindex,
         )
         ensure_startup_valid(command=args.command, settings=ingest_settings)
-        default_pdf_paths = discover_pdf_paths(
-            excluded_paths=[SETTINGS.dataset_validation_pdf_path],
-        )
-        pdf_paths = (
-            []
-            if args.skip_pdf_ingest
-            else (args.pdf_path if args.pdf_path is not None else default_pdf_paths)
-        )
+        default_markdown_paths = discover_markdown_paths()
+        corpus_paths: list[str]
+        if args.skip_pdf_ingest:
+            corpus_paths = []
+        else:
+            explicit_paths: list[str] = []
+            if args.markdown_path:
+                explicit_paths.extend(args.markdown_path)
+            if args.pdf_path:
+                explicit_paths.extend(args.pdf_path)
+            corpus_paths = explicit_paths if explicit_paths else default_markdown_paths
         inserted = ingest(
             args.json_path,
             args.csv_path,
             chunking_strategy=args.chunking_strategy,
             semantic_chunk_max_chars=args.semantic_chunk_max_chars,
             semantic_use_llamaindex=args.semantic_use_llamaindex,
-            pdf_paths=pdf_paths,
+            pdf_paths=corpus_paths,
             include_structured_sources=not args.pdf_only,
             graph_ingest_enabled=args.graph_ingest,
             relation_min_confidence=args.relation_min_confidence,
@@ -195,7 +256,7 @@ def main() -> None:
         logger.info("Inserted into Qdrant: %s", inserted)
         if args.quality_report:
             report = build_quality_report(
-                pdf_paths=pdf_paths,
+                pdf_paths=corpus_paths,
                 chunking_strategy=args.chunking_strategy,
                 semantic_chunk_max_chars=args.semantic_chunk_max_chars,
                 semantic_use_llamaindex=args.semantic_use_llamaindex,
@@ -219,6 +280,20 @@ def main() -> None:
         result = run_evaluation_smoke()
         payload = serialize_to_json_compatible(result)
         logger.info(json.dumps(payload, ensure_ascii=False, indent=2))
+        return
+
+    if args.command == "extract-markdown":
+        extraction_settings = replace(SETTINGS, llm_provider=args.provider)
+        ensure_startup_valid(command=args.command, settings=extraction_settings)
+        result = extract_pdf_to_markdown(
+            pdf_path=args.pdf_path,
+            output_dir=args.output_dir,
+            start_page=args.start_page,
+            end_page=args.end_page,
+            max_pages_per_run=(args.max_pages_per_run if args.max_pages_per_run > 0 else None),
+            provider=args.provider,
+        )
+        logger.info(json.dumps(result, ensure_ascii=False, indent=2))
         return
 
     parser.error(f"Unknown command: {args.command}")

@@ -1,6 +1,6 @@
 # Backlog Tracker
 
-Last updated: 2026-03-05  
+Last updated: 2026-03-09  
 Tracking scope: tasks defined in `docs/backlog.md`
 
 ## Tracking Rules
@@ -19,8 +19,8 @@ Status legend:
 
 | Metric | Value |
 | --- | --- |
-| Planned effort | 420h |
-| Completed effort | 420h |
+| Planned effort | 446h |
+| Completed effort | 446h |
 | In-progress effort | 0h |
 | Remaining effort | 0h |
 | Overall completion | 100% |
@@ -37,6 +37,7 @@ Status legend:
 | P5 Semantic Knowledge and Graph-RAG Expansion | 134 | 134 | 0 | 0 | DONE |
 | P6 Retrieval Quality Hardening | 26 | 26 | 0 | 0 | DONE |
 | P7 Query Recall and Lexical Fallback | 22 | 22 | 0 | 0 | DONE |
+| P8 LLM-Assisted PDF Text Extraction to Markdown | 26 | 26 | 0 | 0 | DONE |
 
 ## Epic Progress
 
@@ -66,6 +67,7 @@ Status legend:
 | E5.6 | Graph-RAG, Citation Guarantees, and Visualization | 32 | 32 | DONE | Hybrid retrieval, orchestration policy, citation schema, GitNexus integration, API/CLI controls, docs, and integration tests completed |
 | E6.1 | Chunk and Retrieval Quality Stabilization | 26 | 26 | DONE | `T6.1.1`-`T6.1.TEST` completed with startup guards, semantic grouping refactor, chunk quality filters, rerank/confidence hardening, diagnostics report, and regression evidence |
 | E7.1 | Keyword Fallback and Chunk Debug Tooling | 22 | 22 | DONE | Added column-aware PDF extraction, keyword fallback retrieval, provenance labels, quality keyword probes, baseline artifact, and regression tests |
+| E8.1 | PyMuPDF Extraction + LLM Cleanup Pipeline | 26 | 26 | DONE | `T8.1.1`-`T8.1.TEST` completed with extraction contract, PyMuPDF iterator, normalization heuristics, page-level LLM cleanup, output artifacts, CLI controls, and regression tests including large-page-range batching |
 
 ## Phase 0 Completion Record
 
@@ -179,12 +181,31 @@ Status legend:
 | T7.1.5 | 3 | 3 | DONE | Extended quality debug utility (`rag/retrieval/quality_report.py`, `run.py`) with keyword chunk probes and avg word statistics |
 | T7.1.TEST | 4 | 4 | DONE | Regression tests added/updated and validated via `python -m unittest -v` (158 tests OK) |
 
+## Phase 8 Planned Task Register
+
+| Task ID | Estimate (h) | Actual (h) | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| T8.1.1 | 2 | 2 | DONE | Defined extraction, prompt, output, error, and scaling contracts in `docs/p8-text-extraction-contract.md` |
+| T8.1.2 | 4 | 4 | DONE | Added `iter_pdf_pages_with_pymupdf` in `rag/chunking/load_documents.py` with default `start_page=6`, configurable range, and validation; tests: `python -m unittest tests.test_pdf_structure -v` |
+| T8.1.3 | 4 | 4 | DONE | Added `normalize_page_text_for_markdown_llm` with dehyphenation, paragraph-aware line-join, and heading/list-preserving merge rules; tests: `python -m unittest tests.test_pdf_structure -v` |
+| T8.1.4 | 5 | 5 | DONE | Added `llm_cleanup_pdf_page` in `agent/reasoning/llm_router.py`, prompt contract in `config/prompts.py`, and shim export in `llm_hub/router.py`; tests: `python -m unittest tests.test_llm_router tests.test_config_prompts -v` |
+| T8.1.5 | 4 | 4 | DONE | Added `write_page_markdown` and `concatenate_page_markdown_files` in `rag/chunking/load_documents.py` for deterministic per-page output and final document merge; tests: `python -m unittest tests.test_pdf_structure -v` |
+| T8.1.6 | 3 | 3 | DONE | Added `extract-markdown` CLI command in `run.py` with controls for pdf path/start-end page/output dir/batch/provider, startup validation for extract flow in `config/settings.py`, and orchestration helper `extract_pdf_to_markdown`; tests: `python -m unittest tests.test_cli tests.test_pdf_structure tests.test_config_prompts -v` |
+| T8.1.TEST | 4 | 4 | DONE | Added/ran end-to-end extraction regressions including page artifact generation, merged output ordering, CLI control propagation, and simulated `300+` page batching safety; tests: `python -m unittest tests.test_llm_router tests.test_pdf_structure tests.test_cli tests.test_config_prompts -v` |
+
 ## Active Task Board
 
 Use this section for current work only (max 10 items at a time).
 
 | Task ID | Task | Estimate (h) | Actual (h) | Owner | Status | Start | End | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T8.1.TEST | Add tests for extraction quality, output artifacts, and large-PDF execution safety | 4 | 4 | Codex | DONE | 2026-03-09 | 2026-03-09 | Added large-page-range batching regression and executed full P8-focused test gate (57 tests OK) |
+| T8.1.6 | Add CLI/config controls for input, start page, output path, and batching | 3 | 3 | Codex | DONE | 2026-03-09 | 2026-03-09 | Added `extract-markdown` CLI command and runtime wiring to new extraction pipeline with provider/start-page/output/batch controls |
+| T8.1.5 | Implement markdown writer for `output/page_{number}.md` and final concatenation to `output/document.md` | 4 | 4 | Codex | DONE | 2026-03-09 | 2026-03-09 | Added page markdown writer + concatenation helper and tests for file naming/order/empty-directory behavior |
+| T8.1.4 | Integrate page-level LLM cleanup/structuring call into existing provider/router infrastructure | 5 | 5 | Codex | DONE | 2026-03-09 | 2026-03-09 | Added router-level page cleanup API and prompt builder; validated with router/config prompt tests |
+| T8.1.3 | Implement line-break normalization and heading/list preservation heuristics pre-LLM | 4 | 4 | Codex | DONE | 2026-03-09 | 2026-03-09 | Added pre-LLM normalization helper `normalize_page_text_for_markdown_llm` and regression tests for line-wrap/hyphen/list-heading handling |
+| T8.1.2 | Implement PyMuPDF page iterator and text extraction starting at configurable page index (default 6) | 4 | 4 | Codex | DONE | 2026-03-09 | 2026-03-09 | Added `iter_pdf_pages_with_pymupdf` with range validation and default page-6 start; added 3 iterator tests in `tests/test_pdf_structure.py` |
+| T8.1.1 | Define extraction contract and prompt policy for page-level markdown conversion | 2 | 2 | Codex | DONE | 2026-03-09 | 2026-03-09 | Added `docs/p8-text-extraction-contract.md` with IO, prompt, output, and error contracts |
 | T7.1.TEST | Add regression tests and before/after probe validation for fallback recall | 4 | 4 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added/updated tests for PDF column reflow, keyword fallback retrieval, quality probes, CLI and config; full suite passed |
 | T7.1.5 | Extend debug utility with keyword chunk search and chunk-stat output modes | 3 | 3 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added keyword probe args and chunk-level debug probe output in quality report |
 | T7.1.4 | Add fallback merge/ranking and retrieval provenance labeling | 3 | 3 | Codex | DONE | 2026-03-05 | 2026-03-05 | Added retrieval provenance contract and orchestrator retrieval logging metadata |
@@ -361,6 +382,14 @@ Use this section for current work only (max 10 items at a time).
 | 092 | 2026-03-05 | Completed `T6.1.TEST` and closed P6 | Added benchmark artifact `docs/p6-retrieval-quality-report.md`, executed full P6 regression suite (64 tests, OK), and closed Epic E6.1 / Phase P6 with tracker roll-up updates | Backlog scope complete |
 | 093 | 2026-03-05 | Added new backlog phase P7 from `rag_improvements` requirements | Extended `docs/backlog.md` with Phase P7 / Epic E7.1 and task estimates; synchronized tracker totals, phase/epic status tables, and active task board | Start `T7.1.1` baseline probe report |
 | 094 | 2026-03-05 | Completed E7.1 implementation and test gate | Added two-column PDF extraction/reflow and line normalization, keyword fallback retrieval with confidence trigger, retrieval provenance labels, quality-report keyword chunk probes + CLI options, and baseline artifacts (`docs/p7-recall-baseline.md`, `.json`); validated with `python -m unittest -v` (158 tests OK) | Backlog scope complete |
+| 095 | 2026-03-09 | Added new backlog phase P8 from `text_extraction` requirements | Extended `docs/backlog.md` with Phase P8 / Epic E8.1 and task estimates; synchronized tracker totals, phase/epic status tables, planned-task register, and active task board | Start `T8.1.1` extraction contract and prompt policy |
+| 096 | 2026-03-09 | Completed `T8.1.1` extraction contract and prompt policy | Added `docs/p8-text-extraction-contract.md` covering input/output contracts, normalization policy, LLM prompt constraints, error handling, and 300+ page scalability expectations | Start `T8.1.2` PyMuPDF extraction implementation |
+| 097 | 2026-03-09 | Completed `T8.1.2` PyMuPDF page iterator and extraction range support | Added `iter_pdf_pages_with_pymupdf` in `rag/chunking/load_documents.py` with default `start_page=6`, optional `end_page`, strict validation, and normalized page-by-page output; validated with `python -m unittest tests.test_pdf_structure -v` (14 tests OK) | Start `T8.1.3` line normalization/preservation heuristics |
+| 098 | 2026-03-09 | Completed `T8.1.3` pre-LLM normalization heuristics | Added `normalize_page_text_for_markdown_llm` with paragraph-aware merge logic, dehyphenation, and heading/list preservation; validated via `python -m unittest tests.test_pdf_structure -v` (17 tests OK) | Start `T8.1.4` LLM cleanup integration |
+| 099 | 2026-03-09 | Completed `T8.1.4` page-level LLM cleanup router integration | Added `llm_cleanup_pdf_page` in `agent/reasoning/llm_router.py`, added markdown-cleanup prompt helpers in `config/prompts.py`, and exported via `llm_hub/router.py`; validated with `python -m unittest tests.test_llm_router tests.test_config_prompts -v` (29 tests OK) | Start `T8.1.5` output writer and document concatenation |
+| 100 | 2026-03-09 | Completed `T8.1.5` markdown output writing and final document concatenation helpers | Added `write_page_markdown` and `concatenate_page_markdown_files` in `rag/chunking/load_documents.py` for `page_{number}.md` outputs and `document.md` merge with stable ordering and separators; validated via `python -m unittest tests.test_pdf_structure -v` (20 tests OK) | Start `T8.1.6` CLI/config wiring |
+| 101 | 2026-03-09 | Completed `T8.1.6` CLI/config controls and extraction command wiring | Added `extract-markdown` command in `run.py`, extraction orchestrator helper `extract_pdf_to_markdown` in `rag/chunking/load_documents.py`, and startup validation extension in `config/settings.py` for extract flow; validated with `python -m unittest tests.test_cli tests.test_pdf_structure tests.test_config_prompts -v` (50 tests OK) | Start `T8.1.TEST` full extraction test gate |
+| 102 | 2026-03-09 | Completed `T8.1.TEST` and closed Phase P8 | Added large-page-range batching regression test and validated extraction-related suite (`tests.test_llm_router`, `tests.test_pdf_structure`, `tests.test_cli`, `tests.test_config_prompts`) with `57` passing tests; closed `E8.1` and `P8` | Backlog scope complete |
 
 ## Known Risks and Blockers
 

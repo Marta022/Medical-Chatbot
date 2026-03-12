@@ -1,3 +1,15 @@
+"""Interactive CLI chat runtime.
+
+Flow per user message:
+1) Read query from terminal.
+2) Build `QueryRequest` with policy controls (`top_k`, optional filters).
+3) Delegate to `Orchestrator` (guardrail, retrieval, response generation, evaluation).
+4) Print guardrail feedback, retrieval evidence, and final assistant response.
+
+This module is intentionally minimal and presentation-focused; business logic lives
+in orchestrator/retrieval/evaluation components.
+"""
+
 from __future__ import annotations
 
 import logging

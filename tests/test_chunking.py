@@ -30,7 +30,24 @@ class TestChunking(unittest.TestCase):
     def test_section_chunks(self) -> None:
         text = "Line1\n\nLine2\nLine3"
         chunks = section_chunks(text)
-        self.assertEqual(chunks, ["Line1", "Line2", "Line3"])
+        self.assertEqual(chunks, ["Line1", "Line2 Line3"])
+
+    def test_section_chunks_preserve_markdown_heading_and_list_blocks(self) -> None:
+        text = "\n".join(
+            [
+                "# Capitol",
+                "Paragraf pe doua",
+                "linii",
+                "",
+                "- item 1",
+                "- item 2",
+            ]
+        )
+        chunks = section_chunks(text)
+        self.assertEqual(chunks[0], "# Capitol")
+        self.assertEqual(chunks[1], "Paragraf pe doua linii")
+        self.assertIn("- item 1", chunks[2])
+        self.assertIn("- item 2", chunks[2])
 
     def test_chunk_text_invalid_strategy(self) -> None:
         with self.assertRaises(ValueError):
@@ -46,7 +63,15 @@ class TestChunking(unittest.TestCase):
                 "Tratamentul depinde de context.",
             ]
         )
-        chunks = semantic_chunks(text, max_chars=300, use_llamaindex=False)
+        with patch(
+            "rag.chunking.strategies._llamaindex_semantic_chunks",
+            return_value=[
+                "Semne clinice importante.",
+                "1. Durere toracica persistenta\n2. Dispnee de efort\n3. Palpitatii frecvente",
+                "Tratamentul depinde de context.",
+            ],
+        ):
+            chunks = semantic_chunks(text, max_chars=300, use_llamaindex=True)
         merged = "\n".join(chunks)
         self.assertIn("1. Durere toracica persistenta", merged)
         self.assertIn("2. Dispnee de efort", merged)
@@ -74,12 +99,16 @@ class TestChunking(unittest.TestCase):
             text="Paragraf A. Paragraf B.\n1. Lista unu\n2. Lista doi",
             is_list=False,
         )
-        chunks = chunk_structured_chunks(
-            [base],
-            strategy="semantic",
-            semantic_max_chars=40,
-            semantic_use_llamaindex=False,
-        )
+        with patch(
+            "rag.chunking.strategies._llamaindex_semantic_chunks",
+            return_value=["Paragraf A. Paragraf B.", "1. Lista unu 2. Lista doi"],
+        ):
+            chunks = chunk_structured_chunks(
+                [base],
+                strategy="semantic",
+                semantic_max_chars=40,
+                semantic_use_llamaindex=True,
+            )
         self.assertGreaterEqual(len(chunks), 1)
         self.assertTrue(all(chunk.source_file == "demo.pdf" for chunk in chunks))
         self.assertTrue(all(chunk.page == 4 for chunk in chunks))

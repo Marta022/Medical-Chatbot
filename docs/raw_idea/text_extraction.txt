@@ -1,0 +1,23 @@
+Write a Python script that processes the file:
+
+data/dataset/DORIN-CURS-searchable.pdf 
+
+Requirements:
+1. Use PyMuPDF (fitz) to open the PDF.
+2. Extract text page by page.
+3. For each page:
+   - send the text to an LLM for cleaning and structuring
+   - convert the page into Markdown format
+4. Save each page as:
+   output/page_{number}.md
+5. After processing all pages, concatenate all markdown files into:
+   output/document.md
+
+Constraints:
+-start with the iteration from page 6
+- preserve the original text as much as possible
+- remove broken line breaks from PDF extraction
+- keep headings and lists when possible
+- handle large PDFs (300+ pages)
+
+Keep the same code style and integrate it in our existed infratructure

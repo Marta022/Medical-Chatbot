@@ -32,11 +32,12 @@ class TestPhase1Structure(unittest.TestCase):
 
     def test_shim_files_have_removal_todo_marker(self) -> None:
         shim_files = [
+            Path("evaluation/benchmark.py"),
+            Path("evaluation/evaluator.py"),
             Path("guardrails/rules.py"),
+            Path("ingestion/load_documents.py"),
             Path("llm_hub/router.py"),
-            Path("rag/retriever.py"),
             Path("vector_db/qdrant_client.py"),
-            Path("translation/translator.py"),
         ]
         for shim_file in shim_files:
             content = shim_file.read_text(encoding="utf-8")

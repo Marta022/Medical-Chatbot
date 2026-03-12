@@ -93,6 +93,12 @@ Custom dataset paths:
 python main.py ingest --json-path data/dataset/disease_database.json --csv-path data/dataset/dataset_sheet1.csv
 ```
 
+Direct markdown ingest (for example cleaned `document.md`):
+
+```bash
+python main.py ingest --markdown-path output/document.md --pdf-only
+```
+
 ### Eval Smoke
 
 ```bash

@@ -1,3 +1,16 @@
+"""Retrieval orchestration for vector and hybrid modes.
+
+Core responsibilities:
+- Build vector search hits from Qdrant.
+- Optionally enrich retrieval with graph traversal hits.
+- Apply policy controls from request filters (mode, depth, weights).
+- Apply keyword fallback when vector confidence is too low.
+- Rerank candidates with lexical overlap while keeping semantic score dominant.
+
+Entrypoint:
+- `retrieve_top_similar(...)` chooses retrieval mode and returns `RetrievalResult`.
+"""
+
 from __future__ import annotations
 
 import re

@@ -1,3 +1,22 @@
+"""Document loading, extraction, and chunk preparation utilities.
+
+This module is the bridge between raw corpus files and retrievable chunks.
+
+Main responsibilities:
+- Load tabular datasets (`load_medical_items`).
+- Discover and parse corpus files (`discover_*`, `parse_*`).
+- Extract PDF text (PyMuPDF-based path) and optional markdown generation helpers.
+- Normalize noisy text and preserve document structure hints (headings/lists).
+- Build `PdfStructuredChunk` objects and apply rechunking strategies before embeddings.
+
+Typical ingest path:
+1) CLI chooses source files.
+2) `load_pdf_chunks(...)` detects file type (`.md` vs `.pdf`).
+3) Parser returns base structured chunks.
+4) Strategy layer may rechunk (`section`, `sentence`, `window`, `semantic`).
+5) Ingest pipeline embeds and upserts chunks into Qdrant.
+"""
+
 from __future__ import annotations
 
 import csv
@@ -5,8 +24,8 @@ import hashlib
 import json
 import logging
 import re
-from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterator
 
 from models import MedicalItem
 from models.contracts import PdfStructuredChunk
@@ -20,18 +39,29 @@ _NUMBERED_ITEM_PATTERN = re.compile(r"^\s*\d+[\.\)]\s+\S+")
 _SENTENCE_END_PATTERN = re.compile(r"[.!?:;)]$")
 _ROMAN_SECTION_PATTERN = re.compile(r"^\s*[IVXLCDM]+\.\s+\S+", re.IGNORECASE)
 _BULLET_ITEM_PATTERN = re.compile(r"^\s*[-*•◦▪▫‣∙◆◇■□✦✧]\s+\S+")
+_MARKDOWN_HEADING_PATTERN = re.compile(r"^\s*(#{1,3})\s+(.+?)\s*$")
 _PDF_LITERAL_PATTERN = re.compile(r"\((?P<literal>(?:\\.|[^\\)])*)\)")
 _TM_PATTERN = re.compile(
     r"(?P<a>-?\d+(?:\.\d+)?)\s+(?P<b>-?\d+(?:\.\d+)?)\s+(?P<c>-?\d+(?:\.\d+)?)\s+"
     r"(?P<d>-?\d+(?:\.\d+)?)\s+(?P<x>-?\d+(?:\.\d+)?)\s+(?P<y>-?\d+(?:\.\d+)?)\s+Tm"
 )
-
-
-@dataclass(frozen=True)
-class _OcrTextBlock:
-    x: float
-    y: float
-    text: str
+_PAGE_MARKDOWN_FILENAME_PATTERN = re.compile(r"^page_(\d+)\.md$")
+_RO_MOJIBAKE_REPLACEMENTS: tuple[tuple[str, str], ...] = (
+    ("Å£", "ț"),
+    ("Å¢", "Ț"),
+    ("ÅŸ", "ș"),
+    ("Åž", "Ș"),
+    ("ş", "ș"),
+    ("Ş", "Ș"),
+    ("ţ", "ț"),
+    ("Ţ", "Ț"),
+    ("Äƒ", "ă"),
+    ("Ä‚", "Ă"),
+    ("Ã¢", "â"),
+    ("Ã‚", "Â"),
+    ("Ã®", "î"),
+    ("ÃŽ", "Î"),
+)
 
 
 def _validate_json_structure(data: object) -> list[str]:
@@ -171,6 +201,24 @@ def discover_pdf_paths(
     excluded_names = {Path(path).name for path in (excluded_paths or [])}
     candidates = sorted(path for path in root.glob("*.pdf") if path.is_file())
     return [str(path) for path in candidates if path.name not in excluded_names]
+
+
+def discover_markdown_paths(
+    dataset_dir: str = "data/dataset",
+    *,
+    preferred_filename: str = "document.md",
+) -> list[str]:
+    """Discover markdown files, preferring `document.md` when present."""
+    root = Path(dataset_dir)
+    if not root.exists():
+        return []
+
+    preferred = root / preferred_filename
+    if preferred.is_file():
+        return [str(preferred)]
+
+    candidates = sorted(path for path in root.glob("*.md") if path.is_file())
+    return [str(path) for path in candidates]
 
 
 def _decode_pdf_literal(literal: str) -> str:
@@ -410,139 +458,201 @@ def _normalize_extracted_page_text(text: str) -> str:
     return "\n".join(lines).strip()
 
 
-def _extract_ocr_blocks_from_image(image: object) -> list[_OcrTextBlock]:
-    # Prefer PaddleOCR for higher-quality recognition; keep RapidOCR as a fallback.
-    try:
-        import numpy as np
-        from paddleocr import PaddleOCR
-    except Exception:
-        np = None  # type: ignore[assignment]
-    else:
-        try:
-            # Romanian language model is used when available.
-            ocr_engine = PaddleOCR(use_angle_cls=True, lang="ro", show_log=False)
-            result = ocr_engine.ocr(np.array(image), cls=True)
-        except Exception:
-            result = None
-
-        blocks: list[_OcrTextBlock] = []
-        if result:
-            for page_result in result:
-                if not page_result:
-                    continue
-                for item in page_result:
-                    if not isinstance(item, (list, tuple)) or len(item) < 2:
-                        continue
-                    points = item[0]
-                    rec = item[1]
-                    if not isinstance(rec, (list, tuple)) or not rec:
-                        continue
-                    text = str(rec[0]).strip()
-                    if not text:
-                        continue
-                    try:
-                        xs = [float(point[0]) for point in points]
-                        ys = [float(point[1]) for point in points]
-                        x_pos = min(xs)
-                        y_pos = min(ys)
-                    except Exception:
-                        x_pos = 0.0
-                        y_pos = 0.0
-                    blocks.append(_OcrTextBlock(x=x_pos, y=y_pos, text=text))
-        if blocks:
-            return blocks
-
-    try:
-        import numpy as np
-        from rapidocr_onnxruntime import RapidOCR
-    except Exception:
-        return []
-
-    try:
-        ocr_engine = RapidOCR()
-        result, _ = ocr_engine(np.array(image))
-    except Exception:
-        return []
-
-    if not result:
-        return []
-
-    blocks: list[_OcrTextBlock] = []
-    for item in result:
-        if not isinstance(item, (list, tuple)) or len(item) < 3:
-            continue
-        points, text, _score = item[0], str(item[1]).strip(), item[2]
-        if not text:
-            continue
-        try:
-            xs = [float(point[0]) for point in points]
-            ys = [float(point[1]) for point in points]
-            x_pos = min(xs)
-            y_pos = min(ys)
-        except Exception:
-            x_pos = 0.0
-            y_pos = 0.0
-        blocks.append(_OcrTextBlock(x=x_pos, y=y_pos, text=text))
-    return blocks
-
-
-def _rebuild_text_from_ocr_blocks(blocks: list[_OcrTextBlock]) -> str:
-    if not blocks:
+def normalize_page_text_for_markdown_llm(text: str) -> str:
+    """Normalize extracted page text while preserving heading/list structure for LLM cleanup."""
+    if not text or not text.strip():
         return ""
 
-    rows: dict[float, list[_OcrTextBlock]] = {}
-    for block in blocks:
-        row_key = round(block.y / 12.0) * 12.0
-        rows.setdefault(row_key, []).append(block)
+    def _looks_like_markdown_heading(line: str) -> bool:
+        compact = re.sub(r"\s+", " ", line).strip()
+        if not compact:
+            return False
+        if _CHAPTER_PATTERN.match(compact):
+            return True
+        if _SECTION_PATTERN.match(compact):
+            return True
+        if _ROMAN_SECTION_PATTERN.match(compact):
+            return True
+        if compact.isupper() and 2 <= len(compact.split()) <= 14 and len(compact) <= 120:
+            return True
+        if (
+            len(compact) <= 70
+            and not _SENTENCE_END_PATTERN.search(compact)
+            and compact[:1].isupper()
+            and len(compact.split()) <= 6
+            and "," not in compact
+        ):
+            words = [word for word in compact.split() if word]
+            if words:
+                titled = sum(1 for word in words if word[:1].isupper())
+                if titled / len(words) >= 0.6:
+                    return True
+        return False
 
-    lines: list[str] = []
-    for row_key in sorted(rows.keys()):
-        row = sorted(rows[row_key], key=lambda item: item.x)
-        line = " ".join(item.text.strip() for item in row if item.text.strip())
-        line = re.sub(r"\s+", " ", line).strip()
-        if line:
-            lines.append(line)
-    return "\n".join(lines).strip()
-
-
-def _extract_pages_with_rapidocr(
-    pdf_path: str,
-    *,
-    page_indexes: list[int] | None = None,
-) -> dict[int, str]:
-    try:
-        import pypdfium2 as pdfium
-    except Exception:
-        return {}
-
-    try:
-        document = pdfium.PdfDocument(pdf_path)
-    except Exception:
-        return {}
-
-    try:
-        if page_indexes is None:
-            targets = list(range(len(document)))
-        else:
-            targets = sorted({index for index in page_indexes if 0 <= index < len(document)})
-        extracted: dict[int, str] = {}
-        for index in targets:
-            try:
-                page = document[index]
-                image = page.render(scale=2.0).to_pil()
-                blocks = _extract_ocr_blocks_from_image(image)
-                text = _rebuild_text_from_ocr_blocks(blocks)
-                normalized = _normalize_extracted_page_text(text)
-                if normalized:
-                    extracted[index] = normalized
-            except Exception:
+    def _merge_lines_for_markdown(paragraph_lines: list[str]) -> list[str]:
+        merged: list[str] = []
+        for raw_line in paragraph_lines:
+            line = re.sub(r"\s+", " ", raw_line).strip()
+            if not line:
                 continue
-        return extracted
-    finally:
-        try:
-            document.close()
-        except Exception:
-            pass
+            if not merged:
+                merged.append(line)
+                continue
+
+            previous = merged[-1]
+            if previous.endswith("-") and line and line[0].islower():
+                merged[-1] = f"{previous[:-1]}{line}"
+                continue
+
+            previous_is_structural = (
+                _looks_like_markdown_heading(previous)
+                or _is_numbered_item(previous)
+                or _is_bullet_item(previous)
+            )
+            line_is_structural = (
+                _looks_like_markdown_heading(line)
+                or _is_numbered_item(line)
+                or _is_bullet_item(line)
+            )
+            should_join = (
+                not previous_is_structural
+                and not line_is_structural
+                and not _SENTENCE_END_PATTERN.search(previous)
+                and (line[0].islower() or line[0] in {"(", "[", ","})
+            )
+            if should_join:
+                merged[-1] = f"{previous} {line}"
+                continue
+            merged.append(line)
+        return merged
+
+    paragraphs: list[list[str]] = []
+    current_paragraph: list[str] = []
+
+    for raw_line in text.splitlines():
+        line = re.sub(r"\s+", " ", raw_line).strip()
+        if not line:
+            if current_paragraph:
+                paragraphs.append(current_paragraph)
+                current_paragraph = []
+            continue
+        current_paragraph.append(line)
+
+    if current_paragraph:
+        paragraphs.append(current_paragraph)
+
+    normalized_paragraphs: list[str] = []
+    for paragraph_lines in paragraphs:
+        merged_lines = _merge_lines_for_markdown(paragraph_lines)
+        if merged_lines:
+            normalized_paragraphs.append("\n".join(merged_lines).strip())
+
+    return "\n\n".join(block for block in normalized_paragraphs if block).strip()
+
+
+def _repair_common_mojibake_ro(text: str) -> str:
+    def _marker_score(value: str) -> int:
+        return sum(value.count(token) for token in ("Ã", "Å", "Ä"))
+
+    candidates: list[str] = [text]
+
+    try:
+        candidates.append(text.encode("cp1252", errors="ignore").decode("utf-8", errors="ignore"))
+    except Exception:
+        pass
+
+    try:
+        candidates.append(text.encode("latin1", errors="ignore").decode("utf-8", errors="ignore"))
+    except Exception:
+        pass
+
+    repaired = min(candidates, key=_marker_score)
+    for broken, fixed in _RO_MOJIBAKE_REPLACEMENTS:
+        repaired = repaired.replace(broken, fixed)
+    return repaired
+
+
+def _split_text_for_llm_cleanup(text: str, *, max_chars: int = 3500) -> list[str]:
+    if max_chars <= 0:
+        raise ValueError("max_chars must be greater than 0")
+    compact = text.strip()
+    if not compact:
+        return []
+
+    paragraphs = [part.strip() for part in compact.split("\n\n") if part.strip()]
+    chunks: list[str] = []
+    current = ""
+    for paragraph in paragraphs:
+        candidate = paragraph if not current else f"{current}\n\n{paragraph}"
+        if len(candidate) <= max_chars:
+            current = candidate
+            continue
+        if current:
+            chunks.append(current.strip())
+            current = ""
+        if len(paragraph) <= max_chars:
+            current = paragraph
+            continue
+
+        # Hard split very large paragraphs to keep request size bounded.
+        start = 0
+        while start < len(paragraph):
+            end = min(start + max_chars, len(paragraph))
+            chunks.append(paragraph[start:end].strip())
+            start = end
+    if current:
+        chunks.append(current.strip())
+    return [chunk for chunk in chunks if chunk]
+
+
+def _strip_markdown_code_fences(text: str) -> str:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", cleaned)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+    return cleaned.strip()
+
+
+def _postprocess_markdown_cleanup(text: str) -> str:
+    """Apply deterministic cleanup for residual encoding/noise artifacts after LLM output."""
+    cleaned = _repair_common_mojibake_ro(text)
+    cleaned = cleaned.replace("\"7", " ").replace("'7", " ").replace("`7", " ")
+    cleaned = cleaned.replace("\\/", " ")
+
+    def _is_noisy_token(token: str) -> bool:
+        compact = token.strip()
+        if not compact:
+            return True
+        # Keep bullets, simple punctuation, and numeric values.
+        if compact in {"-", "•", "*"}:
+            return False
+        if re.fullmatch(r"[0-9]+(?:[.,][0-9]+)?(?:Â°C|°C|%)?", compact):
+            return False
+        if len(compact) < 6:
+            return False
+
+        symbol_count = len(re.findall(r"[~\\/_{}\[\]<>|`^!$@#%&*=+]", compact))
+        if symbol_count >= 2:
+            return True
+
+        alnum_count = len(re.findall(r"[A-Za-zĂÂÎȘȚăâîșț0-9]", compact))
+        if alnum_count == 0:
+            return True
+        non_alnum_ratio = 1.0 - (alnum_count / len(compact))
+        return non_alnum_ratio > 0.45
+
+    normalized_lines: list[str] = []
+    for raw_line in cleaned.splitlines():
+        tokens = raw_line.split()
+        kept = [token for token in tokens if not _is_noisy_token(token)]
+        normalized = " ".join(kept).strip()
+        normalized = re.sub(r"\s+", " ", normalized)
+        if normalized:
+            normalized_lines.append(normalized)
+
+    merged = "\n".join(normalized_lines)
+    merged = re.sub(r"\n{3,}", "\n\n", merged).strip()
+    return merged
 
 
 def _extract_pages_with_pymupdf(
@@ -585,42 +695,203 @@ def _extract_pages_with_pymupdf(
             pass
 
 
+def iter_pdf_pages_with_pymupdf(
+    pdf_path: str,
+    *,
+    start_page: int = 6,
+    end_page: int | None = None,
+) -> Iterator[tuple[int, str]]:
+    """Yield `(human_page_number, normalized_text)` extracted via PyMuPDF."""
+    if start_page < 1:
+        raise ValueError("start_page must be greater than or equal to 1")
+    if end_page is not None and end_page < start_page:
+        raise ValueError("end_page must be greater than or equal to start_page")
+    source = Path(pdf_path)
+    if not source.exists():
+        raise FileNotFoundError(f"PDF file not found: {pdf_path}")
+
+    try:
+        import fitz
+    except Exception as exc:
+        raise RuntimeError("PyMuPDF (fitz) is required for page-by-page extraction") from exc
+
+    try:
+        document = fitz.open(pdf_path)
+    except Exception as exc:
+        raise ValueError(f"Could not open PDF with PyMuPDF: {pdf_path}") from exc
+
+    try:
+        total_pages = int(document.page_count)
+        if start_page > total_pages:
+            return
+        last_page = total_pages if end_page is None else min(end_page, total_pages)
+        for human_page in range(start_page, last_page + 1):
+            raw_text = document.load_page(human_page - 1).get_text("text") or ""
+            normalized = _normalize_extracted_page_text(raw_text)
+            if normalized:
+                yield human_page, normalized
+    finally:
+        try:
+            document.close()
+        except Exception:
+            pass
+
+
+def write_page_markdown(
+    *,
+    output_dir: str | Path,
+    page_number: int,
+    markdown_text: str,
+) -> Path:
+    """Persist one page markdown file as `page_{number}.md`."""
+    if page_number < 1:
+        raise ValueError("page_number must be greater than or equal to 1")
+    if not markdown_text or not markdown_text.strip():
+        raise ValueError("markdown_text must be a non-empty string")
+
+    root = Path(output_dir)
+    root.mkdir(parents=True, exist_ok=True)
+    page_path = root / f"page_{page_number}.md"
+    page_path.write_text(markdown_text.strip() + "\n", encoding="utf-8")
+    return page_path
+
+
+def concatenate_page_markdown_files(
+    *,
+    output_dir: str | Path,
+    page_numbers: list[int] | None = None,
+    output_filename: str = "document.md",
+    separator: str = "\n\n---\n\n",
+) -> Path:
+    """Concatenate page markdown files into one document in numeric page order."""
+    root = Path(output_dir)
+    root.mkdir(parents=True, exist_ok=True)
+
+    if page_numbers is None:
+        discovered: list[int] = []
+        for path in root.glob("page_*.md"):
+            match = _PAGE_MARKDOWN_FILENAME_PATTERN.match(path.name)
+            if match:
+                discovered.append(int(match.group(1)))
+        ordered_pages = sorted(set(discovered))
+    else:
+        ordered_pages = sorted({page for page in page_numbers if page >= 1})
+
+    if not ordered_pages:
+        raise ValueError("No page markdown files available for concatenation")
+
+    parts: list[str] = []
+    for page_number in ordered_pages:
+        page_path = root / f"page_{page_number}.md"
+        if not page_path.exists():
+            raise FileNotFoundError(f"Missing page markdown file: {page_path}")
+        parts.append(page_path.read_text(encoding="utf-8").strip())
+
+    merged_path = root / output_filename
+    merged_path.write_text(separator.join(parts).strip() + "\n", encoding="utf-8")
+    return merged_path
+
+
+def extract_pdf_to_markdown(
+    *,
+    pdf_path: str,
+    output_dir: str | Path = "output",
+    start_page: int = 6,
+    end_page: int | None = None,
+    max_pages_per_run: int | None = None,
+    provider: str | None = None,
+) -> dict[str, object]:
+    """Extract and convert PDF pages to markdown files plus merged document."""
+    if max_pages_per_run is not None and max_pages_per_run <= 0:
+        raise ValueError("max_pages_per_run must be greater than 0 when provided")
+
+    from llm_hub.router import llm_cleanup_pdf_page
+
+    processed_pages: list[int] = []
+    failed_pages: list[int] = []
+    processed_count = 0
+
+    for page_number, page_text in iter_pdf_pages_with_pymupdf(
+        pdf_path,
+        start_page=start_page,
+        end_page=end_page,
+    ):
+        if max_pages_per_run is not None and processed_count >= max_pages_per_run:
+            break
+
+        normalized = normalize_page_text_for_markdown_llm(page_text)
+        if not normalized:
+            continue
+        normalized = _repair_common_mojibake_ro(normalized)
+        cleanup_blocks = _split_text_for_llm_cleanup(normalized, max_chars=3500)
+        if not cleanup_blocks:
+            continue
+
+        try:
+            cleaned_blocks: list[str] = []
+            for block in cleanup_blocks:
+                response = llm_cleanup_pdf_page(
+                    source_file=Path(pdf_path).name,
+                    page_number=page_number,
+                    page_text=block,
+                    provider=provider,
+                )
+                content = _strip_markdown_code_fences(response.content or "")
+                content = _postprocess_markdown_cleanup(content)
+                if content:
+                    cleaned_blocks.append(content)
+            markdown_text = "\n\n".join(cleaned_blocks).strip()
+            if not markdown_text:
+                markdown_text = normalized
+        except Exception:
+            failed_pages.append(page_number)
+            markdown_text = f"## Extraction Warning\n\n{normalized}"
+
+        write_page_markdown(
+            output_dir=output_dir,
+            page_number=page_number,
+            markdown_text=markdown_text,
+        )
+        processed_pages.append(page_number)
+        processed_count += 1
+
+    if not processed_pages:
+        raise ValueError("No pages were processed for markdown extraction")
+
+    merged_path = concatenate_page_markdown_files(
+        output_dir=output_dir,
+        page_numbers=processed_pages,
+    )
+    return {
+        "source_file": Path(pdf_path).name,
+        "output_dir": str(Path(output_dir)),
+        "pages_processed": len(processed_pages),
+        "page_numbers": processed_pages,
+        "failed_pages": failed_pages,
+        "document_path": str(merged_path),
+    }
+
+
 def extract_pdf_pages(pdf_path: str) -> list[str]:
-    """Extract page text from PDF using PyMuPDF, then fallback parser/OCR."""
+    """Extract page text from PDF using PyMuPDF only."""
     source = Path(pdf_path)
     if not source.exists():
         raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
     pymupdf_pages = _extract_pages_with_pymupdf(pdf_path)
-    if pymupdf_pages:
-        total_pages = max(pymupdf_pages.keys()) + 1
-        missing_indexes = [index for index in range(total_pages) if index not in pymupdf_pages]
-        if missing_indexes:
-            ocr_pages = _extract_pages_with_rapidocr(pdf_path, page_indexes=missing_indexes)
-            if ocr_pages:
-                logger.info(
-                    "Recovered %s unreadable pages with OCR from %s",
-                    len(ocr_pages),
-                    pdf_path,
-                )
-                pymupdf_pages.update(ocr_pages)
-        logger.info("Recovered %s pages with PyMuPDF from %s", len(pymupdf_pages), pdf_path)
-        return [pymupdf_pages[index] for index in sorted(pymupdf_pages.keys())]
+    if not pymupdf_pages:
+        raise ValueError(f"Could not extract readable text with PyMuPDF from PDF: {pdf_path}")
 
-    pages = _fallback_extract_pdf_pages(pdf_path)
-    if not pages:
-        ocr_pages = _extract_pages_with_rapidocr(pdf_path)
-        if ocr_pages:
-            logger.info("Recovered %s pages with OCR from %s", len(ocr_pages), pdf_path)
-            return [ocr_pages[index] for index in sorted(ocr_pages.keys())]
-        raise ValueError(f"Could not extract readable text from PDF: {pdf_path}")
-    return pages
+    logger.info("Recovered %s pages with PyMuPDF from %s", len(pymupdf_pages), pdf_path)
+    return [pymupdf_pages[index] for index in sorted(pymupdf_pages.keys())]
 
 
 def _looks_like_heading(line: str) -> bool:
     compact = re.sub(r"\s+", " ", line).strip()
     if not compact:
         return False
+    if _MARKDOWN_HEADING_PATTERN.match(compact):
+        return True
     if _CHAPTER_PATTERN.match(compact):
         return True
     if _SECTION_PATTERN.match(compact):
@@ -921,6 +1192,178 @@ def parse_pdf_to_structured_chunks(pdf_path: str) -> list[PdfStructuredChunk]:
     return chunks
 
 
+def parse_markdown_to_structured_chunks(markdown_path: str) -> list[PdfStructuredChunk]:
+    """Parse markdown into metadata-preserving chunks with heading/list hints."""
+    source = Path(markdown_path)
+    if not source.exists():
+        raise FileNotFoundError(f"Markdown file not found: {markdown_path}")
+
+    lines = source.read_text(encoding="utf-8").splitlines()
+    source_file = source.name
+
+    chunks: list[PdfStructuredChunk] = []
+    current_chapter = "unknown"
+    current_section = "unknown"
+    chunk_order = 1
+    paragraph: list[str] = []
+
+    def flush_paragraph() -> None:
+        nonlocal chunk_order, paragraph
+        if not paragraph:
+            return
+        text = " ".join(paragraph).strip()
+        if text:
+            chunks.append(
+                _build_chunk(
+                    source_file=source_file,
+                    page=0,
+                    chapter=current_chapter,
+                    section=current_section,
+                    chunk_order=chunk_order,
+                    text=text,
+                )
+            )
+            chunk_order += 1
+        paragraph = []
+
+    index = 0
+    while index < len(lines):
+        raw_line = lines[index]
+        line = re.sub(r"\s+", " ", raw_line).strip()
+        if not line:
+            flush_paragraph()
+            index += 1
+            continue
+
+        heading_match = _MARKDOWN_HEADING_PATTERN.match(line)
+        if heading_match:
+            flush_paragraph()
+            level = len(heading_match.group(1))
+            heading = heading_match.group(2).strip()
+            if level == 1:
+                current_chapter = heading or "unknown"
+                current_section = "unknown"
+            elif level == 2:
+                current_section = heading or "unknown"
+            else:
+                if current_section == "unknown":
+                    current_section = heading or "unknown"
+                else:
+                    current_section = f"{current_section} / {heading}"
+            index += 1
+            continue
+
+        if _is_numbered_item(line) or _is_bullet_item(line):
+            flush_paragraph()
+            list_lines = [line]
+            index += 1
+            while index < len(lines):
+                candidate_raw = lines[index]
+                candidate = re.sub(r"\s+", " ", candidate_raw).strip()
+                if not candidate:
+                    index += 1
+                    break
+                if _MARKDOWN_HEADING_PATTERN.match(candidate):
+                    break
+                if _is_numbered_item(candidate) or _is_bullet_item(candidate):
+                    list_lines.append(candidate)
+                    index += 1
+                    continue
+                if candidate_raw.startswith(("  ", "\t")):
+                    list_lines.append(candidate)
+                    index += 1
+                    continue
+                break
+
+            chunks.append(
+                _build_chunk(
+                    source_file=source_file,
+                    page=0,
+                    chapter=current_chapter,
+                    section=current_section,
+                    chunk_order=chunk_order,
+                    text="\n".join(list_lines),
+                )
+            )
+            chunk_order += 1
+            continue
+
+        paragraph.append(line)
+        index += 1
+
+    flush_paragraph()
+    return chunks
+
+
+def _semantic_chunk_structured_chunks_with_llamaindex(
+    chunks: list[PdfStructuredChunk],
+) -> list[PdfStructuredChunk]:
+    if not chunks:
+        return []
+
+    try:
+        from llama_index.core.node_parser import SemanticSplitterNodeParser
+        from llama_index.core.schema import Document
+    except Exception as exc:
+        raise RuntimeError(
+            "Semantic chunking requires llama-index-core semantic splitter."
+        ) from exc
+
+    parser = SemanticSplitterNodeParser.from_defaults(
+        buffer_size=1,
+        breakpoint_percentile_threshold=95,
+    )
+
+    grouped: dict[tuple[str, int, str, str], list[PdfStructuredChunk]] = {}
+    ordered_keys: list[tuple[str, int, str, str]] = []
+    for item in chunks:
+        key = (item.source_file, item.page, item.chapter, item.section)
+        if key not in grouped:
+            grouped[key] = []
+            ordered_keys.append(key)
+        grouped[key].append(item)
+
+    rechunked: list[PdfStructuredChunk] = []
+    for key in ordered_keys:
+        source_file, page, chapter, section = key
+        group = grouped[key]
+        merged_text = "\n\n".join(part.text.strip() for part in group if part.text.strip())
+        if not merged_text:
+            continue
+        try:
+            nodes = parser.get_nodes_from_documents([Document(text=merged_text)])
+        except Exception as exc:
+            raise RuntimeError(
+                f"LlamaIndex semantic chunking failed for {source_file}:{chapter}:{section}."
+            ) from exc
+
+        chunk_order = 1
+        for node in nodes:
+            text = re.sub(r"\s+", " ", node.get_content()).strip()
+            if not text:
+                continue
+            rechunked.append(
+                PdfStructuredChunk(
+                    source_file=source_file,
+                    page=page,
+                    chapter=chapter,
+                    section=section,
+                    chunk_id=_chunk_id_for(
+                        source_file=source_file,
+                        page=page,
+                        chapter=chapter,
+                        section=section,
+                        ordinal=chunk_order,
+                        text=text,
+                    ),
+                    text=text,
+                    is_list=_is_numbered_item(text) or _is_bullet_item(text),
+                )
+            )
+            chunk_order += 1
+    return rechunked
+
+
 def load_pdf_chunks(
     pdf_path: str,
     *,
@@ -928,8 +1371,12 @@ def load_pdf_chunks(
     semantic_chunk_max_chars: int = 700,
     semantic_use_llamaindex: bool = True,
 ) -> list[PdfStructuredChunk]:
-    """Load PDF chunks with selectable rechunking strategy."""
-    base_chunks = parse_pdf_to_structured_chunks(pdf_path)
+    """Load markdown or PDF chunks with selectable rechunking strategy."""
+    source = Path(pdf_path)
+    if source.suffix.lower() == ".md":
+        base_chunks = parse_markdown_to_structured_chunks(str(source))
+    else:
+        base_chunks = parse_pdf_to_structured_chunks(pdf_path)
     if not base_chunks:
         return []
 
@@ -938,16 +1385,9 @@ def load_pdf_chunks(
         return base_chunks
 
     if normalized_strategy == "semantic":
-        grouped_chunks = _group_structured_chunks_for_semantic(
-            base_chunks,
-            group_target_chars=None,
-        )
-        return chunk_structured_chunks(
-            grouped_chunks,
-            strategy=normalized_strategy,
-            semantic_max_chars=semantic_chunk_max_chars,
-            semantic_use_llamaindex=semantic_use_llamaindex,
-        )
+        if not semantic_use_llamaindex:
+            raise RuntimeError("Semantic chunking requires SEMANTIC_USE_LLAMAINDEX=true.")
+        return _semantic_chunk_structured_chunks_with_llamaindex(base_chunks)
 
     return chunk_structured_chunks(
         base_chunks,

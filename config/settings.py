@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SUPPORTED_LLM_PROVIDERS = {"openai", "ollama"}
+SUPPORTED_LLM_PROVIDERS = {"openai", "ollama", "qwen3.5"}
 SUPPORTED_CHUNKING_STRATEGIES = {"section", "sentence", "window", "semantic"}
 SUPPORTED_GRAPH_BACKENDS = {"kuzu"}
 SUPPORTED_RETRIEVAL_MODES = {"vector", "hybrid"}
@@ -42,6 +42,7 @@ class AppSettings:
     llm_provider: str = "openai"
     openai_model: str = "gpt-4o-mini"
     ollama_model: str = "gemma2:2b"
+    qwen_model: str = "qwen3.5"
     default_top_k: int = 3
     retrieval_min_score: float = 0.2
     retrieval_rerank_enabled: bool = True
@@ -55,7 +56,7 @@ class AppSettings:
     dataset_validation_pdf_path: str = (
         "data/dataset/DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf"
     )
-    chunking_strategy: str = "section"
+    chunking_strategy: str = "semantic"
     semantic_chunk_max_chars: int = 700
     semantic_use_llamaindex: bool = True
     allow_semantic_chunk_fallback: bool = False
@@ -87,6 +88,7 @@ def load_settings() -> AppSettings:
         llm_provider=os.getenv("LLM_PROVIDER", "openai").strip().lower(),
         openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip(),
         ollama_model=os.getenv("OLLAMA_MODEL", "gemma2:2b").strip(),
+        qwen_model=os.getenv("QWEN_MODEL", "qwen3.5").strip(),
         default_top_k=_env_int("DEFAULT_TOP_K", 3),
         retrieval_min_score=float(os.getenv("RETRIEVAL_MIN_SCORE", "0.2").strip()),
         retrieval_rerank_enabled=_env_bool("RETRIEVAL_RERANK_ENABLED", True),
@@ -110,7 +112,7 @@ def load_settings() -> AppSettings:
             "DATASET_VALIDATION_PDF_PATH",
             "data/dataset/DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf",
         ).strip(),
-        chunking_strategy=os.getenv("CHUNKING_STRATEGY", "section").strip().lower(),
+        chunking_strategy=os.getenv("CHUNKING_STRATEGY", "semantic").strip().lower(),
         semantic_chunk_max_chars=_env_int("SEMANTIC_CHUNK_MAX_CHARS", 700),
         semantic_use_llamaindex=_env_bool("SEMANTIC_USE_LLAMAINDEX", True),
         allow_semantic_chunk_fallback=_env_bool("ALLOW_SEMANTIC_CHUNK_FALLBACK", False),
@@ -241,9 +243,11 @@ def validate_startup(
                 f"'{current.dataset_validation_pdf_path}'."
             )
 
-    if command in {"chat"} and current.llm_provider == "openai":
+    if command in {"chat", "extract-markdown"} and current.llm_provider == "openai":
         if not os.getenv("OPENAI_API_KEY"):
-            errors.append("OPENAI_API_KEY is required when LLM_PROVIDER=openai for chat.")
+            errors.append(
+                "OPENAI_API_KEY is required when LLM_PROVIDER=openai for chat or extract-markdown."
+            )
 
     return errors
 

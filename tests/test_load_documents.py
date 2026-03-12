@@ -5,7 +5,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from rag.chunking.load_documents import discover_pdf_paths, load_medical_items
+from rag.chunking.load_documents import (
+    discover_markdown_paths,
+    discover_pdf_paths,
+    load_medical_items,
+    parse_markdown_to_structured_chunks,
+)
 
 
 class TestLoadDocuments(unittest.TestCase):
@@ -68,6 +73,41 @@ class TestLoadDocuments(unittest.TestCase):
 
         self.assertEqual(len(discovered), 1)
         self.assertTrue(discovered[0].endswith("DORIN-CURS_SEM2_searchable.pdf"))
+
+    def test_discover_markdown_paths_prefers_document_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_dir = Path(tmpdir)
+            (dataset_dir / "notes.md").write_text("# Notes", encoding="utf-8")
+            preferred = dataset_dir / "document.md"
+            preferred.write_text("# Main Document", encoding="utf-8")
+
+            discovered = discover_markdown_paths(str(dataset_dir))
+
+        self.assertEqual(discovered, [str(preferred)])
+
+    def test_parse_markdown_to_structured_chunks_extracts_headings_and_lists(self) -> None:
+        markdown = "\n".join(
+            [
+                "# Capitol 1",
+                "## Sectiune 1.1",
+                "Paragraf introductiv.",
+                "",
+                "- Primul punct",
+                "- Al doilea punct",
+            ]
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            markdown_path = Path(tmpdir) / "document.md"
+            markdown_path.write_text(markdown, encoding="utf-8")
+
+            chunks = parse_markdown_to_structured_chunks(str(markdown_path))
+
+        self.assertGreaterEqual(len(chunks), 2)
+        self.assertTrue(all(chunk.source_file == "document.md" for chunk in chunks))
+        self.assertTrue(all(chunk.chapter == "Capitol 1" for chunk in chunks))
+        self.assertTrue(all(chunk.section == "Sectiune 1.1" for chunk in chunks))
+        self.assertTrue(any(chunk.is_list for chunk in chunks))
+        self.assertTrue(all(chunk.chunk_id for chunk in chunks))
 
 
 if __name__ == "__main__":

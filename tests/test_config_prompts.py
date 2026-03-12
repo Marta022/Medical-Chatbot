@@ -29,7 +29,7 @@ class TestConfigAndPrompts(unittest.TestCase):
         self.assertGreater(settings.default_top_k, 0)
         self.assertTrue(settings.dataset_json_path.endswith("disease_database.json"))
         self.assertTrue(settings.dataset_csv_path.endswith("dataset_sheet1.csv"))
-        self.assertEqual(settings.chunking_strategy, "section")
+        self.assertEqual(settings.chunking_strategy, "semantic")
         self.assertGreater(settings.semantic_chunk_max_chars, 0)
         self.assertGreater(settings.retrieval_rerank_top_k, 0)
         self.assertGreaterEqual(settings.entity_min_confidence, 0)

@@ -1,3 +1,15 @@
+"""Flask API composition root.
+
+What this file provides:
+- App factory (`create_app`) with dependency injection hooks.
+- Request lifecycle controls (correlation id, API enable/disable, API-key checks).
+- Public endpoints for health, chat, ingest trigger, evaluation, and OpenAI-compatible routes.
+
+Design note:
+- Endpoint handlers should stay thin and delegate core behavior via `ApiDependencies`
+    (orchestrator, ingest function, serialization adapters).
+"""
+
 from __future__ import annotations
 
 import logging
