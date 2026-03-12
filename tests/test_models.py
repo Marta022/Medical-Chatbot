@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from guardrails.rules import apply_guardrails as apply_guardrails_legacy
+from agent.guardrail.rules_engine import apply_guardrails
 from models import (
     GuardrailResult,
     LLMRequest,
@@ -82,12 +82,12 @@ class TestModels(unittest.TestCase):
         self.assertEqual(payload["score"], 0.9)
         self.assertEqual(payload["reasons"], ["a"])
 
-    def test_legacy_guardrail_shim_returns_dict(self) -> None:
-        result = apply_guardrails_legacy("nu pot respira")
-        self.assertIsInstance(result, dict)
-        self.assertTrue(result["is_emergency"])
-        self.assertFalse(result["is_valid"])
-        self.assertIn("message", result)
+    def test_apply_guardrails_returns_guardrail_result(self) -> None:
+        result = apply_guardrails("nu pot respira")
+        self.assertIsInstance(result, GuardrailResult)
+        self.assertTrue(result.is_emergency)
+        self.assertFalse(result.is_valid)
+        self.assertTrue(bool(result.message))
 
     def test_medical_entity_to_dict(self) -> None:
         entity = MedicalEntity(

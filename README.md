@@ -197,7 +197,6 @@ Phase-1 validation commands used during migration:
 
 ```bash
 python -c "import run; import agent.orchestrator.chat_loop; import agent.guardrail.rules_engine; import knowledge.qdrant.client; import rag.retrieval.retriever; import models.contracts; print('import-smoke-ok')"
-python -c "import agents.main_agent, llm_hub.router, ingestion.embed, rag.retriever, vector_db.qdrant_client, guardrails.rules; print('legacy-shims-ok')"
 python -m compileall agent knowledge rag models config run.py app.py
 python -m unittest tests.test_models tests.test_cli tests.test_config_prompts tests.test_phase1_structure -v
 ```

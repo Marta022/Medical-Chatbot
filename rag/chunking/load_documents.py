@@ -805,7 +805,7 @@ def extract_pdf_to_markdown(
     if max_pages_per_run is not None and max_pages_per_run <= 0:
         raise ValueError("max_pages_per_run must be greater than 0 when provided")
 
-    from llm_hub.router import llm_cleanup_pdf_page
+    from agent.reasoning.llm_router import llm_cleanup_pdf_page
 
     processed_pages: list[int] = []
     failed_pages: list[int] = []

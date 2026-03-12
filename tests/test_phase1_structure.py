@@ -30,19 +30,6 @@ class TestPhase1Structure(unittest.TestCase):
         source = Path("knowledge/qdrant/ingest.py").read_text(encoding="utf-8")
         self.assertIn("from rag.chunking.load_documents import load_medical_items", source)
 
-    def test_shim_files_have_removal_todo_marker(self) -> None:
-        shim_files = [
-            Path("evaluation/benchmark.py"),
-            Path("evaluation/evaluator.py"),
-            Path("guardrails/rules.py"),
-            Path("ingestion/load_documents.py"),
-            Path("llm_hub/router.py"),
-            Path("vector_db/qdrant_client.py"),
-        ]
-        for shim_file in shim_files:
-            content = shim_file.read_text(encoding="utf-8")
-            self.assertIn("TODO(remove-shim)", content)
-
     def test_import_smoke_migrated_modules(self) -> None:
         modules = [
             "run",

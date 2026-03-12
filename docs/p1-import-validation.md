@@ -11,11 +11,9 @@ Validate that migrated package layout resolves imports correctly and that runtim
 
 1. Import smoke for migrated modules:
    - `python -c "import run; import agent.orchestrator.chat_loop; import agent.guardrail.rules_engine; import knowledge.qdrant.client; import rag.retrieval.retriever; import models.contracts; print('import-smoke-ok')"`
-2. Legacy shim import smoke:
-   - `python -c "import agents.main_agent, llm_hub.router, ingestion.embed, rag.retriever, vector_db.qdrant_client, guardrails.rules; print('legacy-shims-ok')"`
-3. Compile validation:
+2. Compile validation:
    - `python -m compileall agent knowledge rag models config run.py app.py`
-4. Stale-import scan for canonical modules:
+3. Stale-import scan for canonical modules:
    - `rg "from (agents|guardrails|evaluation|ingestion|llm_hub|vector_db|translation|rag\\.retriever)" -n agent knowledge rag models run.py app.py`
 4. Dataset path checks:
    - `data/dataset/disease_database.json` exists
@@ -31,7 +29,6 @@ Validate that migrated package layout resolves imports correctly and that runtim
 | Check | Result |
 | --- | --- |
 | Migrated imports | PASS |
-| Legacy shim imports | PASS |
 | Compile validation | PASS |
 | Stale-import scan on canonical modules | PASS (no matches) |
 | Dataset normalized paths | PASS |

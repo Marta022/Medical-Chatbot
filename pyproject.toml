@@ -28,15 +28,9 @@ branch = true
 source = [
   "agent",
   "config",
-  "evaluation",
-  "guardrails",
-  "ingestion",
   "knowledge",
-  "llm_hub",
   "models",
   "rag",
-  "translation",
-  "vector_db",
 ]
 omit = [
   ".venv/*",

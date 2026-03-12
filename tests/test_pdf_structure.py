@@ -189,7 +189,7 @@ class TestPdfStructure(unittest.TestCase):
                 "rag.chunking.load_documents.iter_pdf_pages_with_pymupdf",
                 return_value=[(6, "CAPITOLUL 1\nText"), (7, "1. Simptom\n2. Semn")],
             ):
-                with patch("llm_hub.router.llm_cleanup_pdf_page") as cleanup_mock:
+                with patch("agent.reasoning.llm_router.llm_cleanup_pdf_page") as cleanup_mock:
                     cleanup_mock.side_effect = [
                         type("R", (), {"content": "# P6\nText"}),
                         type("R", (), {"content": "# P7\nLista"}),
@@ -215,7 +215,7 @@ class TestPdfStructure(unittest.TestCase):
                 return_value=[(6, "A"), (7, "B"), (8, "C")],
             ):
                 with patch(
-                    "llm_hub.router.llm_cleanup_pdf_page",
+                    "agent.reasoning.llm_router.llm_cleanup_pdf_page",
                     return_value=type("R", (), {"content": "ok"}),
                 ):
                     result = extract_pdf_to_markdown(
@@ -237,7 +237,7 @@ class TestPdfStructure(unittest.TestCase):
                 return_value=synthetic_pages,
             ):
                 with patch(
-                    "llm_hub.router.llm_cleanup_pdf_page",
+                    "agent.reasoning.llm_router.llm_cleanup_pdf_page",
                     return_value=type("R", (), {"content": "ok"}),
                 ):
                     result = extract_pdf_to_markdown(
