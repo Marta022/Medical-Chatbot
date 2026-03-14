@@ -1,0 +1,12 @@
+# Answer key for data/dataset/primele_10_grile_pag2_curatate.json
+# Format: <id>: <letters>, supports multiple correct answers (e.g., 601: A,C)
+521: A
+522: C
+523: E
+524: C
+525: A
+526: A
+527: A
+528: B
+529: C
+530: A

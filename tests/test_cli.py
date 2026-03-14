@@ -39,6 +39,12 @@ class TestCLI(unittest.TestCase):
         self.assertIn("output_dir", extract_option_dests)
         self.assertIn("max_pages_per_run", extract_option_dests)
         self.assertIn("provider", extract_option_dests)
+        eval_option_dests = {action.dest for action in command_actions[0].choices["eval"]._actions}
+        self.assertIn("benchmark", eval_option_dests)
+        self.assertIn("benchmark_json_path", eval_option_dests)
+        self.assertIn("answer_key_path", eval_option_dests)
+        self.assertIn("benchmark_top_k", eval_option_dests)
+        self.assertIn("benchmark_limit", eval_option_dests)
 
     def test_help_command_smoke(self) -> None:
         completed = subprocess.run(

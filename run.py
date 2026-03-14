@@ -19,6 +19,11 @@ from dataclasses import replace
 from pathlib import Path
 
 from agent.evaluation.benchmark import run_evaluation_smoke
+from agent.evaluation.benchmark import (
+    DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH,
+    DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
+    run_retrieval_benchmark,
+)
 from agent.orchestrator.chat_loop import run_chat_loop
 from config.logging_config import new_correlation_id, setup_logging
 from config.settings import (
@@ -200,7 +205,35 @@ def _build_parser() -> argparse.ArgumentParser:
         help="LLM provider used for page-level markdown cleanup",
     )
 
-    subparsers.add_parser("eval", help="Run evaluation smoke check")
+    eval_parser = subparsers.add_parser("eval", help="Run evaluation checks")
+    eval_parser.add_argument(
+        "--benchmark",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Run benchmark validation against grile dataset and answer key",
+    )
+    eval_parser.add_argument(
+        "--benchmark-json-path",
+        default=DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
+        help="Path to benchmark grile JSON dataset",
+    )
+    eval_parser.add_argument(
+        "--answer-key-path",
+        default=DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH,
+        help="Path to benchmark answer key (txt/json)",
+    )
+    eval_parser.add_argument(
+        "--benchmark-top-k",
+        type=int,
+        default=SETTINGS.default_top_k,
+        help="Retriever top_k used during benchmark question runs",
+    )
+    eval_parser.add_argument(
+        "--benchmark-limit",
+        type=int,
+        default=0,
+        help="Optional max number of benchmark items to evaluate (0 means all)",
+    )
     return parser
 
 
@@ -277,7 +310,16 @@ def main() -> None:
 
     if args.command == "eval":
         ensure_startup_valid(command=args.command)
-        result = run_evaluation_smoke()
+        if args.benchmark:
+            result = run_retrieval_benchmark(
+                benchmark_json_path=args.benchmark_json_path,
+                answer_key_path=args.answer_key_path,
+                top_k=args.benchmark_top_k,
+                language="ro",
+                limit=(args.benchmark_limit if args.benchmark_limit > 0 else None),
+            )
+        else:
+            result = run_evaluation_smoke()
         payload = serialize_to_json_compatible(result)
         logger.info(json.dumps(payload, ensure_ascii=False, indent=2))
         return

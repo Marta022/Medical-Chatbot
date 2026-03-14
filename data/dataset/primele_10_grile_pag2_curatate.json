@@ -1,0 +1,92 @@
+[
+  {
+    "id": 521,
+    "intrebare": "Temperatura corporala normala si patologica, u.a.s.c.c.e.",
+    "A": "Intr-o ambianta neutra termic, metabolismul produce mai putina caldura decat este necesar pentru mentinerea temperaturii centrale intre aproximativ 36,5-37,5 C.",
+    "B": "Persoanele varstnice pot avea capacitate redusa de a dezvolta febra.",
+    "C": "La femeile care au menstruatie, temperatura matinala este in general mai mare in cele doua saptamani dinainte de ovulatie.",
+    "D": "Dupa ovulatie, temperatura se mentine la nivelul crescut pana la urmatoarea ovulatie.",
+    "E": "Temperatura corporala este influentata si de sarcina."
+  },
+  {
+    "id": 522,
+    "intrebare": "R.I. Temperatura corporala normala si patologica",
+    "A": "Febra este definita drept T >37,2 C dimineata si >37,7 C seara.",
+    "B": "Persoanele varstnice pot face doar o febra modesta chiar si in infectii severe.",
+    "C": "La ovulatie, temperatura scade cu aproximativ 0,8 C.",
+    "D": "Temperatura corporala scade in perioada postprandiala.",
+    "E": "Temperatura corporala este influentata de disfunctii endocrinologice."
+  },
+  {
+    "id": 523,
+    "intrebare": "F.d.u. Evenimente legate de febra: a. vasoconstrictie periferica; b. devierea sangelui din periferie catre organele interne; c. activarea neuronilor din centrul vasomotor; d. scade pierderea de caldura prin piele, iar individului i se face frig; e. ridicarea nivelului de referinta hipotalamic. Care este lantul temporal corect?",
+    "A": "a-c-d-b-e",
+    "B": "b-e-d-c-a",
+    "C": "c-e-a-d-b",
+    "D": "d-b-e-a-c",
+    "E": "e-c-a-b-d"
+  },
+  {
+    "id": 524,
+    "intrebare": "F.d.u. Evenimente legate de febra: a. scaderea pierderii de caldura prin piele; b. individul incepe sa tremure (frison); c. vasoconstrictie periferica (resimtita initial la maini si picioare); d. creste productia de caldura in muschi; e. individul are senzatie de frig. Care este lantul temporal corect?",
+    "A": "a-d-c-e-b",
+    "B": "b-e-c-a-d",
+    "C": "c-a-e-b-d",
+    "D": "d-e-a-c-b",
+    "E": "e-a-c-d-b"
+  },
+  {
+    "id": 525,
+    "intrebare": "F.d.u. Mecanisme de crestere a temperaturii centrale implicate in producerea febrei: 1. scaderea pierderii de caldura prin piele; 2. cresterea productiei de caldura in muschi; 3. cresterea productiei de caldura metabolica; 4. reducerea pierderii de caldura prin gesturi adaptative; si urmatoarele procese/atitudini: a. vasoconstrictie; b. tremuraturi; c. individul se imbraca mai gros, se acopera cu o patura, se ghemuieste; d. termogeneza hepatica. Care sunt asocierile corecte?",
+    "A": "a-1, b-2, c-4, d-3",
+    "B": "a-2, b-1, c-3, d-4",
+    "C": "a-2, b-3, c-1, d-4",
+    "D": "a-2, b-4, c-1, d-3",
+    "E": "a-4, b-1, c-2, d-3"
+  },
+  {
+    "id": 526,
+    "intrebare": "R.I. Febra si frisonul",
+    "A": "Febra reprezinta cresterea temperaturii corpului peste nivelul de referinta hipotalamic.",
+    "B": "Cresterea temperaturii corporale din febra depaseste variatia zilnica normala.",
+    "C": "In majoritatea cazurilor de febra, nivelul de referinta hipotalamic este urcat cu 1-2 C.",
+    "D": "Cresterea temperaturii se realizeaza prin procese fiziologice care conserva sau produc caldura.",
+    "E": "Frisonul nu este obligatoriu daca mecanismele de pastrare a caldurii ridica temperatura sangelui suficient."
+  },
+  {
+    "id": 527,
+    "intrebare": "U.f.d.f.d. Febra s.c.f.c.e.",
+    "A": "Procesele fiziologice prin care caldura este conservata (vasodilatatie).",
+    "B": "sau produsa (termogeneza musculara, hepatica etc.)",
+    "C": "continua pana cand",
+    "D": "temperatura sangelui care iriga neuronii hipotalamici",
+    "E": "corespunde noului nivel de referinta al termostatului"
+  },
+  {
+    "id": 528,
+    "intrebare": "U.f.d.f.d. Febra s.c.f.c.e.",
+    "A": "Dupa atingerea echilibrului",
+    "B": "termic la noul punct de referinta (set-point)",
+    "C": "hipotalamusul mentine temperatura la nivel febril",
+    "D": "prin alte mecanisme decat",
+    "E": "in starea normala (afebrila)"
+  },
+  {
+    "id": 529,
+    "intrebare": "R.I. Mentinerea echilibrului termic, f.d.u. categorii de procese: 1. reducerea pierderii de caldura; 2. reducerea pierderii de caldura prin gesturi adaptative; 3. disiparea caldurii; si urmatoarele procese/atitudini: a. imbracare, acoperire; b. vasoconstrictie; c. transpiratie. Care sunt asocierile corecte?",
+    "A": "a-1, b-2, c-3",
+    "B": "a-1, b-3, c-2",
+    "C": "a-2, b-1, c-3",
+    "D": "a-3, b-1, c-2",
+    "E": "a-3, b-2, c-1"
+  },
+  {
+    "id": 530,
+    "intrebare": "R.I. Mentinerea echilibrului termic, f.d.u. categorii de procese: 1. cresterea productiei de caldura; 2. reducerea pierderii de caldura prin gesturi adaptative; 3. disiparea caldurii prin gesturi adaptative; si urmatoarele procese/atitudini: a. tremuraturi; b. ghemuire; c. dezvelire. Care sunt asocierile corecte?",
+    "A": "a-1, b-2, c-3",
+    "B": "a-1, b-3, c-2",
+    "C": "a-2, b-1, c-3",
+    "D": "a-2, b-3, c-1",
+    "E": "a-3, b-1, c-2"
+  }
+]

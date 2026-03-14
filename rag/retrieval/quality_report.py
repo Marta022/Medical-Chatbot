@@ -3,16 +3,15 @@ from __future__ import annotations
 from statistics import mean
 from typing import Any
 
+from agent.evaluation.benchmark import (
+    DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
+    load_retrieval_benchmark_queries,
+)
 from config.settings import SETTINGS
 from rag.chunking.load_documents import load_pdf_chunks
 from rag.retrieval.retriever import retrieve_top_similar
 
-DEFAULT_PROBE_QUERIES = [
-    "colesterol embolii placi ateromatoase",
-    "insuficienta cardiaca simptome",
-    "tratament hipertensiune arteriala",
-    "sindromul cushing",
-]
+DEFAULT_PROBE_DATASET_JSON_PATH = DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH
 
 
 def _chunk_metrics(chunks: list[str]) -> dict[str, Any]:
@@ -105,6 +104,7 @@ def build_quality_report(
     semantic_chunk_max_chars: int,
     semantic_use_llamaindex: bool,
     probe_queries: list[str] | None = None,
+    probe_dataset_json_path: str = DEFAULT_PROBE_DATASET_JSON_PATH,
     keyword_queries: list[str] | None = None,
     keyword_limit: int = 5,
     top_k: int = 3,
@@ -134,7 +134,11 @@ def build_quality_report(
                 for query in keyword_queries
             }
 
-    active_queries = probe_queries or DEFAULT_PROBE_QUERIES
+    active_queries = (
+        probe_queries
+        if probe_queries is not None
+        else load_retrieval_benchmark_queries(probe_dataset_json_path)
+    )
     report["retrieval_probes"] = [_retrieval_probe(query, top_k=top_k) for query in active_queries]
     report["retrieval_mode"] = SETTINGS.retrieval_mode
     return report

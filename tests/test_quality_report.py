@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from models import RetrievalHit, RetrievalResult
@@ -68,6 +71,77 @@ class TestQualityReport(unittest.TestCase):
         self.assertIn("doc.pdf", report["chunk_keyword_probes"])
         self.assertIn("diagnostic", report["chunk_keyword_probes"]["doc.pdf"])
         self.assertEqual(len(report["chunk_keyword_probes"]["doc.pdf"]["diagnostic"]), 1)
+
+    def test_build_quality_report_loads_probe_queries_from_json_dataset(self) -> None:
+        chunks = [
+            PdfStructuredChunk(
+                source_file="doc.pdf",
+                page=1,
+                chapter="CAPITOLUL 1",
+                section="1.1",
+                chunk_id="c1",
+                text="fragment extins pentru diagnostic retrieval",
+                is_list=False,
+            )
+        ]
+        retrieval = RetrievalResult(
+            hits=[
+                RetrievalHit(
+                    title="Doc",
+                    text="context util",
+                    score=0.81,
+                    source="pdf",
+                    source_file="doc.pdf",
+                    page=1,
+                    section="1.1",
+                    chunk_id="c1",
+                )
+            ]
+        )
+        with tempfile.NamedTemporaryFile(
+            "w",
+            delete=False,
+            suffix=".json",
+            encoding="utf-8",
+        ) as handle:
+            json.dump(
+                [
+                    {"id": 1, "intrebare": "Prima intrebare"},
+                    {"id": 2, "intrebare": "A doua intrebare"},
+                ],
+                handle,
+                ensure_ascii=False,
+            )
+            benchmark_json = handle.name
+
+        try:
+            with patch("rag.retrieval.quality_report.load_pdf_chunks", return_value=chunks):
+                with patch("rag.retrieval.quality_report.retrieve_top_similar", return_value=retrieval):
+                    report = build_quality_report(
+                        pdf_paths=["doc.pdf"],
+                        chunking_strategy="semantic",
+                        semantic_chunk_max_chars=700,
+                        semantic_use_llamaindex=False,
+                        probe_dataset_json_path=benchmark_json,
+                        top_k=2,
+                    )
+
+            self.assertEqual(len(report["retrieval_probes"]), 2)
+            self.assertEqual(report["retrieval_probes"][0]["query"], "Prima intrebare")
+            self.assertEqual(report["retrieval_probes"][1]["query"], "A doua intrebare")
+        finally:
+            Path(benchmark_json).unlink(missing_ok=True)
+
+    def test_build_quality_report_raises_when_probe_dataset_json_missing(self) -> None:
+        with self.assertRaises(FileNotFoundError):
+            build_quality_report(
+                pdf_paths=[],
+                chunking_strategy="semantic",
+                semantic_chunk_max_chars=700,
+                semantic_use_llamaindex=False,
+                probe_dataset_json_path="data/dataset/does-not-exist.json",
+                top_k=2,
+            )
 
 
 if __name__ == "__main__":
