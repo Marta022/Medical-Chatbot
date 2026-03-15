@@ -1,0 +1,217 @@
+{
+  "benchmark_json_path": "data/dataset/primele_10_grile_pag2_curatate.json",
+  "answer_key_path": "data/dataset/primele_10_grile_pag2_answer_key.txt",
+  "dataset_total_count": 10,
+  "evaluated_count": 10,
+  "guardrail_enabled_during_benchmark": false,
+  "missing_answer_ids": [],
+  "answer_key_coverage": 1.0,
+  "supports_multiple_correct_answers": true,
+  "global_score": 0.5667,
+  "global_exact_match_rate": 0.5,
+  "aggregate": {
+    "exact_match_rate": 0.5,
+    "macro_precision": 0.5583,
+    "macro_recall": 0.5833,
+    "macro_f1": 0.5667,
+    "micro_precision": 0.5385,
+    "micro_recall": 0.5385,
+    "micro_f1": 0.5385
+  },
+  "rows": [
+    {
+      "id": 521,
+      "query": "Temperatura corporala normala si patologica, u.a.s.c.c.e.",
+      "gold_answers": [
+        "A",
+        "C",
+        "D"
+      ],
+      "predicted_answers": [
+        "B",
+        "D",
+        "E"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: FALS  \nSTATUT_B: ADEVARAT  \nSTATUT_C: FALS  \nSTATUT_D: ADEVARAT  \nSTATUT_E: ADEVARAT  \nRASPUNS: B,D,E",
+      "tp": 1,
+      "fp": 2,
+      "fn": 2,
+      "precision": 0.3333,
+      "recall": 0.3333,
+      "f1": 0.3333,
+      "exact_match": false
+    },
+    {
+      "id": 522,
+      "query": "R.I. Temperatura corporala normala si patologica",
+      "gold_answers": [
+        "C",
+        "D"
+      ],
+      "predicted_answers": [
+        "A",
+        "B",
+        "D",
+        "E"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: ADEVARAT\nSTATUT_B: ADEVARAT\nSTATUT_C: FALS\nSTATUT_D: ADEVARAT\nSTATUT_E: ADEVARAT\nRASPUNS: A,B,D,E",
+      "tp": 1,
+      "fp": 3,
+      "fn": 1,
+      "precision": 0.25,
+      "recall": 0.5,
+      "f1": 0.3333,
+      "exact_match": false
+    },
+    {
+      "id": 523,
+      "query": "F.d.u. Evenimente legate de febra: a. vasoconstrictie periferica; b. devierea sangelui din periferie catre organele interne; c. activarea neuronilor din centrul vasomotor; d. scade pierderea de caldura prin piele, iar individului i se face frig; e. ridicarea nivelului de referinta hipotalamic. Care este lantul temporal corect?",
+      "gold_answers": [
+        "E"
+      ],
+      "predicted_answers": [
+        "E"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ORDINE: e-c-a-b-d  \nVARIANTA: E  \nRASPUNS: E",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 524,
+      "query": "F.d.u. Evenimente legate de febra: a. scaderea pierderii de caldura prin piele; b. individul incepe sa tremure (frison); c. vasoconstrictie periferica (resimtita initial la maini si picioare); d. creste productia de caldura in muschi; e. individul are senzatie de frig. Care este lantul temporal corect?",
+      "gold_answers": [
+        "C"
+      ],
+      "predicted_answers": [],
+      "single_answer_retry_used": true,
+      "raw_response": "",
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "exact_match": false
+    },
+    {
+      "id": 525,
+      "query": "F.d.u. Mecanisme de crestere a temperaturii centrale implicate in producerea febrei: 1. scaderea pierderii de caldura prin piele; 2. cresterea productiei de caldura in muschi; 3. cresterea productiei de caldura metabolica; 4. reducerea pierderii de caldura prin gesturi adaptative; si urmatoarele procese/atitudini: a. vasoconstrictie; b. tremuraturi; c. individul se imbraca mai gros, se acopera cu o patura, se ghemuieste; d. termogeneza hepatica. Care sunt asocierile corecte?",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [
+        "A"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ASOCIERI: a-1, b-2, c-4, d-3\nVARIANTA: A\nRASPUNS: A",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 526,
+      "query": "R.I. Febra si frisonul",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [],
+      "single_answer_retry_used": false,
+      "raw_response": "",
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "exact_match": false
+    },
+    {
+      "id": 527,
+      "query": "U.f.d.f.d. Febra s.c.f.c.e.",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [
+        "A"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "FRAZA: Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului.\nFRAGMENT_PROBLEMA: A\nRASPUNS: A",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 528,
+      "query": "U.f.d.f.d. Febra s.c.f.c.e.",
+      "gold_answers": [
+        "D"
+      ],
+      "predicted_answers": [
+        "D"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "FRAZA: După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă).\nFRAGMENT_PROBLEMA: D\nRASPUNS: D",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 529,
+      "query": "R.I. Mentinerea echilibrului termic, f.d.u. categorii de procese: 1. reducerea pierderii de caldura; 2. reducerea pierderii de caldura prin gesturi adaptative; 3. disiparea caldurii; si urmatoarele procese/atitudini: a. imbracare, acoperire; b. vasoconstrictie; c. transpiratie. Care sunt asocierile corecte?",
+      "gold_answers": [
+        "C"
+      ],
+      "predicted_answers": [
+        "A"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ASOCIERI: a-1, b-2, c-3  \nVARIANTA: A  \nRASPUNS: A",
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "exact_match": false
+    },
+    {
+      "id": 530,
+      "query": "R.I. Mentinerea echilibrului termic, f.d.u. categorii de procese: 1. cresterea productiei de caldura; 2. reducerea pierderii de caldura prin gesturi adaptative; 3. disiparea caldurii prin gesturi adaptative; si urmatoarele procese/atitudini: a. tremuraturi; b. ghemuire; c. dezvelire. Care sunt asocierile corecte?",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [
+        "A"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ASOCIERI: a-1, b-2, c-3\nVARIANTA: A\nRASPUNS: A",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    }
+  ]
+}

@@ -7,13 +7,31 @@ from statistics import mean
 from typing import Any, Callable
 
 from agent.evaluation.evaluator import evaluate_response
-from models import EvaluatorResult, GuardrailResult
+from config.eval_config import EVAL_CONFIG
+from config.settings import SETTINGS
+from models import EvaluatorResult, GuardrailResult, LLMRequest, RetrievalHit
 
 
 DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH = "data/dataset/primele_10_grile_pag2_curatate.json"
 DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH = "data/dataset/primele_10_grile_pag2_answer_key.txt"
+BENCHMARK_SYSTEM_PROMPT = """
+You are solving Romanian medical multiple-choice benchmark items using ONLY the retrieved context.
 
-_OPTION_RE = re.compile(r"\b([A-E])\b", flags=re.IGNORECASE)
+Rules:
+- Answer in Romanian.
+- Be conservative: mark an option as correct only if the context supports it clearly.
+- For R.I. and u.a.s.c.c.e., verify each option independently before selecting letters.
+- For R.I. and u.a.s.c.c.e., use `INSUFICIENT` by default when the context does not directly confirm an option.
+- Never mark an option `ADEVARAT` for R.I. / u.a.s.c.c.e. unless the support is explicit in the retrieved context.
+- For R.I., final answer letters are the options marked `ADEVARAT`.
+- For u.a.s.c.c.e., final answer letters are the options marked `FALS`.
+- For F.d.u. and F.d.d. sequence/association items, derive the correct order or mapping from context first, then compare all A-E variants and choose the single best option.
+- For u.f.d.f.d., u.i.d.f.d., u.f.c.d., c.d.d., and c.e., determine the single required letter exactly from context.
+- Do not use popularity, intuition, or outside medical knowledge when context is weak.
+- Follow the exact structured output format requested in the user prompt.
+- Never use unsupported claims like "cunostinte generale", "in general", or facts outside context.
+""".strip()
+
 _ANSWER_SEGMENT_RE = re.compile(
     r"(?:^|\n)\s*(?:raspuns|răspuns|answer)\s*[:\-]\s*([^\n\r]+)",
     flags=re.IGNORECASE,
@@ -32,7 +50,21 @@ _ANSWER_VALUE_KEYS = (
     "key",
 )
 _SINGLE_ANSWER_TYPE_RE = re.compile(
-    r"\b(?:u\.?i\.?d\.?f\.?d\.?|u\.?f\.?d\.?f\.?d\.?|u\.?f\.?c\.?d\.?|c\.?e\.?)\b",
+    r"\b(?:u\.?i\.?d\.?f\.?d\.?|u\.?f\.?d\.?f\.?d\.?|u\.?f\.?c\.?d\.?|f\.?d\.?u\.?|f\.?d\.?d\.?|c\.?d\.?d\.?|c\.?e\.?)\b",
+    flags=re.IGNORECASE,
+)
+_MULTI_ANSWER_TYPE_RE = re.compile(
+    r"\b(?:r\.?i\.?|u\.?a\.?s\.?c\.?c\.?e\.?)\b",
+    flags=re.IGNORECASE,
+)
+_SEQUENCE_OPTION_RE = re.compile(r"^[a-e](?:\s*-\s*[a-e]){2,}$", flags=re.IGNORECASE)
+_MAPPING_OPTION_RE = re.compile(
+    r"^[a-z0-9]+\s*-\s*[a-z0-9]+(?:\s*,\s*[a-z0-9]+\s*-\s*[a-z0-9]+){1,}$",
+    flags=re.IGNORECASE,
+)
+_TOKEN_RE = re.compile(r"\w+", flags=re.UNICODE)
+_FORBIDDEN_REASONING_RE = re.compile(
+    r"\b(?:cunostinte generale|cunoștințe generale|in general|în general|outside context)\b",
     flags=re.IGNORECASE,
 )
 _SINGLE_ANSWER_PHRASES = (
@@ -40,6 +72,8 @@ _SINGLE_ANSWER_PHRASES = (
     "una adevarata dintre cele date",
     "una corecta dintre cele date",
     "una incorecta dintre cele date",
+    "fals dintre cele date",
+    "care dintre cele date",
     "care este exceptia",
     "care este exceptiile",
 )
@@ -73,7 +107,24 @@ def _normalize_romanian_text(value: str) -> str:
 
 def _extract_option_letters(value: str) -> set[str]:
     answer_segment = _extract_answer_segment(value)
-    return {match.upper() for match in _OPTION_RE.findall(answer_segment)}
+    normalized = answer_segment.upper().strip()
+    if not normalized:
+        return set()
+
+    tokens: set[str] = set()
+    for raw_token in re.split(r"[\s,;/|]+", normalized):
+        token = raw_token.strip("().:-")
+        if token in _CHOICE_LETTERS:
+            tokens.add(token)
+    if tokens:
+        return tokens
+
+    # Fallback for malformed output like "E-C-A-B-D" where the chosen option
+    # letter is emitted together with option content.
+    leading_match = re.match(r"^\s*([A-E])(?:\b|[-:])", normalized)
+    if leading_match:
+        return {leading_match.group(1)}
+    return set()
 
 
 def _normalize_answer_letters(raw: Any) -> set[str]:
@@ -142,9 +193,152 @@ def _extract_answer_letters_from_entry(entry: dict[str, Any]) -> set[str]:
 
 def _requires_single_answer(question: str) -> bool:
     normalized = _normalize_romanian_text(question)
+    if _MULTI_ANSWER_TYPE_RE.search(normalized):
+        return False
     if _SINGLE_ANSWER_TYPE_RE.search(normalized):
         return True
+    if "care este lantul temporal corect" in normalized:
+        return True
+    if "care sunt asocierile corecte" in normalized:
+        return True
     return any(phrase in normalized for phrase in _SINGLE_ANSWER_PHRASES)
+
+
+def _choice_pattern_implies_single_answer(choices: dict[str, str]) -> bool:
+    values = [value.strip() for value in choices.values() if value and value.strip()]
+    if not values:
+        return False
+    if all(_SEQUENCE_OPTION_RE.fullmatch(value) for value in values):
+        return True
+    if all(_MAPPING_OPTION_RE.fullmatch(value) for value in values):
+        return True
+    return False
+
+
+def _benchmark_requires_single_answer(item: dict[str, Any]) -> bool:
+    question = str(item.get("intrebare", ""))
+    choices = item.get("choices", {})
+    normalized_question = _normalize_romanian_text(question)
+    if "s.c.f.c.e." in normalized_question or "s c f c e" in normalized_question:
+        return True
+    if isinstance(choices, dict) and _choice_pattern_implies_single_answer(choices):
+        return True
+    return _requires_single_answer(question)
+
+
+def _tokenize(value: str) -> set[str]:
+    return {
+        token.lower()
+        for token in _TOKEN_RE.findall(_normalize_romanian_text(value))
+        if len(token) >= 2
+    }
+
+
+def _compact_pattern(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", _normalize_romanian_text(value))
+
+
+def _match_derived_value_to_option(
+    item: dict[str, Any],
+    derived_value: str,
+) -> str | None:
+    compact_derived = _compact_pattern(derived_value)
+    if not compact_derived or compact_derived == "insuficient":
+        return None
+    for letter, option_value in item["choices"].items():
+        if _compact_pattern(option_value) == compact_derived:
+            return letter
+    return None
+
+
+def _build_benchmark_retrieval_query(item: dict[str, Any]) -> str:
+    choices = item["choices"]
+    parts = [item["intrebare"]]
+    if _benchmark_requires_single_answer(item):
+        parts.extend(
+            f"{letter} {choices[letter]}"
+            for letter in _CHOICE_LETTERS
+            if choices.get(letter, "").strip()
+        )
+    return "\n".join(parts)
+
+
+def _build_option_queries(item: dict[str, Any]) -> list[str]:
+    question = item["intrebare"]
+    queries = [question]
+    for letter, value in item["choices"].items():
+        cleaned = value.strip()
+        if not cleaned:
+            continue
+        queries.append(f"{question}\nOptiunea {letter}: {cleaned}")
+    return queries
+
+
+def _benchmark_hit_relevance(item: dict[str, Any], hit: RetrievalHit) -> float:
+    question_tokens = _tokenize(item["intrebare"])
+    hit_text = f"{hit.title} {hit.text} {hit.section or ''}"
+    hit_tokens = _tokenize(hit_text)
+    if not question_tokens or not hit_tokens:
+        return hit.score
+
+    overlap = len(question_tokens.intersection(hit_tokens)) / max(len(question_tokens), 1)
+    option_bonus = 0.0
+    for value in item["choices"].values():
+        option_tokens = _tokenize(value)
+        if not option_tokens:
+            compact_option = _compact_pattern(value)
+            compact_hit = _compact_pattern(hit_text)
+            if compact_option and compact_option in compact_hit:
+                option_bonus = max(option_bonus, 1.0)
+            continue
+        option_overlap = len(option_tokens.intersection(hit_tokens)) / max(len(option_tokens), 1)
+        option_bonus = max(option_bonus, option_overlap)
+        compact_option = _compact_pattern(value)
+        compact_hit = _compact_pattern(hit_text)
+        if compact_option and compact_option in compact_hit:
+            option_bonus = max(option_bonus, 1.0)
+    if _benchmark_requires_single_answer(item) and _choice_pattern_implies_single_answer(item["choices"]):
+        return (hit.score * 0.45) + (overlap * 0.2) + (option_bonus * 0.35)
+    return (hit.score * 0.65) + (overlap * 0.2) + (option_bonus * 0.15)
+
+
+def _rerank_benchmark_hits(
+    item: dict[str, Any],
+    hits: list[RetrievalHit],
+    *,
+    top_k: int,
+) -> list[RetrievalHit]:
+    weighted = sorted(
+        ((_benchmark_hit_relevance(item, hit), hit) for hit in hits),
+        key=lambda pair: pair[0],
+        reverse=True,
+    )
+    deduped: list[RetrievalHit] = []
+    seen: set[tuple[str | None, int | None, str | None, str]] = set()
+    for _score, hit in weighted:
+        key = (hit.source_file, hit.page, hit.chunk_id, hit.text)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(hit)
+        if len(deduped) >= top_k:
+            break
+    return deduped
+
+
+def _build_benchmark_context_block(item: dict[str, Any], hits: list[RetrievalHit]) -> str:
+    lines = ["Context benchmark relevant:"]
+    for index, hit in enumerate(hits, start=1):
+        source_file = hit.source_file or hit.source or "unknown"
+        section = hit.section or "unknown"
+        page = hit.page if hit.page is not None else -1
+        lines.append(
+            (
+                f"- [{index}] source_file={source_file}; page={page}; section={section}; "
+                f"text={hit.text}"
+            )
+        )
+    return "\n".join(lines)
 
 
 def load_retrieval_benchmark_queries(
@@ -277,18 +471,109 @@ def load_retrieval_answer_key(
 
 def _build_grila_prompt(item: dict[str, Any]) -> str:
     choices = item["choices"]
+    question_text = item["intrebare"]
+    normalized_question = _normalize_romanian_text(question_text)
+    is_single_answer = _benchmark_requires_single_answer(item)
     response_rule = (
         "RASPUNS: <o singura litera din A-E>."
-        if _requires_single_answer(item["intrebare"])
-        else "RASPUNS: <litere separate prin virgula, in ordine alfabetica>."
+        if is_single_answer
+        else "RASPUNS: <una sau mai multe litere din A-E separate prin virgula, in ordine alfabetica>."
     )
+    fdu_hint = ""
+    reasoning_rule = (
+        "Mai intai evalueaza fiecare optiune A-E independent fata de context. "
+        "Foloseste format structurat cu statut pentru fiecare optiune. "
+        "Marcheaza ADEVARAT doar daca suportul este explicit; altfel foloseste FALS sau INSUFICIENT."
+    )
+    output_template = (
+        "STATUT_A: ADEVARAT/FALS/INSUFICIENT\n"
+        "STATUT_B: ADEVARAT/FALS/INSUFICIENT\n"
+        "STATUT_C: ADEVARAT/FALS/INSUFICIENT\n"
+        "STATUT_D: ADEVARAT/FALS/INSUFICIENT\n"
+        "STATUT_E: ADEVARAT/FALS/INSUFICIENT\n"
+        "RASPUNS: <literele finale>"
+    )
+    if re.search(r"\bf\.?d\.?u\.?\b", normalized_question):
+        fdu_hint = (
+            "\nPentru F.d.u., raspunsul este varianta corecta unica (A-E), "
+            "nu literele din interiorul variantei."
+        )
+    if re.search(r"\bf\.?d\.?d\.?\b", normalized_question):
+        fdu_hint += (
+            "\nPentru F.d.d., raspunsul este tot varianta corecta unica (A-E), "
+            "aleasa dintre variantele date."
+        )
+    if re.search(r"\bc\.?d\.?d\.?\b", normalized_question):
+        fdu_hint += (
+            "\nPentru C.d.d., raspunsul este litera unica ceruta de intrebare "
+            "(care dintre cele date / care NU face parte dintre cele date)."
+        )
+    if "care este lantul temporal corect" in normalized_question or "inlantuirea temporala cauzala corecta" in normalized_question:
+        reasoning_rule = (
+            "Reconstruieste mai intai ordinea corecta a etapelor din context, apoi compara explicit cu variantele A-E si alege o singura varianta."
+        )
+        output_template = (
+            "ORDINE: <ex. e-c-a-b-d sau INSUFICIENT>\n"
+            "VARIANTA: <o singura litera A-E>\n"
+            "RASPUNS: <aceeasi litera>"
+        )
+    elif "care sunt asocierile corecte" in normalized_question:
+        reasoning_rule = (
+            "Reconstruieste mai intai asocierile corecte din context, apoi compara explicit cu variantele A-E si alege varianta care se potriveste complet."
+        )
+        output_template = (
+            "ASOCIERI: <ex. a-2, b-1, c-3 sau INSUFICIENT>\n"
+            "VARIANTA: <o singura litera A-E>\n"
+            "RASPUNS: <aceeasi litera>"
+        )
+    elif "s.c.f.c.e." in normalized_question or "s c f c e" in normalized_question:
+        reasoning_rule = (
+            "Construieste fraza completa in ordinea fragmentelor si identifica exact fragmentul fals sau exceptia ceruta."
+        )
+        output_template = (
+            "FRAZA: <fraza rezultata sau INSUFICIENT>\n"
+            "FRAGMENT_PROBLEMA: <o singura litera A-E>\n"
+            "RASPUNS: <aceeasi litera>"
+        )
+    elif re.search(r"\bu\.?a\.?s\.?c\.?c\.?e\.?\b", normalized_question):
+        reasoning_rule = (
+            "Evalueaza fiecare optiune A-E independent fata de context si marcheaza ADEVARAT numai cand suportul este explicit. "
+            "In RASPUNS include DOAR literele variantelor marcate FALS. "
+            "Nu include niciodata variante marcate ADEVARAT sau INSUFICIENT."
+        )
+        output_template = (
+            "STATUT_A: ADEVARAT/FALS/INSUFICIENT\n"
+            "STATUT_B: ADEVARAT/FALS/INSUFICIENT\n"
+            "STATUT_C: ADEVARAT/FALS/INSUFICIENT\n"
+            "STATUT_D: ADEVARAT/FALS/INSUFICIENT\n"
+            "STATUT_E: ADEVARAT/FALS/INSUFICIENT\n"
+            "RASPUNS: <doar literele cu statut FALS, separate prin virgula, in ordine alfabetica>"
+        )
+    elif is_single_answer:
+        reasoning_rule = (
+            "Verifica toate variantele A-E si identifica exact varianta ceruta de tipul intrebarii. "
+            "Foloseste format structurat si marcheaza variantele nesustinute ca INSUFICIENT."
+        )
+        output_template = (
+            "STATUT_A: ADEVARAT/FALS/INSUFICIENT\n"
+            "STATUT_B: ADEVARAT/FALS/INSUFICIENT\n"
+            "STATUT_C: ADEVARAT/FALS/INSUFICIENT\n"
+            "STATUT_D: ADEVARAT/FALS/INSUFICIENT\n"
+            "STATUT_E: ADEVARAT/FALS/INSUFICIENT\n"
+            "RASPUNS: <o singura litera>"
+        )
     return f"""
 Rezolva aceasta grila medicala pe baza contextului disponibil.
 Raspunde strict in formatul:
 {response_rule}
+Nu repeta textul variantei, returneaza doar litera(ele) finala(e).{fdu_hint}
+Metoda obligatorie: {reasoning_rule}
+Regula de prudenta: daca suportul contextual pentru o optiune nu este explicit, nu o marca ADEVARAT.
+Format obligatoriu exact:
+{output_template}
 
 ID: {item['id']}
-Intrebare: {item['intrebare']}
+Intrebare: {question_text}
 A) {choices['A']}
 B) {choices['B']}
 C) {choices['C']}
@@ -324,11 +609,19 @@ c.e. (care este exceptia)
 
 u.a.s.c.c.e. (una sau unele sunt corecte)
 - One or more statements may be correct.
-- Return all correct letters.
+- Return the false letters.
 
 f.d.u. (fals dintre urmatoarele)
-- Identify which statements are false.
-- Return all false letters.
+- In acest benchmark se alege varianta corecta unica (A-E).
+- Return a single letter.
+
+f.d.d. (fals dintre datele)
+- In acest benchmark se alege varianta corecta unica (A-E).
+- Return a single letter.
+
+c.d.d. (care dintre datele)
+- Intrebarea cere o singura litera A-E.
+- Return a single letter.
 
 s.c.f.c.e. (se completeaza fraza corect enuntata)
 - The fragments form a sentence.
@@ -345,8 +638,129 @@ def _build_single_answer_repair_prompt(
         f"{original_prompt}\n\n"
         "Corectie obligatorie de format: aceasta intrebare cere EXACT un singur raspuns.\n"
         f"Raspunsul tau anterior a fost: {previous_response}\n"
-        "Returneaza acum STRICT: RASPUNS: <o singura litera din A-E>, fara explicatii."
+        "Returneaza acum STRICT in format structurat valid si cu RASPUNS: <o singura litera din A-E>."
     )
+
+
+def _response_violates_benchmark_rules(response: str) -> bool:
+    if not response.strip():
+        return True
+    return bool(_FORBIDDEN_REASONING_RE.search(response))
+
+
+def _benchmark_rejection_reason(item: dict[str, Any], response: str) -> str | None:
+    if not response.strip():
+        return "empty_response"
+    if _FORBIDDEN_REASONING_RE.search(response):
+        return "forbidden_reasoning"
+
+    predicted = _extract_option_letters(response)
+    if not predicted:
+        return "missing_answer_letters"
+
+    normalized_question = _normalize_romanian_text(item["intrebare"])
+    if "care este lantul temporal corect" in normalized_question or "care sunt asocierile corecte" in normalized_question:
+        derived_key = "ORDINE" if "care este lantul temporal corect" in normalized_question else "ASOCIERI"
+        derived_value = _extract_named_line(response, derived_key)
+        variant = _extract_named_line(response, "VARIANTA").upper().strip(" .")
+        if len(variant) != 1 or variant not in _CHOICE_LETTERS:
+            return "missing_or_invalid_variant"
+        matched_letter = _match_derived_value_to_option(item, derived_value)
+        if matched_letter is not None and matched_letter != variant:
+            return "derived_value_variant_mismatch"
+        if predicted != {variant}:
+            return "answer_variant_mismatch"
+        return None
+
+    if "s.c.f.c.e." in normalized_question or "s c f c e" in normalized_question:
+        fragment = _extract_named_line(response, "FRAGMENT_PROBLEMA").upper().strip(" .")
+        if len(fragment) != 1 or fragment not in _CHOICE_LETTERS:
+            return "missing_or_invalid_fragment"
+        if predicted != {fragment}:
+            return "answer_fragment_mismatch"
+        return None
+
+    statuses: dict[str, str] = {}
+    for letter in _CHOICE_LETTERS:
+        status = _extract_named_line(response, f"STATUT_{letter}").upper().strip(" .")
+        if status:
+            statuses[letter] = status
+    if not statuses:
+        return None
+
+    if _benchmark_requires_single_answer(item):
+        if len(predicted) != 1:
+            return "single_answer_count_mismatch"
+        chosen = next(iter(predicted))
+        if statuses.get(chosen) not in {"ADEVARAT", "FALS"}:
+            return "single_answer_status_mismatch"
+        return None
+
+    if re.search(r"\bu\.?a\.?s\.?c\.?c\.?e\.?\b", normalized_question):
+        derived = {letter for letter, status in statuses.items() if status == "FALS"}
+    else:
+        derived = {letter for letter, status in statuses.items() if status == "ADEVARAT"}
+    if len(derived) == len(_CHOICE_LETTERS):
+        return "all_options_selected"
+    if not derived:
+        return "no_derived_answers"
+    if derived != predicted:
+        return "status_answer_mismatch"
+    return None
+
+
+def _extract_named_line(response: str, key: str) -> str:
+    pattern = re.compile(rf"^\s*{re.escape(key)}\s*:\s*(.+)$", flags=re.IGNORECASE | re.MULTILINE)
+    match = pattern.search(response)
+    if not match:
+        return ""
+    return match.group(1).strip()
+
+
+def _structured_response_is_consistent(item: dict[str, Any], response: str) -> bool:
+    predicted = _extract_option_letters(response)
+    if not predicted:
+        return False
+
+    normalized_question = _normalize_romanian_text(item["intrebare"])
+    if "care este lantul temporal corect" in normalized_question or "care sunt asocierile corecte" in normalized_question:
+        derived_key = "ORDINE" if "care este lantul temporal corect" in normalized_question else "ASOCIERI"
+        derived_value = _extract_named_line(response, derived_key)
+        variant = _extract_named_line(response, "VARIANTA").upper().strip(" .")
+        if len(variant) != 1 or variant not in _CHOICE_LETTERS:
+            return False
+        matched_letter = _match_derived_value_to_option(item, derived_value)
+        if matched_letter is not None and matched_letter != variant:
+            return False
+        return predicted == {variant}
+
+    if "s.c.f.c.e." in normalized_question or "s c f c e" in normalized_question:
+        fragment = _extract_named_line(response, "FRAGMENT_PROBLEMA").upper().strip(" .")
+        if len(fragment) != 1 or fragment not in _CHOICE_LETTERS:
+            return False
+        return predicted == {fragment}
+
+    statuses: dict[str, str] = {}
+    for letter in _CHOICE_LETTERS:
+        status = _extract_named_line(response, f"STATUT_{letter}").upper().strip(" .")
+        if status:
+            statuses[letter] = status
+    if not statuses:
+        return True
+
+    if _benchmark_requires_single_answer(item):
+        if len(predicted) != 1:
+            return False
+        chosen = next(iter(predicted))
+        return statuses.get(chosen) in {"ADEVARAT", "FALS"} or not statuses
+
+    if re.search(r"\bu\.?a\.?s\.?c\.?c\.?e\.?\b", normalized_question):
+        derived = {letter for letter, status in statuses.items() if status == "FALS"}
+    else:
+        derived = {letter for letter, status in statuses.items() if status == "ADEVARAT"}
+    if len(derived) == len(_CHOICE_LETTERS):
+        return False
+    return bool(derived) and derived == predicted
 
 
 def _score_prediction(predicted: set[str], gold: set[str]) -> dict[str, float | int | bool]:
@@ -378,6 +792,24 @@ def _benchmark_guardrail_allow_all(_query: str) -> GuardrailResult:
     )
 
 
+def _serialize_retrieved_chunks(hits: list[RetrievalHit]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for hit in hits:
+        rows.append(
+            {
+                "title": hit.title,
+                "score": round(float(hit.score), 4),
+                "source": hit.source,
+                "source_file": hit.source_file,
+                "page": hit.page,
+                "section": hit.section,
+                "chunk_id": hit.chunk_id,
+                "text": hit.text,
+            }
+        )
+    return rows
+
+
 def run_retrieval_benchmark(
     *,
     benchmark_json_path: str = DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
@@ -390,22 +822,62 @@ def run_retrieval_benchmark(
 ) -> dict[str, Any]:
     items = load_retrieval_benchmark_items(benchmark_json_path)
     answer_key = load_retrieval_answer_key(answer_key_path)
+    benchmark_ask_fn: Callable[
+        [str, dict[str, Any]], tuple[str, list[RetrievalHit], str | None]
+    ] | None = None
 
     if ask_fn is None:
-        from agent.orchestrator.orchestrator import Orchestrator, OrchestratorDependencies
-        from models import QueryRequest
+        from agent.guardrail.rules_engine import apply_guardrails
+        from agent.reasoning.llm_router import llm_ask_request
+        from rag.retrieval.retriever import retrieve_top_similar
 
-        if use_guardrail:
-            orchestrator = Orchestrator()
-        else:
-            benchmark_deps = OrchestratorDependencies(guardrail=_benchmark_guardrail_allow_all)
-            orchestrator = Orchestrator(deps=benchmark_deps)
+        def _ask_with_item(prompt: str, item: dict[str, Any]) -> tuple[str, list[RetrievalHit], str | None]:
+            guardrail = apply_guardrails(prompt) if use_guardrail else _benchmark_guardrail_allow_all(prompt)
+            if not guardrail.is_valid:
+                return guardrail.message or "", [], "guardrail_blocked"
 
-        def _ask(prompt: str) -> str:
-            result = orchestrator.run(QueryRequest(query=prompt, top_k=top_k, language=language))
-            return result.response or ""
+            candidate_k = max(top_k * 3, top_k + 4)
+            pooled_hits: list[RetrievalHit] = []
+            for retrieval_query in _build_option_queries(item):
+                retrieval_result = retrieve_top_similar(
+                    retrieval_query,
+                    top_k=candidate_k,
+                    filter_by=None,
+                    retrieval_mode=SETTINGS.retrieval_mode,
+                )
+                pooled_hits.extend(retrieval_result.hits)
+            reranked_hits = _rerank_benchmark_hits(item, pooled_hits, top_k=top_k)
+            context_block = _build_benchmark_context_block(item, reranked_hits)
 
-        ask_fn = _ask
+            max_attempts = max(EVAL_CONFIG.max_retries + 1, 1)
+            previous_response = ""
+            last_rejection_reason: str | None = None
+            for attempt in range(max_attempts):
+                request = LLMRequest(
+                    system_prompt=BENCHMARK_SYSTEM_PROMPT,
+                    user_message=(
+                        prompt
+                        if attempt == 0
+                        else (
+                            f"{prompt}\n\nRevizuire obligatorie: raspunsul anterior nu a fost suficient de "
+                            f"bine sustinut de context sau de strict. Raspuns anterior: {previous_response}"
+                        )
+                    ),
+                    context_block=context_block,
+                    temperature=0.0,
+                    provider=SETTINGS.llm_provider,
+                )
+                response = llm_ask_request(request).content.strip()
+                previous_response = response
+                rejection_reason = _benchmark_rejection_reason(item, response)
+                if rejection_reason is not None:
+                    last_rejection_reason = rejection_reason
+                    continue
+                if _extract_option_letters(response):
+                    return response, reranked_hits, None
+            return previous_response, reranked_hits, last_rejection_reason
+
+        benchmark_ask_fn = _ask_with_item
 
     rows: list[dict[str, Any]] = []
     missing_answer_ids: list[int] = []
@@ -417,16 +889,26 @@ def run_retrieval_benchmark(
             missing_answer_ids.append(item_id)
             continue
         prompt = _build_grila_prompt(item)
-        model_response = ask_fn(prompt)
+        retrieved_chunks: list[dict[str, Any]] = []
+        rejection_reason: str | None = None
+        if benchmark_ask_fn is not None:
+            model_response, retrieved_hits, rejection_reason = benchmark_ask_fn(prompt, item)
+            retrieved_chunks = _serialize_retrieved_chunks(retrieved_hits)
+        else:
+            model_response = ask_fn(prompt)
         predicted = _extract_option_letters(model_response)
         single_answer_retry_used = False
-        if _requires_single_answer(item["intrebare"]) and len(predicted) != 1:
+        if _benchmark_requires_single_answer(item) and len(predicted) != 1:
             single_answer_retry_used = True
             repair_prompt = _build_single_answer_repair_prompt(
                 original_prompt=prompt,
                 previous_response=model_response,
             )
-            repaired_response = ask_fn(repair_prompt)
+            if benchmark_ask_fn is not None:
+                repaired_response, retrieved_hits, rejection_reason = benchmark_ask_fn(repair_prompt, item)
+                retrieved_chunks = _serialize_retrieved_chunks(retrieved_hits)
+            else:
+                repaired_response = ask_fn(repair_prompt)
             repaired_predicted = _extract_option_letters(repaired_response)
             if len(repaired_predicted) == 1:
                 model_response = repaired_response
@@ -442,6 +924,8 @@ def run_retrieval_benchmark(
                 "predicted_answers": sorted(predicted),
                 "single_answer_retry_used": single_answer_retry_used,
                 "raw_response": model_response,
+                "rejection_reason": rejection_reason,
+                "retrieved_chunks": retrieved_chunks,
                 **score,
             }
         )

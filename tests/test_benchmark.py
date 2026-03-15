@@ -4,17 +4,284 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from agent.evaluation.benchmark import (
+    BENCHMARK_SYSTEM_PROMPT,
     _extract_option_letters,
+    _build_grila_prompt,
+    _build_benchmark_context_block,
+    _build_benchmark_retrieval_query,
+    _build_option_queries,
+    _benchmark_requires_single_answer,
+    _response_violates_benchmark_rules,
+    _rerank_benchmark_hits,
     _requires_single_answer,
+    _structured_response_is_consistent,
     load_retrieval_answer_key,
     load_retrieval_benchmark_items,
     run_retrieval_benchmark,
 )
+from models import RetrievalHit
 
 
 class TestBenchmark(unittest.TestCase):
+    def test_build_grila_prompt_adds_sequence_reasoning_for_fdu_chain_questions(self) -> None:
+        prompt = _build_grila_prompt(
+            {
+                "id": 523,
+                "intrebare": "F.d.u. Evenimente legate de febra. Care este lantul temporal corect?",
+                "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+            }
+        )
+        self.assertIn("Reconstruieste mai intai ordinea corecta", prompt)
+        self.assertIn("varianta corecta unica", prompt)
+
+    def test_build_grila_prompt_mentions_cdd_semantics(self) -> None:
+        prompt = _build_grila_prompt(
+            {
+                "id": 540,
+                "intrebare": "C.d.d. Nu face parte dintre categoriile de persoane cele mai expuse la soc termic.",
+                "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+            }
+        )
+        self.assertIn("Pentru C.d.d.", prompt)
+
+    def test_build_grila_prompt_for_uascce_requires_only_true_letters_in_answer(self) -> None:
+        prompt = _build_grila_prompt(
+            {
+                "id": 541,
+                "intrebare": "u.a.s.c.c.e. Temperatura corporala normala si patologica.",
+                "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+            }
+        )
+        self.assertIn("include DOAR literele variantelor marcate FALS", prompt)
+        self.assertIn("Nu include niciodata variante marcate ADEVARAT sau INSUFICIENT", prompt)
+
+    def test_benchmark_system_prompt_is_exam_specific(self) -> None:
+        self.assertIn("multiple-choice benchmark items", BENCHMARK_SYSTEM_PROMPT)
+        self.assertIn("derive the correct order or mapping", BENCHMARK_SYSTEM_PROMPT)
+
+    def test_benchmark_requires_single_answer_for_sequence_options(self) -> None:
+        item = {
+            "id": 523,
+            "intrebare": "R.I. Care este lantul temporal corect?",
+            "choices": {
+                "A": "a-c-d-b-e",
+                "B": "b-e-d-c-a",
+                "C": "c-e-a-d-b",
+                "D": "d-b-e-a-c",
+                "E": "e-c-a-b-d",
+            },
+        }
+        self.assertTrue(_benchmark_requires_single_answer(item))
+
+    def test_benchmark_requires_single_answer_for_mapping_options(self) -> None:
+        item = {
+            "id": 529,
+            "intrebare": "R.I. Care sunt asocierile corecte?",
+            "choices": {
+                "A": "a-1, b-2, c-3",
+                "B": "a-1, b-3, c-2",
+                "C": "a-2, b-1, c-3",
+                "D": "a-3, b-1, c-2",
+                "E": "a-3, b-2, c-1",
+            },
+        }
+        self.assertTrue(_benchmark_requires_single_answer(item))
+
+    def test_benchmark_requires_single_answer_for_scfce_fragments(self) -> None:
+        item = {
+            "id": 527,
+            "intrebare": "U.f.d.f.d. Febra s.c.f.c.e.",
+            "choices": {
+                "A": "Procesele fiziologice prin care caldura este conservata (vasodilatatie).",
+                "B": "sau produsa (termogeneza musculara, hepatica etc.)",
+                "C": "continua pana cand",
+                "D": "temperatura sangelui care iriga neuronii hipotalamici",
+                "E": "corespunde noului nivel de referinta al termostatului",
+            },
+        }
+        self.assertTrue(_benchmark_requires_single_answer(item))
+
+    def test_benchmark_requires_single_answer_for_fdd_and_cdd(self) -> None:
+        self.assertTrue(
+            _benchmark_requires_single_answer(
+                {
+                    "id": 1,
+                    "intrebare": "F.d.d. Care este inlantuirea temporala cauzala corecta?",
+                    "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+                }
+            )
+        )
+        self.assertTrue(
+            _benchmark_requires_single_answer(
+                {
+                    "id": 2,
+                    "intrebare": "C.d.d. Nu face parte dintre categoriile expuse.",
+                    "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+                }
+            )
+        )
+
+    def test_build_benchmark_retrieval_query_includes_options_for_single_answer_items(self) -> None:
+        item = {
+            "id": 529,
+            "intrebare": "R.I. Care sunt asocierile corecte?",
+            "choices": {
+                "A": "a-1, b-2, c-3",
+                "B": "a-1, b-3, c-2",
+                "C": "a-2, b-1, c-3",
+                "D": "a-3, b-1, c-2",
+                "E": "a-3, b-2, c-1",
+            },
+        }
+        query = _build_benchmark_retrieval_query(item)
+        self.assertIn("Care sunt asocierile corecte?", query)
+        self.assertIn("A a-1, b-2, c-3", query)
+
+    def test_build_option_queries_emits_question_and_each_option(self) -> None:
+        item = {
+            "id": 1,
+            "intrebare": "Q",
+            "choices": {"A": "a", "B": "b", "C": "c", "D": "", "E": "e"},
+        }
+        queries = _build_option_queries(item)
+        self.assertEqual(queries[0], "Q")
+        self.assertIn("Optiunea A: a", queries[1])
+        self.assertIn("Optiunea B: b", queries[2])
+        self.assertEqual(len(queries), 5)
+
+    def test_rerank_benchmark_hits_prefers_option_aligned_hit(self) -> None:
+        item = {
+            "id": 530,
+            "intrebare": "Care sunt asocierile corecte?",
+            "choices": {
+                "A": "a-1, b-2, c-3",
+                "B": "a-1, b-3, c-2",
+                "C": "a-2, b-1, c-3",
+                "D": "a-2, b-3, c-1",
+                "E": "a-3, b-1, c-2",
+            },
+        }
+        hits = [
+            RetrievalHit(title="generic", text="febra si temperatura", score=0.95, source="unit"),
+            RetrievalHit(title="mapping", text="a-1 b-2 c-3 tremuraturi ghemuire dezvelire", score=0.8, source="unit"),
+        ]
+        ranked = _rerank_benchmark_hits(item, hits, top_k=1)
+        self.assertEqual(ranked[0].title, "mapping")
+
+    def test_build_benchmark_context_block_is_plain_context(self) -> None:
+        context = _build_benchmark_context_block(
+            {
+                "id": 1,
+                "intrebare": "Q",
+                "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+            },
+            [
+                RetrievalHit(
+                    title="t",
+                    text="context body",
+                    score=0.9,
+                    source="pdf",
+                    source_file="doc.md",
+                    page=2,
+                    section="Febra",
+                    chunk_id="c1",
+                )
+            ],
+        )
+        self.assertIn("Context benchmark relevant:", context)
+        self.assertIn("source_file=doc.md", context)
+        self.assertNotIn("Most similar chunks:", context)
+
+    def test_response_violates_benchmark_rules_for_general_knowledge_phrase(self) -> None:
+        self.assertTrue(_response_violates_benchmark_rules("RASPUNS: A\nbazat pe cunostinte generale"))
+
+    def test_structured_response_requires_variant_to_match_answer(self) -> None:
+        item = {
+            "id": 523,
+            "intrebare": "F.d.u. Care este lantul temporal corect?",
+            "choices": {
+                "A": "a-c-d-b-e",
+                "B": "b-e-d-c-a",
+                "C": "c-e-a-d-b",
+                "D": "d-b-e-a-c",
+                "E": "e-c-a-b-d",
+            },
+        }
+        self.assertFalse(
+            _structured_response_is_consistent(
+                item,
+                "ORDINE: e-c-a-b-d\nVARIANTA: E\nRASPUNS: C",
+            )
+        )
+
+    def test_structured_response_requires_sequence_variant_to_match_option_text(self) -> None:
+        item = {
+            "id": 524,
+            "intrebare": "F.d.u. Care este lantul temporal corect?",
+            "choices": {
+                "A": "a-d-c-e-b",
+                "B": "b-e-c-a-d",
+                "C": "c-a-e-b-d",
+                "D": "d-e-a-c-b",
+                "E": "e-a-c-d-b",
+            },
+        }
+        self.assertFalse(
+            _structured_response_is_consistent(
+                item,
+                "ORDINE: c-a-e-b-d\nVARIANTA: A\nRASPUNS: A",
+            )
+        )
+
+    def test_structured_response_requires_mapping_variant_to_match_option_text(self) -> None:
+        item = {
+            "id": 529,
+            "intrebare": "R.I. Care sunt asocierile corecte?",
+            "choices": {
+                "A": "a-1, b-2, c-3",
+                "B": "a-1, b-3, c-2",
+                "C": "a-2, b-1, c-3",
+                "D": "a-3, b-1, c-2",
+                "E": "a-3, b-2, c-1",
+            },
+        }
+        self.assertFalse(
+            _structured_response_is_consistent(
+                item,
+                "ASOCIERI: a-2, b-1, c-3\nVARIANTA: A\nRASPUNS: A",
+            )
+        )
+
+    def test_structured_response_requires_multi_answer_statuses_to_match(self) -> None:
+        item = {
+            "id": 521,
+            "intrebare": "u.a.s.c.c.e. Q",
+            "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+        }
+        response = (
+            "STATUT_A: ADEVARAT\nSTATUT_B: FALS\nSTATUT_C: ADEVARAT\n"
+            "STATUT_D: FALS\nSTATUT_E: FALS\nRASPUNS: B, D, E"
+        )
+        self.assertTrue(_structured_response_is_consistent(item, response))
+
+    def test_structured_response_rejects_all_true_multi_answer(self) -> None:
+        item = {
+            "id": 526,
+            "intrebare": "R.I. Febra si frisonul",
+            "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+        }
+        response = (
+            "STATUT_A: ADEVARAT\nSTATUT_B: ADEVARAT\nSTATUT_C: ADEVARAT\n"
+            "STATUT_D: ADEVARAT\nSTATUT_E: ADEVARAT\nRASPUNS: A,B,C,D,E"
+        )
+        self.assertFalse(_structured_response_is_consistent(item, response))
+
+    def test_extract_option_letters_falls_back_to_leading_letter_for_hyphenated_option_text(self) -> None:
+        self.assertEqual(_extract_option_letters("RASPUNS: e-c-a-b-d"), {"E"})
+
     def test_extract_option_letters_uses_answer_segment_only(self) -> None:
         raw_response = (
             "RASPUNS: C,D\n\n"
@@ -165,12 +432,14 @@ class TestBenchmark(unittest.TestCase):
         self.assertTrue(_requires_single_answer("u.f.d.f.d. Febra ..."))
         self.assertTrue(_requires_single_answer("u.i.d.f.d. Temperatura ..."))
         self.assertTrue(_requires_single_answer("u.f.c.d. ORL ..."))
+        self.assertTrue(_requires_single_answer("F.d.u. Care este lantul temporal corect?"))
         self.assertTrue(_requires_single_answer("c.e. Urmatoarele afirmatii sunt corecte:"))
         self.assertTrue(_requires_single_answer("C.E. Urmatoarele afirmatii sunt adevarate:"))
         self.assertTrue(_requires_single_answer("care este exceptia dintre urmatoarele"))
         self.assertTrue(
             _requires_single_answer("Una falsă dintre cele date. Febra (se completează fraza corect enunțată)")
         )
+        self.assertFalse(_requires_single_answer("Temperatura corporala normala si patologica, u.a.s.c.c.e."))
         self.assertFalse(_requires_single_answer("R.I. starea de hidratare ..."))
 
     def test_run_retrieval_benchmark_retries_for_textual_single_answer_format(self) -> None:
@@ -257,6 +526,104 @@ class TestBenchmark(unittest.TestCase):
             self.assertEqual(result["rows"][0]["predicted_answers"], ["A"])
             self.assertTrue(result["rows"][0]["single_answer_retry_used"])
             self.assertEqual(len(calls), 2)
+        finally:
+            Path(benchmark_path).unlink(missing_ok=True)
+            Path(key_path).unlink(missing_ok=True)
+
+    def test_run_retrieval_benchmark_includes_retrieved_chunks_in_rows(self) -> None:
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as bench_handle:
+            json.dump(
+                [
+                    {
+                        "id": 610,
+                        "intrebare": "Q chunk",
+                        "A": "a",
+                        "B": "b",
+                        "C": "c",
+                        "D": "d",
+                        "E": "e",
+                    }
+                ],
+                bench_handle,
+                ensure_ascii=False,
+            )
+            benchmark_path = bench_handle.name
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as key_handle:
+            key_handle.write("610: A\n")
+            key_path = key_handle.name
+
+        retrieval_hits = [
+            RetrievalHit(
+                title="chunk-title",
+                text="chunk body",
+                score=0.9321,
+                source="pdf",
+                source_file="doc.md",
+                page=7,
+                section="Sectiune",
+                chunk_id="chunk-1",
+            )
+        ]
+
+        try:
+            with patch("rag.retrieval.retriever.retrieve_top_similar") as retrieve_mock:
+                with patch("agent.reasoning.llm_router.llm_ask_request") as llm_mock:
+                    retrieve_mock.return_value.hits = retrieval_hits
+                    llm_mock.return_value.content = "RASPUNS: A"
+                    result = run_retrieval_benchmark(
+                        benchmark_json_path=benchmark_path,
+                        answer_key_path=key_path,
+                    )
+
+            self.assertEqual(result["rows"][0]["predicted_answers"], ["A"])
+            self.assertEqual(len(result["rows"][0]["retrieved_chunks"]), 1)
+            self.assertEqual(result["rows"][0]["retrieved_chunks"][0]["chunk_id"], "chunk-1")
+            self.assertEqual(result["rows"][0]["retrieved_chunks"][0]["text"], "chunk body")
+            self.assertEqual(result["rows"][0]["retrieved_chunks"][0]["score"], 0.9321)
+        finally:
+            Path(benchmark_path).unlink(missing_ok=True)
+            Path(key_path).unlink(missing_ok=True)
+
+    def test_run_retrieval_benchmark_keeps_last_rejected_response_and_reason(self) -> None:
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as bench_handle:
+            json.dump(
+                [
+                    {
+                        "id": 611,
+                        "intrebare": "R.I. Q reject",
+                        "A": "a",
+                        "B": "b",
+                        "C": "c",
+                        "D": "d",
+                        "E": "e",
+                    }
+                ],
+                bench_handle,
+                ensure_ascii=False,
+            )
+            benchmark_path = bench_handle.name
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as key_handle:
+            key_handle.write("611: A\n")
+            key_path = key_handle.name
+
+        try:
+            with patch("rag.retrieval.retriever.retrieve_top_similar") as retrieve_mock:
+                with patch("agent.reasoning.llm_router.llm_ask_request") as llm_mock:
+                    retrieve_mock.return_value.hits = []
+                    llm_mock.return_value.content = (
+                        "STATUT_A: ADEVARAT\nSTATUT_B: FALS\nSTATUT_C: FALS\n"
+                        "STATUT_D: FALS\nSTATUT_E: FALS\nRASPUNS: B"
+                    )
+                    result = run_retrieval_benchmark(
+                        benchmark_json_path=benchmark_path,
+                        answer_key_path=key_path,
+                    )
+
+            self.assertEqual(result["rows"][0]["predicted_answers"], ["B"])
+            self.assertEqual(result["rows"][0]["raw_response"], llm_mock.return_value.content)
+            self.assertEqual(result["rows"][0]["rejection_reason"], "status_answer_mismatch")
         finally:
             Path(benchmark_path).unlink(missing_ok=True)
             Path(key_path).unlink(missing_ok=True)

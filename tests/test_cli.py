@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import run
@@ -171,6 +174,27 @@ class TestCLI(unittest.TestCase):
 
         benchmark_mock.assert_called_once()
         self.assertTrue(benchmark_mock.call_args.kwargs["use_guardrail"])
+
+    def test_eval_benchmark_writes_json_output_file(self) -> None:
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as handle:
+            output_path = handle.name
+        Path(output_path).unlink(missing_ok=True)
+
+        argv = ["run.py", "eval", "--benchmark", "--benchmark-output", output_path]
+        with patch.object(sys, "argv", argv):
+            with patch("run.ensure_startup_valid"):
+                with patch(
+                    "run.run_retrieval_benchmark",
+                    return_value={"evaluated_count": 1, "aggregate": {"macro_f1": 1.0}},
+                ):
+                    run.main()
+
+        try:
+            saved = json.loads(Path(output_path).read_text(encoding="utf-8"))
+            self.assertEqual(saved["evaluated_count"], 1)
+            self.assertEqual(saved["aggregate"]["macro_f1"], 1.0)
+        finally:
+            Path(output_path).unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

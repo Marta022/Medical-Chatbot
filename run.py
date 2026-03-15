@@ -25,7 +25,7 @@ from agent.evaluation.benchmark import (
     run_retrieval_benchmark,
 )
 from agent.orchestrator.chat_loop import run_chat_loop
-from config.logging_config import add_file_handler, new_correlation_id, setup_logging
+from config.logging_config import new_correlation_id, setup_logging
 from config.settings import (
     SETTINGS,
     SUPPORTED_CHUNKING_STRATEGIES,
@@ -321,9 +321,11 @@ def main() -> None:
 
     if args.command == "eval":
         ensure_startup_valid(command=args.command)
+        benchmark_output_path: Path | None = None
+        if args.benchmark and args.benchmark_output:
+            benchmark_output_path = Path(args.benchmark_output)
+            benchmark_output_path.parent.mkdir(parents=True, exist_ok=True)
         if args.benchmark:
-            if args.benchmark_output:
-                add_file_handler(args.benchmark_output)
             result = run_retrieval_benchmark(
                 benchmark_json_path=args.benchmark_json_path,
                 answer_key_path=args.answer_key_path,
@@ -335,6 +337,12 @@ def main() -> None:
         else:
             result = run_evaluation_smoke()
         payload = serialize_to_json_compatible(result)
+        if benchmark_output_path is not None:
+            benchmark_output_path.write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            logger.info("Benchmark report written to %s", benchmark_output_path)
         logger.info(json.dumps(payload, ensure_ascii=False, indent=2))
         return
 

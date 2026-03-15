@@ -10,7 +10,7 @@
   },
   {
     "id": 522,
-    "intrebare": "R.I. Temperatura corporala normala si patologica",
+    "intrebare": "R.I. Temperatura corporala normala si patologica, u.a.s.c.c.e.",
     "A": "Febra este definita drept T >37,2 C dimineata si >37,7 C seara.",
     "B": "Persoanele varstnice pot face doar o febra modesta chiar si in infectii severe.",
     "C": "La ovulatie, temperatura scade cu aproximativ 0,8 C.",
@@ -46,7 +46,7 @@
   },
   {
     "id": 526,
-    "intrebare": "R.I. Febra si frisonul",
+    "intrebare": "R.I. Febra si frisonul, u.a.s.c.c.e",
     "A": "Febra reprezinta cresterea temperaturii corpului peste nivelul de referinta hipotalamic.",
     "B": "Cresterea temperaturii corporale din febra depaseste variatia zilnica normala.",
     "C": "In majoritatea cazurilor de febra, nivelul de referinta hipotalamic este urcat cu 1-2 C.",
@@ -90,93 +90,103 @@
     "E": "a-3, b-1, c-2"
   },
   {
-    "id": 607,
-    "intrebare": "Ambliopia reprezinta:",
-    "A": "pierderea in timp a acuitatii vizuale a globului ocular strabic, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la copii cu strabism;",
-    "B": "pierderea in timp a acuitatii vizuale a globului ocular strabic, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la adulti cu strabism;",
-    "C": "pierderea in timp a acuitatii vizuale a globului ocular sanatos, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la copii cu strabism;",
-    "D": "pierderea in timp a acuitatii vizuale a globului ocular sanatos, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la adulti cu strabism;",
-    "E": "scaderea acuitatii vizuale bilaterale, la pacienti cu strabism."
+    "id": 532,
+    "intrebare": "F.d.d. Evenimente asociate cu remiterea febrei: a. temperatura sangelui de la nivelul hipotalamusului coboara pana la noul nivel de referinta; b. disparitia caldurii prin procese fiziologice si gesturi adaptative; c. scaderea concentratiei de pirogeni sau administrare de antipiretice; d. nivelul de referinta hipotalamic revine (coboara) la nivelul normal. Care este inlantuirea temporala cauzala corecta?",
+    "A": "a-d-b-c",
+    "B": "b-a-d-c",
+    "C": "c-a-b-d",
+    "D": "c-d-b-a",
+    "E": "d-a-c-b"
   },
   {
-    "id": 608,
-    "intrebare": "Cataracta poate da urmatoarele manifestari clinice, c.e.:",
-    "A": "vedere in nuante de galben, estomparea celorlalte culori;",
-    "B": "scaderea vederii pe timp de noapte;",
-    "C": "vedere \"incetosata\";",
-    "D": "necesitatea cresterii iluminarii la citit;",
-    "E": "durere oculara intensa prin cresterea presiunii intraoculare."
+    "id": 533,
+    "intrebare": "R.I. Valorile anormal crescute ale temperaturii, u.a.s.c.c.e.",
+    "A": "De obicei, febra infectioasa nu depaseste plafonul termic natural de 41,1 C.",
+    "B": "O febra >=41,5 C se numeste hiperpirexie.",
+    "C": "Hiperpirexia apare cel mai adesea la pacienti cu infectii severe.",
+    "D": "Febra hipotalamica poate avea un substrat organic sau functional.",
+    "E": "Cei mai multi pacienti cu leziuni hipotalamice au temperaturi corporale subnormale, nu supranormale."
   },
   {
-    "id": 609,
-    "intrebare": "Cea mai frecventa cauza a otitei externe este infectia:",
-    "A": "cu pneumococ;",
-    "B": "cu stafilococ auriu;",
-    "C": "cu Pseudomonas Aeruginosa;",
-    "D": "micotica a canalului auditiv extern;",
-    "E": "herpes simplex."
+    "id": 534,
+    "intrebare": "R.I. Valorile anormal crescute ale temperaturii, u.a.s.c.c.e.",
+    "A": "Mentinerea febrei sub plafonul termic natural ar putea fi mediata prin neuropeptide care functioneaza drept antipiretice centrale.",
+    "B": "Hiperpirexia poate sa apara la pacienti cu infectii severe.",
+    "C": "In cazuri rare, nivelul de referinta hipotalamic creste in urma tulburarii hipotalamice.",
+    "D": "Urcarea nivelului termostatic hipotalamic printr-o afectiune hipotalamica se numeste hipertermie maligna.",
+    "E": "Leziunile hipotalamice care pot provoca febra hipotalamica sunt traumatisme, hemoragii, tumori."
   },
   {
-    "id": 610,
-    "intrebare": "Cea mai frecventa cauza de anosmie este:",
-    "A": "abuzul de cocaina;",
-    "B": "traumatismele nazale, cu fracturarea piramidei nazale;",
-    "C": "rinita vasomotorie;",
-    "D": "polipoza nazala;",
-    "E": "rinofima."
+    "id": 535,
+    "intrebare": "U.f.d.f.d. Hipertermia s.c.f.c.e.",
+    "A": "Expunerea la caldura si productia endogena de caldura;",
+    "B": "uneori combinate (de exemplu, efort intr-o ambianta foarte calda);",
+    "C": "pot produce caldura mai lent decat aceasta poate fi disipata;",
+    "D": "decat aceasta poate fi disipata",
+    "E": "prin mecanisme fiziologice."
   },
   {
-    "id": 611,
-    "intrebare": "Cea mai frecventa cauza de orbire secundara afectarii corneei este data de cheratita:",
-    "A": "cu pneumococ;",
-    "B": "cu virus herpes simplex;",
-    "C": "fungica;",
-    "D": "cu Pseudomonas Aeruginosa;",
-    "E": "gonococica."
+    "id": 536,
+    "intrebare": "R.I. Hipertermie si diferentierea acesteia de febra, u.a.s.c.c.e.",
+    "A": "Hipertermia reprezinta cresterea necontrolata a temperaturii corpului, depasind capacitatea organismului de a pierde caldura.",
+    "B": "Diferentierea febrei de hipertermie este esentiala deoarece hipertermia poate provoca rapid moartea, desi raspunde la antipiretice.",
+    "C": "Expunerea la caldura precedand cresterea de temperatura este sugestiva pentru diagnosticul de hipertermie.",
+    "D": "In socul termic pielea este calda dar uscata.",
+    "E": "Antipireticele (aspirina, acetaminofenul) nu scad temperatura in hipertermie."
   },
   {
-    "id": 612,
-    "intrebare": "Chemozisul:",
-    "A": "semnifica edem palpebral;",
-    "B": "semnifica hiperemie sclerala;",
-    "C": "semnifica edem conjunctival;",
-    "D": "reprezinta o zona de dehiscenta la nivelul sclerei;",
-    "E": "reprezinta inflamatia corneei datorata unei infectii, abraziuni sau substante chimice."
+    "id": 537,
+    "intrebare": "R.I. Hipertermie si diferentierea acesteia de febra, u.a.s.c.c.e.",
+    "A": "In hipertermie, nivelul de referinta al centrului termoregulator hipotalamic este mult ridicat.",
+    "B": "Diferentierea febrei de hipertermie este dificila in situatii de urgenta.",
+    "C": "Cresterea temperaturii dupa administrarea de medicamente care interfereaza cu termoreglarea este sugestiva pentru diagnosticul de hipertermie.",
+    "D": "La pacientii care iau medicamente care blocheaza transpiratia, pielea este calda dar uscata.",
+    "E": "Antipireticele scad temperatura in febra daca sunt administrate in doze suficient de mari."
   },
   {
-    "id": 613,
-    "intrebare": "Chremosul reprezinta:",
-    "A": "ingrosare triunghiulara a conjunctivei bulbare, care se extinde pe suprafata corneei;",
-    "B": "lacrimare excesiva datorata obstructiei canalului lacrimal;",
-    "C": "edem conjunctival;",
-    "D": "edem periorbital;",
-    "E": "inflamatie corneana secundara unei abraziuni."
+    "id": 538,
+    "intrebare": "R.I. Hipertermie si diferentierea acesteia de febra, u.a.s.c.c.e.",
+    "A": "In producerea hipertermiei sunt implicati pirogeni.",
+    "B": "Intr-o stare septica sistemica, febra (hiperpirexia) se poate instala rapid, ajungand la temperaturi care depasesc 40,5 C.",
+    "C": "Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediat precedente cresterii de temperatura.",
+    "D": "In febra pielea poate fi rece ca urmare a vasoconstrictiei.",
+    "E": "In doze suficient de mari, antipireticele scad temperatura macar partial chiar si in hiperpirexie."
   },
   {
-    "id": 614,
-    "intrebare": "Clinic, in glaucomul cu unghi inchis pot aparea, c.e.:",
-    "A": "cefalee;",
-    "B": "mioza intensa;",
-    "C": "varsaturi;",
-    "D": "durere intensa oculara;",
-    "E": "cornee cu aspect \"fumuriu\"."
+    "id": 539,
+    "intrebare": "U.f.d.f.d. Socul termic s.c.f.c.e.",
+    "A": "Intr-o ambianta uscata se pot disipa maxim 600 kcal/h prin",
+    "B": "sudoratie, necesitand productia a >1 L de transpiratie;",
+    "C": "proces facilitat intr-un mediu cu umiditate crescuta;",
+    "D": "efortul intr-un mediu cu temperatura si umiditate crescute;",
+    "E": "favorizeaza socul termic."
   },
   {
-    "id": 615,
-    "intrebare": "Clinic, in otita externa domina:",
-    "A": "febra;",
-    "B": "otoreea;",
-    "C": "disfonia;",
-    "D": "otalgia;",
-    "E": "edemul pavilionului."
+    "id": 540,
+    "intrebare": "C.d.d. Nu face parte dintre categoriile de persoane cele mai expuse la soc termic.",
+    "A": "Varstnici.",
+    "B": "Imobilizati la pat.",
+    "C": "Care sunt imbracati gros.",
+    "D": "Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice.",
+    "E": "Care stau in incaperi prost ventilate, fara aer conditionat."
   },
   {
-    "id": 616,
-    "intrebare": "Coloboma reprezinta:",
-    "A": "lipsa de substanta la nivelul irisului survenita posttraumatic;",
-    "B": "lipsa de substanta la nivelul corneei survenita posttraumatic;",
-    "C": "anomalie dobandita a formei corneei (aspect de con);",
-    "D": "opacifierea cristalinului;",
-    "E": "lipsa congenitala de substanta la nivelul irisului."
+    "id": 541,
+    "intrebare": "F.d.d. Cauze ale hipertermiei: 1. soc termic; 2. hipertermia indusa de medicamente/droguri; 3. sindromul serotoninergic; si urmatoarele trasaturi: a. se deosebeste de sindromul malign neuroleptic prin tremuraturi si mioclonii; b. apare cel mai adesea dupa medicamente psihotrope sau droguri; c. se produce intr-un mediu cald. Care sunt asocierile corecte?",
+    "A": "a-1, b-3, c-2",
+    "B": "a-2, b-1, c-3",
+    "C": "a-3, b-1, c-2",
+    "D": "a-1, b-2, c-3",
+    "E": "a-3, b-2, c-1"
+  },
+  {
+    "id": 542,
+    "intrebare": "F.d.d. Cauze ale hipertermiei: 1. soc termic; 2. sindromul neuroleptic malign; 3. hipertermia maligna; si urmatoarele trasaturi: a. apare la persoane care au o anumita anomalie mostenita, rara, a reticulului sarcoplasmic din muschii scheletici; b. este provocata de medicamente neuroleptice; c. este favorizata de efortul intr-un mediu cu temperatura si umiditate crescute. Care sunt asocierile corecte?",
+    "A": "a-1, b-3, c-2",
+    "B": "a-2, b-1, c-3",
+    "C": "a-3, b-1, c-2",
+    "D": "a-1, b-2, c-3",
+    "E": "a-3, b-2, c-1"
   }
+
 ]

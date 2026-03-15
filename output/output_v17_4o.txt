@@ -1,0 +1,1119 @@
+{
+  "benchmark_json_path": "data/dataset/primele_10_grile_pag2_curatate.json",
+  "answer_key_path": "data/dataset/primele_10_grile_pag2_answer_key.txt",
+  "dataset_total_count": 21,
+  "evaluated_count": 21,
+  "guardrail_enabled_during_benchmark": false,
+  "missing_answer_ids": [],
+  "answer_key_coverage": 1.0,
+  "supports_multiple_correct_answers": true,
+  "global_score": 0.9206,
+  "global_exact_match_rate": 0.8571,
+  "aggregate": {
+    "exact_match_rate": 0.8571,
+    "macro_precision": 0.9286,
+    "macro_recall": 0.9286,
+    "macro_f1": 0.9206,
+    "micro_precision": 0.9565,
+    "micro_recall": 0.9167,
+    "micro_f1": 0.9362
+  },
+  "rows": [
+    {
+      "id": 521,
+      "query": "Temperatura corporala normala si patologica, u.a.s.c.c.e.",
+      "gold_answers": [
+        "A",
+        "C",
+        "D"
+      ],
+      "predicted_answers": [
+        "A",
+        "C",
+        "D"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: FALS\nSTATUT_B: ADEVARAT\nSTATUT_C: FALS\nSTATUT_D: FALS\nSTATUT_E: ADEVARAT\nRASPUNS: A,C,D",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.766,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "2832969479d9b723",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.7568,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "bf7d2390b4db90b4",
+          "text": "Temperatura corporală este influențată și de sarcină și de disfuncțiile endocrinologice."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6983,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        }
+      ],
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 522,
+      "query": "R.I. Temperatura corporala normala si patologica, u.a.s.c.c.e.",
+      "gold_answers": [
+        "C",
+        "D"
+      ],
+      "predicted_answers": [
+        "C"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: ADEVARAT\nSTATUT_B: ADEVARAT\nSTATUT_C: FALS\nSTATUT_D: INSUFICIENT\nSTATUT_E: ADEVARAT\nRASPUNS: C",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.6982,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "2832969479d9b723",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.7242,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "bf7d2390b4db90b4",
+          "text": "Temperatura corporală este influențată și de sarcină și de disfuncțiile endocrinologice."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6524,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6667,
+      "exact_match": false
+    },
+    {
+      "id": 523,
+      "query": "F.d.u. Evenimente legate de febra: a. vasoconstrictie periferica; b. devierea sangelui din periferie catre organele interne; c. activarea neuronilor din centrul vasomotor; d. scade pierderea de caldura prin piele, iar individului i se face frig; e. ridicarea nivelului de referinta hipotalamic. Care este lantul temporal corect?",
+      "gold_answers": [
+        "E"
+      ],
+      "predicted_answers": [
+        "E"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ORDINE: e-c-a-b-d\nVARIANTA: E\nRASPUNS: E",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra",
+          "score": 0.7307,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6557,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.6146,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "2832969479d9b723",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 524,
+      "query": "F.d.u. Evenimente legate de febra: a. scaderea pierderii de caldura prin piele; b. individul incepe sa tremure (frison); c. vasoconstrictie periferica (resimtita initial la maini si picioare); d. creste productia de caldura in muschi; e. individul are senzatie de frig. Care este lantul temporal corect?",
+      "gold_answers": [
+        "C"
+      ],
+      "predicted_answers": [
+        "C"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ORDINE: c-a-e-b-d\nVARIANTA: C\nRASPUNS: C",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra",
+          "score": 0.7399,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6286,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Hipertermie",
+          "score": 0.6284,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 525,
+      "query": "F.d.u. Mecanisme de crestere a temperaturii centrale implicate in producerea febrei: 1. scaderea pierderii de caldura prin piele; 2. cresterea productiei de caldura in muschi; 3. cresterea productiei de caldura metabolica; 4. reducerea pierderii de caldura prin gesturi adaptative; si urmatoarele procese/atitudini: a. vasoconstrictie; b. tremuraturi; c. individul se imbraca mai gros, se acopera cu o patura, se ghemuieste; d. termogeneza hepatica. Care sunt asocierile corecte?",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [
+        "A"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ASOCIERI: a-1, b-2, c-4, d-3\nVARIANTA: A\nRASPUNS: A",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra",
+          "score": 0.7911,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        },
+        {
+          "title": "Febra",
+          "score": 0.7218,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Hipertermie",
+          "score": 0.7083,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 526,
+      "query": "R.I. Febra si frisonul, u.a.s.c.c.e",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: ADEVARAT\nSTATUT_B: ADEVARAT\nSTATUT_C: ADEVARAT\nSTATUT_D: ADEVARAT\nSTATUT_E: ADEVARAT\nRASPUNS:",
+      "rejection_reason": "missing_answer_letters",
+      "retrieved_chunks": [
+        {
+          "title": "Febra",
+          "score": 0.6649,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6821,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Hipertermie",
+          "score": 0.5875,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        }
+      ],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "exact_match": false
+    },
+    {
+      "id": 527,
+      "query": "U.f.d.f.d. Febra s.c.f.c.e.",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [
+        "A"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "FRAZA: Procesele fiziologice prin care caldura este conservata (vasodilatatie) sau produsa (termogeneza musculara, hepatica etc.) continua pana cand temperatura sangelui care iriga neuronii hipotalamici corespunde noului nivel de referinta al termostatului.\nFRAGMENT_PROBLEMA: A\nRASPUNS: A",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra",
+          "score": 0.5619,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.5434,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "2832969479d9b723",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6061,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 528,
+      "query": "U.f.d.f.d. Febra s.c.f.c.e.",
+      "gold_answers": [
+        "D"
+      ],
+      "predicted_answers": [
+        "D"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "FRAZA: După atingerea echilibrului termic la noul punct de referință (set-point), hipotalamusul mentine temperatura la nivel febril prin alte mecanisme decat in starea normala (afebrila).\nFRAGMENT_PROBLEMA: D\nRASPUNS: D",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra",
+          "score": 0.6113,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.5709,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "2832969479d9b723",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6107,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 529,
+      "query": "R.I. Mentinerea echilibrului termic, f.d.u. categorii de procese: 1. reducerea pierderii de caldura; 2. reducerea pierderii de caldura prin gesturi adaptative; 3. disiparea caldurii; si urmatoarele procese/atitudini: a. imbracare, acoperire; b. vasoconstrictie; c. transpiratie. Care sunt asocierile corecte?",
+      "gold_answers": [
+        "C"
+      ],
+      "predicted_answers": [
+        "C"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ASOCIERI: a-2, b-1, c-3\nVARIANTA: C\nRASPUNS: C",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra",
+          "score": 0.5701,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Febra",
+          "score": 0.5582,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        },
+        {
+          "title": "Hipertermie",
+          "score": 0.5549,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 530,
+      "query": "R.I. Mentinerea echilibrului termic, f.d.u. categorii de procese: 1. cresterea productiei de caldura; 2. reducerea pierderii de caldura prin gesturi adaptative; 3. disiparea caldurii prin gesturi adaptative; si urmatoarele procese/atitudini: a. tremuraturi; b. ghemuire; c. dezvelire. Care sunt asocierile corecte?",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [
+        "A"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ASOCIERI: a-1, b-2, c-3\nVARIANTA: A\nRASPUNS: A",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra",
+          "score": 0.5741,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Febra",
+          "score": 0.578,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        },
+        {
+          "title": "Hipertermie",
+          "score": 0.5598,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 532,
+      "query": "F.d.d. Evenimente asociate cu remiterea febrei: a. temperatura sangelui de la nivelul hipotalamusului coboara pana la noul nivel de referinta; b. disparitia caldurii prin procese fiziologice si gesturi adaptative; c. scaderea concentratiei de pirogeni sau administrare de antipiretice; d. nivelul de referinta hipotalamic revine (coboara) la nivelul normal. Care este inlantuirea temporala cauzala corecta?",
+      "gold_answers": [
+        "D"
+      ],
+      "predicted_answers": [
+        "D"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ORDINE: c-d-b-a\nVARIANTA: D\nRASPUNS: D",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra",
+          "score": 0.7709,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Febra",
+          "score": 0.7017,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        },
+        {
+          "title": "Hipertermie",
+          "score": 0.67,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 533,
+      "query": "R.I. Valorile anormal crescute ale temperaturii, u.a.s.c.c.e.",
+      "gold_answers": [
+        "C"
+      ],
+      "predicted_answers": [
+        "C"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: ADEVARAT\nSTATUT_B: ADEVARAT\nSTATUT_C: INSUFICIENT\nSTATUT_D: ADEVARAT\nSTATUT_E: ADEVARAT\nRASPUNS: C",
+      "rejection_reason": "no_derived_answers",
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.6796,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6796,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Hipertermie",
+          "score": 0.6307,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "b1359b8351f4b476",
+          "text": "Hipertemnia maigna: - La persoanele care au o anumită anomalie moștenită, rară, a reticulului sarcoplasmic din mușchii scheletici, administrarea de anestezice inhalatorii (halotan etc.) sau succinilcolina determină creșterea rapidă a calciului intracelular -> ( în câteva minute) contracție musculară susținută (-> creșterea temperaturii) cu redoare musculară, creșterea metabolismului muscular, rabdomioliză, acidoză, instabilitate cardiovasculară ~ adesea, deces; 6.Endocrinopatii(tireotoxicoză, feocromocitom): - determină creșterea termogenezei; 7.Leziuni ale SNC: - Hemoragie cerebrală, stare epileptică, leziune hipotalamică;"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 534,
+      "query": "R.I. Valorile anormal crescute ale temperaturii, u.a.s.c.c.e.",
+      "gold_answers": [
+        "D"
+      ],
+      "predicted_answers": [
+        "D"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: INSUFICIENT\nSTATUT_B: ADEVARAT\nSTATUT_C: ADEVARAT\nSTATUT_D: FALS\nSTATUT_E: ADEVARAT\nRASPUNS: D",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.7094,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6854,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Hipertermie",
+          "score": 0.6591,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "b1359b8351f4b476",
+          "text": "Hipertemnia maigna: - La persoanele care au o anumită anomalie moștenită, rară, a reticulului sarcoplasmic din mușchii scheletici, administrarea de anestezice inhalatorii (halotan etc.) sau succinilcolina determină creșterea rapidă a calciului intracelular -> ( în câteva minute) contracție musculară susținută (-> creșterea temperaturii) cu redoare musculară, creșterea metabolismului muscular, rabdomioliză, acidoză, instabilitate cardiovasculară ~ adesea, deces; 6.Endocrinopatii(tireotoxicoză, feocromocitom): - determină creșterea termogenezei; 7.Leziuni ale SNC: - Hemoragie cerebrală, stare epileptică, leziune hipotalamică;"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 535,
+      "query": "U.f.d.f.d. Hipertermia s.c.f.c.e.",
+      "gold_answers": [
+        "C"
+      ],
+      "predicted_answers": [
+        "C"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "FRAZA: Expunerea la caldura si productia endogena de caldura, uneori combinate (de exemplu, efort intr-o ambianta foarte calda), pot produce caldura mai rapid decat aceasta poate fi disipata prin mecanisme fiziologice.\nFRAGMENT_PROBLEMA: C\nRASPUNS: C",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.6455,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.5353,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "2832969479d9b723",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.4749,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "bf7d2390b4db90b4",
+          "text": "Temperatura corporală este influențată și de sarcină și de disfuncțiile endocrinologice."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 536,
+      "query": "R.I. Hipertermie si diferentierea acesteia de febra, u.a.s.c.c.e.",
+      "gold_answers": [
+        "B"
+      ],
+      "predicted_answers": [
+        "B"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: ADEVARAT\nSTATUT_B: FALS\nSTATUT_C: ADEVARAT\nSTATUT_D: ADEVARAT\nSTATUT_E: ADEVARAT\nRASPUNS: B",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.7566,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6898,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6483,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 537,
+      "query": "R.I. Hipertermie si diferentierea acesteia de febra, u.a.s.c.c.e.",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [
+        "A",
+        "E"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: FALS\nSTATUT_B: ADEVARAT\nSTATUT_C: ADEVARAT\nSTATUT_D: ADEVARAT\nSTATUT_E: FALS\nRASPUNS: A,E",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.7475,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Febra",
+          "score": 0.7393,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6592,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "6e5c9a599ab263e2",
+          "text": "Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la mâini și picioare) -> devierea sângelui din periferie către organele interne -> scade pierderea de căldură prin piele, iar individului i se face frig -> individul începe să tremure de frig -> frison= crește producția de căldură în mușchi; frisonul nu este obligatoriu dacă mecanismele de păstrare a căldurii ridică temperatura sângelui suficient. La creșterea temperaturii centrale contribuie și: - termogeneza hepatică, - reducerea pierderii de căldură prin gesturi adaptative: individul se îmbracă mai gros, se acoperă cu o pătură, se ghemuiește."
+        }
+      ],
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6667,
+      "exact_match": false
+    },
+    {
+      "id": 538,
+      "query": "R.I. Hipertermie si diferentierea acesteia de febra, u.a.s.c.c.e.",
+      "gold_answers": [
+        "A"
+      ],
+      "predicted_answers": [
+        "A"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: FALS\nSTATUT_B: INSUFICIENT\nSTATUT_C: ADEVARAT\nSTATUT_D: ADEVARAT\nSTATUT_E: ADEVARAT\nRASPUNS: A",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.7432,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Febra",
+          "score": 0.7326,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Patogeneza febrei",
+          "score": 0.6985,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Patogeneza febrei",
+          "chunk_id": "6cda7f278c11e697",
+          "text": "Pirogeni -> circulatia sistematica -> endoteliu hipotalamic -> PGE -> AMPC -> ridicarea nivelului de referință termoreglator -> conservarea căldurii și producția de căldură -> febră. 1. Pirogen = substanță care produce febră: * pirogeni exogeni = Produși bacterieni, toxine bacteriene sau microorganisme întregi; - Toate bacteriile gram-negative produc endotoxină (lipopolizaharidă), care este foarte pirogenă, provocând febră, leucocitoză, proteine de fază acută, stare generală alterată; - Din bacteriile gram-pozitive: enterotoxine din Staphylococcus aureus, toxinele streptococilor din grupele A și B (numite și superantigene deoarece determină o activare masivă a celulelor T); - Din S. aureus: toxina implicată în producerea sindromului de șoc toxic; *pirogeni endogeni = Citokine pirogene: IL-1, IL-6, factorul de necroză tumorală interferonul (IFN) citokinele -Sunt proteine mici (10-20 kDa) care reglează procesele imune, inflamatoare și hematopoietice, Sunt produse de diverse celule: monocite/macrofage, celule endoteliale ș.a.: -Sinteza și eliberarea lor (generatoare de febră) poate fi stimulată de procese: 1."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 539,
+      "query": "U.f.d.f.d. Socul termic s.c.f.c.e.",
+      "gold_answers": [
+        "C"
+      ],
+      "predicted_answers": [
+        "C"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "FRAZA: Intr-o ambianta uscata se pot disipa maxim 600 kcal/h prin sudoratie, necesitand productia a >1 L de transpiratie; proces facilitat intr-un mediu cu umiditate crescuta; efortul intr-un mediu cu temperatura si umiditate crescute; favorizeaza socul termic.\nFRAGMENT_PROBLEMA: C\nRASPUNS: C",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.5064,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.4558,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "2832969479d9b723",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        },
+        {
+          "title": "Febra",
+          "score": 0.4722,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 540,
+      "query": "C.d.d. Nu face parte dintre categoriile de persoane cele mai expuse la soc termic.",
+      "gold_answers": [
+        "C"
+      ],
+      "predicted_answers": [
+        "C"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUT_A: ADEVARAT\nSTATUT_B: ADEVARAT\nSTATUT_C: INSUFICIENT\nSTATUT_D: ADEVARAT\nSTATUT_E: ADEVARAT\nRASPUNS: C",
+      "rejection_reason": "single_answer_status_mismatch",
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.5031,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Evaluarea pacientului cu febră sau hipertermie",
+          "score": 0.4435,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Evaluarea pacientului cu febră sau hipertermie",
+          "chunk_id": "8019a40612a5016d",
+          "text": "Nou-născuții, vârstnicii, pacienții cu insuficiență hepatică sau renală cronică și pacienții care iau glucocorticoizi pot fi afebrili, deși au o infecție. Istoric: trebuie stabilită cronologia evenimentelor care au precedat febra (de exemplu, expunerea la alte persoane infectate sau la vectori de boală)."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.4402,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "2832969479d9b723",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 541,
+      "query": "F.d.d. Cauze ale hipertermiei: 1. soc termic; 2. hipertermia indusa de medicamente/droguri; 3. sindromul serotoninergic; si urmatoarele trasaturi: a. se deosebeste de sindromul malign neuroleptic prin tremuraturi si mioclonii; b. apare cel mai adesea dupa medicamente psihotrope sau droguri; c. se produce intr-un mediu cald. Care sunt asocierile corecte?",
+      "gold_answers": [
+        "E"
+      ],
+      "predicted_answers": [
+        "E"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ASOCIERI: a-3, b-2, c-1\nVARIANTA: E\nRASPUNS: E",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.7777,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6064,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.5449,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "2832969479d9b723",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    },
+    {
+      "id": 542,
+      "query": "F.d.d. Cauze ale hipertermiei: 1. soc termic; 2. sindromul neuroleptic malign; 3. hipertermia maligna; si urmatoarele trasaturi: a. apare la persoane care au o anumita anomalie mostenita, rara, a reticulului sarcoplasmic din muschii scheletici; b. este provocata de medicamente neuroleptice; c. este favorizata de efortul intr-un mediu cu temperatura si umiditate crescute. Care sunt asocierile corecte?",
+      "gold_answers": [
+        "E"
+      ],
+      "predicted_answers": [
+        "E"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "ASOCIERI: a-3, b-2, c-1\nVARIANTA: E\nRASPUNS: E",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Hipertermie",
+          "score": 0.7724,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "0a2965780524fc28",
+          "text": "Hipertermia reprezintă creșterea necontrolată a temperaturii corpului, depășind capacitatea organismului de a pierde căldura. Expunerea la căldură și producția endogenă de căldură, uneori combinate (de exemplu, efortul într-o ambianță foarte caldă), pot produce căldură mai rapid decât aceasta poate fi disipată prin mecanismele fiziologice. Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la temperaturi care depășesc 40,5°C. -Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediate de dinaintea creșterii de temperatură (expunerea la căldură, administrarea de medicamente care interferează cu termoreglarea) - în șocul termic și la pacienții care iau medicamente care blochează transpirația, pielea este caldă dar uscată, în timp ce în febră pielea poate fi rece ca urmare a vasoconstricției; - antipireticele (aspirină, acetaminofen) nu scad temperatura în hipertermie, dar o scad (măcar parțial) în febră (chiar și în hiperpirexie), dacă sunt administrate în doze suficient de mari. Cauze ale hipertermiei: 1. Soc termic (se produce într-un mediu cald): Este favorizată de: - Efortul într-un mediu cu temperatură și umiditate crescute (într-o ambianță uscată, se pot disipa maxim 600 kcal/h prin transpirație, necesitând producția a >1 L de transpirație); - Diverse medicamente, de obicei la persoane foarte tinere sau vârstnice, mai ales în timpul valurilor de căldură; Cele mai expuse sunt persoanele: - Vârstnice, - Imobilizate la pat, - Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice, - Care stau în încăperi prost ventilate, fără aer condiționat; - Chiar și la persoane sănătoase, se poate produce șoc termic dacă transpirația este blocată prin deshidratare sau prin medicamente cu efect (advers) anticolinergic (de exemplu, antihistaminice); 2. Hipertmia indusă de medicamente/droguri: - Cel mai adesea medicamente psihotrope sau droguri; 3. Sidromul neuroleptic malign: - Provocat de medicamente neuroleptice sau de oprirea medicamentelor dopaminergice; - Manifestări: pe lângă hipertermie, efecte adverse extrapiramidale (printre care, redoare musculară în \"țeavă de plumb\"), tulburarea reglării vegetative; - Mecanism: afectarea receptorilor centrali dopaminergici din hipotalamus -> creșterea generării de căldură și scăderea disipării de căldură. 4. Sidromul serotninergic: - Provocat de inhibitorii selectivi ai recaptării serotoninei, IMAO și de alte medicamente serotoninergice (precum antidepresivele triciclice); - Se aseamănă prin multe trăsături (inclusiv hipertermia) cu sindromul malign neuroleptic, dar se deosebește de aceasta prin manifestări precum diareea, tremurăturile și mioclonii (în locul rigidității în țeavă de plumb). 5."
+        },
+        {
+          "title": "Hipertermie",
+          "score": 0.6747,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Hipertermie",
+          "chunk_id": "b1359b8351f4b476",
+          "text": "Hipertemnia maigna: - La persoanele care au o anumită anomalie moștenită, rară, a reticulului sarcoplasmic din mușchii scheletici, administrarea de anestezice inhalatorii (halotan etc.) sau succinilcolina determină creșterea rapidă a calciului intracelular -> ( în câteva minute) contracție musculară susținută (-> creșterea temperaturii) cu redoare musculară, creșterea metabolismului muscular, rabdomioliză, acidoză, instabilitate cardiovasculară ~ adesea, deces; 6.Endocrinopatii(tireotoxicoză, feocromocitom): - determină creșterea termogenezei; 7.Leziuni ale SNC: - Hemoragie cerebrală, stare epileptică, leziune hipotalamică;"
+        },
+        {
+          "title": "Febra",
+          "score": 0.6525,
+          "source": "pdf",
+          "source_file": "cap1_revizut.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "3f1dd4dbb914b36e",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    }
+  ]
+}

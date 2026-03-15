@@ -1,116 +1,22 @@
-2026-03-15 11:20:42,230 | INFO | sentence_transformers.SentenceTransformer | 31f3eaec25f742019f4d3112db2559c0 | Use pytorch device_name: cpu
-2026-03-15 11:20:42,233 | INFO | sentence_transformers.SentenceTransformer | 31f3eaec25f742019f4d3112db2559c0 | Load pretrained SentenceTransformer: paraphrase-multilingual-mpnet-base-v2
-2026-03-15 11:20:44,712 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:20:44,719 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:20:48,218 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:20:48,227 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:20:49,520 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:20:49,522 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:20:51,562 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:20:51,563 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:20:52,158 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:20:52,160 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:20:54,197 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:20:54,197 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:20:54,878 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:20:54,884 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:20:57,064 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:20:57,067 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:20:57,677 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:20:57,682 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:20:59,727 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:20:59,729 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:00,325 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:00,328 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:02,593 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:02,595 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:03,261 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:03,264 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:05,358 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:05,360 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:06,053 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:06,057 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:08,225 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:08,226 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:08,832 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:08,835 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:11,094 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:11,094 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:11,669 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:11,673 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:14,266 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:14,268 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:14,897 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:14,901 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:17,337 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:17,337 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:17,929 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:17,931 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:20,205 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:20,208 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:20,764 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:20,767 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:22,769 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:22,771 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:22,917 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:22,919 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:25,125 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:25,126 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:25,886 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:25,888 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:27,778 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:27,784 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:28,375 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:28,377 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:30,200 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:30,203 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:30,825 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:30,828 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:33,001 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:33,009 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:33,633 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:33,635 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:35,775 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:35,775 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:36,425 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:36,427 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:38,229 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:38,229 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:38,787 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:38,789 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:41,095 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:41,095 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:43,191 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:43,193 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:45,574 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:45,575 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:46,321 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:46,324 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:48,463 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:48,463 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:49,067 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST http://localhost:6333/collections/medical_docs/points/search "HTTP/1.1 200 OK"
-2026-03-15 11:21:49,069 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Retrieval result
-2026-03-15 11:21:51,133 | INFO | httpx | 31f3eaec25f742019f4d3112db2559c0 | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2026-03-15 11:21:51,135 | INFO | agent.orchestrator.orchestrator | 31f3eaec25f742019f4d3112db2559c0 | Evaluator result
-2026-03-15 11:21:51,135 | INFO | __main__ | 31f3eaec25f742019f4d3112db2559c0 | {
+{
   "benchmark_json_path": "data/dataset/primele_10_grile_pag2_curatate.json",
   "answer_key_path": "data/dataset/primele_10_grile_pag2_answer_key.txt",
-  "dataset_total_count": 20,
-  "evaluated_count": 20,
+  "dataset_total_count": 10,
+  "evaluated_count": 10,
   "guardrail_enabled_during_benchmark": false,
   "missing_answer_ids": [],
   "answer_key_coverage": 1.0,
   "supports_multiple_correct_answers": true,
-  "global_score": 0.3042,
-  "global_exact_match_rate": 0.05,
+  "global_score": 0.4405,
+  "global_exact_match_rate": 0.2,
   "aggregate": {
-    "exact_match_rate": 0.05,
-    "macro_precision": 0.2308,
-    "macro_recall": 0.525,
-    "macro_f1": 0.3042,
-    "micro_precision": 0.2708,
-    "micro_recall": 0.5652,
-    "micro_f1": 0.3662
+    "exact_match_rate": 0.2,
+    "macro_precision": 0.3783,
+    "macro_recall": 0.6167,
+    "macro_f1": 0.4405,
+    "micro_precision": 0.3478,
+    "micro_recall": 0.6154,
+    "micro_f1": 0.4444
   },
   "rows": [
     {
@@ -122,20 +28,19 @@
         "D"
       ],
       "predicted_answers": [
-        "A",
         "B",
         "C",
         "D",
         "E"
       ],
-      "single_answer_retry_used": true,
-      "raw_response": "RASPUNS: A, B, C, D, E\n\nMost similar chunks:\n[1] score=0.6155; source_file=cap_1_2_3_rag.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie / Febră zilnică; chunk_id=947828cd59436551; text=- Cele mai mari oscilații uneori chiar până la 5°C: febra în tuberculoză cavitară. - În funcție de tiparul circadian al febrei: - Mai mică seara decât dimineața (tiparul normal de evoluție circadiană a temperaturii corpului): febra remitentă. - Mai mare dimineața decât seara:...\n[2] score=0.5976; source_file=cap_1_2_3_rag.md; page=-1; section=Febra și hipertermia - Dr.O.O. / Introducere; chunk_id=a5b2636980de0864; text=Temperatura corporală este influențată și de sarcină și de disfuncțiile endocrinologice.\n[3] score=0.5728; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=5a8473a7d582e485; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră). Neuronii din centrul vasomotor sunt activați, vasoconstricția periferică (resimțită inițial la mâin...",
-      "tp": 3,
+      "single_answer_retry_used": false,
+      "raw_response": "RASPUNS: B, C, D, E\n\nMost similar chunks:\n[1] score=0.5474; source_file=cap1_revizut.md; page=-1; section=Febra; chunk_id=30ac9c8022ece54f; text=Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), pâ...\n[2] score=0.5434; source_file=cap1_revizut.md; page=-1; section=Febra și hipertermia - Dr.O.O. / Introducere; chunk_id=3ee705735eaec818; text=Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic ech...\n[3] score=0.5502; source_file=cap1_revizut.md; page=-1; section=Hipertermie; chunk_id=517c8a4706b4f23f; text=- determină creșterea termogenezei;",
+      "tp": 2,
       "fp": 2,
-      "fn": 0,
-      "precision": 0.6,
-      "recall": 1.0,
-      "f1": 0.75,
+      "fn": 1,
+      "precision": 0.5,
+      "recall": 0.6667,
+      "f1": 0.5714,
       "exact_match": false
     },
     {
@@ -152,7 +57,7 @@
         "E"
       ],
       "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: A,B,D,E\n\nMost similar chunks:\n[1] score=0.6546; source_file=cap_1_2_3_rag.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie / Febră zilnică; chunk_id=947828cd59436551; text=- Cele mai mari oscilații uneori chiar până la 5°C: febra în tuberculoză cavitară. - În funcție de tiparul circadian al febrei: - Mai mică seara decât dimineața (tiparul normal de evoluție circadiană a temperaturii corpului): febra remitentă. - Mai mare dimineața decât seara:...\n[2] score=0.5810; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=5a8473a7d582e485; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră). Neuronii din centrul vasomotor sunt activați, vasoconstricția periferică (resimțită inițial la mâin...\n[3] score=0.5652; source_file=cap_1_2_3_rag.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=efd955e05724aec9; text=Nou-născuții, vârstnicii, pacienții cu insuficiență hepatică sau renală cronică și pacienții care iau glucocorticoizi pot fi afebrili, deși au o infecție. - trebuie stabilită cronologia evenimentelor care au precedat febra (de exemplu, expunerea la alte persoane infectate sau...",
+      "raw_response": "RASPUNS: A,B,D,E\n\nMost similar chunks:\n[1] score=0.7254; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=f40cd1f4ced235d5; text=Sistematizarea tiparelor de febră în funcție de periodicitate\n[2] score=0.7061; source_file=cap1_revizut.md; page=-1; section=Febra și hipertermia - Dr.O.O. / Introducere; chunk_id=11f6243b131fdb2d; text=La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile.\n[3] score=0.6642; source_file=cap1_revizut.md; page=-1; section=Febra; chunk_id=c74764538fedc1e8; text=De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea...",
       "tp": 1,
       "fp": 3,
       "fn": 1,
@@ -168,20 +73,16 @@
         "E"
       ],
       "predicted_answers": [
-        "A",
-        "B",
-        "C",
-        "D",
-        "E"
+        "C"
       ],
       "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: c,e,a,b,d\n\nMost similar chunks:\n[1] score=0.6575; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=5a8473a7d582e485; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră). Neuronii din centrul vasomotor sunt activați, vasoconstricția periferică (resimțită inițial la mâin...\n[2] score=0.5812; source_file=cap_1_2_3_rag.md; page=-1; section=Patogeneza febrei; chunk_id=7e1f263229e5bd55; text=- - Circulația sistemică ~ endoteliu hipotalamic ~ PGE2 ~ AMPc ~ ridicarea nivelului de referință termoreglator ~ conservarea căldurii și producția de căldură ~ febră. Pirogeni Pirogen = substanță care produce febră: - Produși bacterieni, toxine bacteriene sau microorganisme î...\n[3] score=0.5694; source_file=cap_1_2_3_rag.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie / Febră zilnică / Intervale febrile de una sau mai multe zile alternând cu intervale afebrile:; chunk_id=f1c7de52358bbdea; text=- Febra recurentă: două sau mai multe episoade febrile.",
-      "tp": 1,
-      "fp": 4,
-      "fn": 0,
-      "precision": 0.2,
-      "recall": 1.0,
-      "f1": 0.3333,
+      "raw_response": "RASPUNS: C\n\nMost similar chunks:\n[1] score=0.4897; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=f40cd1f4ced235d5; text=Sistematizarea tiparelor de febră în funcție de periodicitate\n[2] score=0.4126; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=68015acf5007d649; text=- În unele boli virale poate să apară leucopenie. - Determinarea citokinelor circulante la pacienții cu febră este puțin utilă întrucât nivelurile sanguine ale citokinelor pirogene sunt adesea sub limita de detectare sau nu coincid cu febra. - La pacienții șalferili, valoarea...\n[3] score=0.3938; source_file=cap1_revizut.md; page=-1; section=Hipertermie; chunk_id=90f26120280a8af1; text=Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la tempera...",
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
       "exact_match": false
     },
     {
@@ -191,18 +92,16 @@
         "C"
       ],
       "predicted_answers": [
-        "B",
-        "C",
-        "E"
+        "A"
       ],
       "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: b,c,e\n\nMost similar chunks:\n[1] score=0.6133; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=5a8473a7d582e485; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră). Neuronii din centrul vasomotor sunt activați, vasoconstricția periferică (resimțită inițial la mâin...\n[2] score=0.5493; source_file=cap_1_2_3_rag.md; page=-1; section=Patogeneza febrei; chunk_id=7e1f263229e5bd55; text=- - Circulația sistemică ~ endoteliu hipotalamic ~ PGE2 ~ AMPc ~ ridicarea nivelului de referință termoreglator ~ conservarea căldurii și producția de căldură ~ febră. Pirogeni Pirogen = substanță care produce febră: - Produși bacterieni, toxine bacteriene sau microorganisme î...\n[3] score=0.5388; source_file=cap_1_2_3_rag.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie / Febră zilnică; chunk_id=947828cd59436551; text=- Cele mai mari oscilații uneori chiar până la 5°C: febra în tuberculoză cavitară. - În funcție de tiparul circadian al febrei: - Mai mică seara decât dimineața (tiparul normal de evoluție circadiană a temperaturii corpului): febra remitentă. - Mai mare dimineața decât seara:...",
-      "tp": 1,
-      "fp": 2,
-      "fn": 0,
-      "precision": 0.3333,
-      "recall": 1.0,
-      "f1": 0.5,
+      "raw_response": "RASPUNS: A\n\nMost similar chunks:\n[1] score=0.5752; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=f40cd1f4ced235d5; text=Sistematizarea tiparelor de febră în funcție de periodicitate\n[2] score=0.4950; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=4ca8d364430828a1; text=Examenul fizic: monitorizarea febrei trebuie făcută folosind de fiecare dată aceeași modalitate de măsurare a temperaturii.\n[3] score=0.4515; source_file=cap1_revizut.md; page=-1; section=Febra; chunk_id=c11812193c78257e; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la...",
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
       "exact_match": false
     },
     {
@@ -212,19 +111,17 @@
         "A"
       ],
       "predicted_answers": [
-        "A",
-        "C",
-        "E"
+        "A"
       ],
       "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: A, C, E\n\nMost similar chunks:\n[1] score=0.6311; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=5a8473a7d582e485; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră). Neuronii din centrul vasomotor sunt activați, vasoconstricția periferică (resimțită inițial la mâin...\n[2] score=0.6035; source_file=cap_1_2_3_rag.md; page=-1; section=Patogeneza febrei; chunk_id=7e1f263229e5bd55; text=- - Circulația sistemică ~ endoteliu hipotalamic ~ PGE2 ~ AMPc ~ ridicarea nivelului de referință termoreglator ~ conservarea căldurii și producția de căldură ~ febră. Pirogeni Pirogen = substanță care produce febră: - Produși bacterieni, toxine bacteriene sau microorganisme î...\n[3] score=0.5865; source_file=cap_1_2_3_rag.md; page=-1; section=Febra și hipertermia - Dr.O.O. / Introducere; chunk_id=e6466a039fbf53da; text=Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două...",
+      "raw_response": "RASPUNS: A\n\nMost similar chunks:\n[1] score=0.6606; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=f40cd1f4ced235d5; text=Sistematizarea tiparelor de febră în funcție de periodicitate\n[2] score=0.5685; source_file=cap1_revizut.md; page=-1; section=Hipertermie; chunk_id=a789d98e89a8f56b; text=Spre deosebire de febra: -nivelul de referintaal centrului termoreglator hipotalamic este emodificat -nu sunt implicati progeni\n[3] score=0.5614; source_file=cap1_revizut.md; page=-1; section=Hipertermie; chunk_id=90f26120280a8af1; text=Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la tempera...",
       "tp": 1,
-      "fp": 2,
+      "fp": 0,
       "fn": 0,
-      "precision": 0.3333,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1": 0.5,
-      "exact_match": false
+      "f1": 1.0,
+      "exact_match": true
     },
     {
       "id": 526,
@@ -240,7 +137,7 @@
         "E"
       ],
       "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: A,B,C,D,E\n\nMost similar chunks:\n[1] score=0.6140; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=5a8473a7d582e485; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră). Neuronii din centrul vasomotor sunt activați, vasoconstricția periferică (resimțită inițial la mâin...\n[2] score=0.5724; source_file=cap_1_2_3_rag.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie / Febră zilnică; chunk_id=947828cd59436551; text=- Cele mai mari oscilații uneori chiar până la 5°C: febra în tuberculoză cavitară. - În funcție de tiparul circadian al febrei: - Mai mică seara decât dimineața (tiparul normal de evoluție circadiană a temperaturii corpului): febra remitentă. - Mai mare dimineața decât seara:...\n[3] score=0.5732; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=8d0385577b225da6; text=Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale.",
+      "raw_response": "RASPUNS: A,B,C,D,E\n\nMost similar chunks:\n[1] score=0.7014; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=f40cd1f4ced235d5; text=Sistematizarea tiparelor de febră în funcție de periodicitate\n[2] score=0.6110; source_file=cap1_revizut.md; page=-1; section=Febra; chunk_id=c11812193c78257e; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră) -> Neuronii din centrul vasomotor sunt activați -> vasoconstricția periferică (resimțită inițial la...\n[3] score=0.6231; source_file=cap1_revizut.md; page=-1; section=Febra și hipertermia - Dr.O.O. / Introducere; chunk_id=11f6243b131fdb2d; text=La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile.",
       "tp": 1,
       "fp": 4,
       "fn": 0,
@@ -256,17 +153,17 @@
         "A"
       ],
       "predicted_answers": [
-        "E"
+        "A"
       ],
       "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: E\n\nMost similar chunks:\n[1] score=0.6061; source_file=cap_1_2_3_rag.md; page=-1; section=Febra și hipertermia - Dr.O.O. / Introducere; chunk_id=e6466a039fbf53da; text=Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două...\n[2] score=0.5712; source_file=cap_1_2_3_rag.md; page=-1; section=Patogeneza febrei; chunk_id=7e1f263229e5bd55; text=- - Circulația sistemică ~ endoteliu hipotalamic ~ PGE2 ~ AMPc ~ ridicarea nivelului de referință termoreglator ~ conservarea căldurii și producția de căldură ~ febră. Pirogeni Pirogen = substanță care produce febră: - Produși bacterieni, toxine bacteriene sau microorganisme î...\n[3] score=0.5687; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=5a8473a7d582e485; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră). Neuronii din centrul vasomotor sunt activați, vasoconstricția periferică (resimțită inițial la mâin...",
-      "tp": 0,
-      "fp": 1,
-      "fn": 1,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "exact_match": false
+      "raw_response": "RASPUNS: A\n\nMost similar chunks:\n[1] score=0.5316; source_file=cap1_revizut.md; page=-1; section=Febra; chunk_id=5a5e71e1cd28344d; text=Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului.\n[2] score=0.5097; source_file=cap1_revizut.md; page=-1; section=Patogeneza febrei; chunk_id=bb54b13ff3fa4771; text=Pirogeni -> circulatia sistematica -> endoteliu hipotalamic -> PGE -> AMPC -> ridicarea nivelului de referință termoreglator -> conservarea căldurii și producția de căldură -> febră.\n[3] score=0.5048; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=f40cd1f4ced235d5; text=Sistematizarea tiparelor de febră în funcție de periodicitate",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
     },
     {
       "id": 528,
@@ -275,10 +172,10 @@
         "D"
       ],
       "predicted_answers": [
-        "B"
+        "A"
       ],
       "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: B\n\nMost similar chunks:\n[1] score=0.5534; source_file=cap_1_2_3_rag.md; page=-1; section=Febra și hipertermia - Dr.O.O. / Introducere; chunk_id=e6466a039fbf53da; text=Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două...\n[2] score=0.5454; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=8d0385577b225da6; text=Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale.\n[3] score=0.5224; source_file=cap_1_2_3_rag.md; page=-1; section=Febra; chunk_id=5a8473a7d582e485; text=Febra este creșterea temperaturii corpului (depășind variația zilnică normală) prin ridicarea nivelului de referință hipotalamic (cu 1 ° -2°C în cele mai multe cazuri de febră). Neuronii din centrul vasomotor sunt activați, vasoconstricția periferică (resimțită inițial la mâin...",
+      "raw_response": "RASPUNS: A\n\nMost similar chunks:\n[1] score=0.5934; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=f40cd1f4ced235d5; text=Sistematizarea tiparelor de febră în funcție de periodicitate\n[2] score=0.5746; source_file=cap1_revizut.md; page=-1; section=Febra; chunk_id=30ac9c8022ece54f; text=Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), pâ...\n[3] score=0.5358; source_file=cap1_revizut.md; page=-1; section=Febra; chunk_id=ef9b8e4c60663557; text=După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă).",
       "tp": 0,
       "fp": 1,
       "fn": 1,
@@ -298,7 +195,7 @@
         "C"
       ],
       "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: A, C\n\nMost similar chunks:\n[1] score=0.4585; source_file=cap_1_2_3_rag.md; page=-1; section=Febra și hipertermia - Dr.O.O. / Introducere; chunk_id=e6466a039fbf53da; text=Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două...\n[2] score=0.4402; source_file=cap_1_2_3_rag.md; page=-1; section=Evaluarea pacientului cu edem / Edem localizat (cauze locale de edem):; chunk_id=14f32e2e9e8e9cdf; text=- obstrucție venoasă sau limfatică, inflamator. - aspectul tegumentelor (culoare, grosime, umiditate, pilozitate), durere locală, circulație colaterală? - durere, căldură și roșeață locală → edem inflamator.\n[3] score=0.4293; source_file=cap_1_2_3_rag.md; page=-1; section=Lezarea peretelui capilarelor pulmonare; chunk_id=8ca29004c62e6508; text=- Propensiunea alveolelor de a colaba la volume pulmonare reduse. Spațiile aeriene nu mai sunt ventilate, perfuzarea unor teritorii neventilate (mecanism de șunt intrapulmonar) duce la hipoxemie și scăderea complianței pulmonare.",
+      "raw_response": "RASPUNS: A,C\n\nMost similar chunks:\n[1] score=0.4676; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=f40cd1f4ced235d5; text=Sistematizarea tiparelor de febră în funcție de periodicitate\n[2] score=0.3843; source_file=cap1_revizut.md; page=-1; section=Febra; chunk_id=30ac9c8022ece54f; text=Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), pâ...\n[3] score=0.3667; source_file=cap1_revizut.md; page=-1; section=Hipertermie; chunk_id=90f26120280a8af1; text=Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la tempera...",
       "tp": 1,
       "fp": 1,
       "fn": 0,
@@ -316,208 +213,16 @@
       "predicted_answers": [
         "A",
         "B",
-        "C",
-        "D",
-        "E"
+        "C"
       ],
       "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: A, B, C, D, E\n\nMost similar chunks:\n[1] score=0.4238; source_file=cap_1_2_3_rag.md; page=-1; section=Febra și hipertermia - Dr.O.O. / Introducere; chunk_id=e6466a039fbf53da; text=Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două...\n[2] score=0.3999; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice: / Tratament / Cicatricea corneeană: / Pupila / Modificări ale diametrului pupilar: / Diagnostic diferential anomalii pupile; chunk_id=ae3e7a56a2e52178; text=| Pupila | Sdr. tonică Argyll-Robertson | Claude-Bernard-Horner | | Localizare | Frecvent bilateral | Unilateral | | Reacția la lumină | Minim | Areactivă | | Acomodație | Greu reactivă | Reactivă | | Semne asociate | Reflexe tendinoase diminuate/absente | Anhidroză absente |\n[3] score=0.3971; source_file=cap_1_2_3_rag.md; page=-1; section=Patogeneza febrei; chunk_id=7e1f263229e5bd55; text=- - Circulația sistemică ~ endoteliu hipotalamic ~ PGE2 ~ AMPc ~ ridicarea nivelului de referință termoreglator ~ conservarea căldurii și producția de căldură ~ febră. Pirogeni Pirogen = substanță care produce febră: - Produși bacterieni, toxine bacteriene sau microorganisme î...",
+      "raw_response": "RASPUNS: A, B, C\n\nMost similar chunks:\n[1] score=0.4623; source_file=cap1_revizut.md; page=-1; section=Evaluarea pacientului cu febră sau hipertermie; chunk_id=f40cd1f4ced235d5; text=Sistematizarea tiparelor de febră în funcție de periodicitate\n[2] score=0.3684; source_file=cap1_revizut.md; page=-1; section=Febra; chunk_id=30ac9c8022ece54f; text=Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), pâ...\n[3] score=0.3628; source_file=cap1_revizut.md; page=-1; section=Hipertermie; chunk_id=90f26120280a8af1; text=Diferențierea febrei de hipertermie: -este esențială deoarece hipertermia poate provoca rapid moartea și nu răspunde la antipiretice -Este dificilă în situații de urgență deoarece, într-o stare septică sistemică, febra (hiperpirexia) se poate instala rapid, ajungând la tempera...",
       "tp": 1,
-      "fp": 4,
+      "fp": 2,
       "fn": 0,
-      "precision": 0.2,
+      "precision": 0.3333,
       "recall": 1.0,
-      "f1": 0.3333,
-      "exact_match": false
-    },
-    {
-      "id": 607,
-      "query": "Ambliopia reprezinta:",
-      "gold_answers": [
-        "A"
-      ],
-      "predicted_answers": [
-        "A",
-        "C"
-      ],
-      "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: A,C\n\nMost similar chunks:\n[1] score=0.5275; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice: / Tratament / Cicatricea corneeană: / Pupila / Modificări ale diametrului pupilar: / Diagnostic diferential anomalii pupile / Irisul / Aspecte patologice / Uveita anterioară (irita sau iridociclita) / Camera anterioară / Măsurarea presiunii oculare / Patologie / Glaucom cronic / Glaucom cu unghi închis / Cristalinul / Cauze și factori de risc:; chunk_id=d267c6b8281f0f8f; text=- Vârsta înaintată (principala cauză) - Istoric familial de cataractă - Intervenții chirurgicale oculare în antecedente - Diabetul - Expunerea îndelungată și neprotejată la soare - Glaucomul - Expunerea la radiații - Leziuni oculare penetrante - Medicamente: corticosteroizi -...\n[2] score=0.5238; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari:; chunk_id=71b6534217123086; text=pentru menținerea vederii binoculare unice. - Drept medial - adducție (spre nas); inervat de III - Drept lateral - abducție (temporal); inervat de VI (abducens) - Drept inferior - în jos/ rotația G.O. spre temporal/ adducție; inervat de III - Drept superior - în sus/ rotația G...\n[3] score=0.5162; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul; chunk_id=862912c89c1c01fa; text=4. Structurile extrași intraoculare 5. Examenul oftalmoscopic",
-      "tp": 1,
-      "fp": 1,
-      "fn": 0,
-      "precision": 0.5,
-      "recall": 1.0,
-      "f1": 0.6667,
-      "exact_match": false
-    },
-    {
-      "id": 608,
-      "query": "Cataracta poate da urmatoarele manifestari clinice, c.e.:",
-      "gold_answers": [
-        "E"
-      ],
-      "predicted_answers": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "single_answer_retry_used": true,
-      "raw_response": "RASPUNS: A, B, C, D\n\nMost similar chunks:\n[1] score=0.6450; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V.; chunk_id=7387d6b805c623aa; text=- arie limitată de acuitate vizuală scăzută. - Cauze: - oculară (glaucom) - neurologică (tumori cerebrale) - vizual ex. Y, inferioară a C.V. - Cauză: ocluzia unei ramuri a a. retiniene. - totală a cecitate. - Cauze: - oculare (traumatisme/infecții oculare grave) - afecțiuni al...\n[2] score=0.6303; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice: / Tratament / Cicatricea corneeană: / Pupila / Modificări ale diametrului pupilar: / Diagnostic diferential anomalii pupile / Irisul / Aspecte patologice / Uveita anterioară (irita sau iridociclita) / Camera anterioară / Măsurarea presiunii oculare / Patologie / Glaucom cronic / Glaucom cu unghi închis / Cristalinul / Cauze și factori de risc: / Manifestări clinice:; chunk_id=7eee53f5766b6216; text=- Scăderea treptată a acuității vizuale (nedureroasă), vedere încețoșată - Afectarea vederii pe timp de noapte - Vedere neclară, imagine cu contururi duble la ochiul afectat - Scăderea intensității culorilor / vedere în nuanțe de galben - Necesitatea creșterii intensității ilu...\n[3] score=0.6247; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice: / Tratament / Cicatricea corneeană: / Pupila / Modificări ale diametrului pupilar: / Diagnostic diferential anomalii pupile / Irisul / Aspecte patologice / Uveita anterioară (irita sau iridociclita) / Camera anterioară / Măsurarea presiunii oculare / Patologie / Glaucom cronic; chunk_id=f7ceec5051c00edd; text=- 85% din cazurile de glaucom - Neclară - de Variabilă - Normală - Normal - Tardiv: scăderea acuității vizuale - Cefalee, durere oculară brusc instalată, vărsături - Atrofie progresivă în optic după atacuri netratate - Inițial afectate - Tardiv: afectare centrală - Creștere in...",
-      "tp": 0,
-      "fp": 4,
-      "fn": 1,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "exact_match": false
-    },
-    {
-      "id": 609,
-      "query": "Cea mai frecventa cauza a otitei externe este infectia:",
-      "gold_answers": [
-        "C"
-      ],
-      "predicted_answers": [
-        "C"
-      ],
-      "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: C\n\nMost similar chunks:\n[1] score=0.6761; source_file=cap_1_2_3_rag.md; page=-1; section=Urechea / Anatomie si fiziologie / Urechea externă: / Urechea medie: / Urechea internă: / Simptomatologia din afecțiunile otice / 1. Pierderea auzului / 2. Vertijul / Cauze / 3. Tinitusul / 4. Otoreea / 5. Otalgia / Cauze ale durerii urechii / Pruritul / Examinarea obiectivă / 1. Examinarea externă / 2. Testarea acuității auditive / 3. Examinarea otoscopică / Patologie; chunk_id=36f84011d983e5c9; text=- acută inflamație a canalului auditiv extern. - Cauze: infecții - Pseudomonas aeruginosa (cea mai frecventă cauză). - Clinic: - Otalgie: domină tabloul clinic; accentuată la tracționarea pavilionului sau la presarea tragusului. - Edem.\n[2] score=0.6021; source_file=cap_1_2_3_rag.md; page=-1; section=Nasul / Funcții / Simptomatologia din afecțiunile nazale / 1. Obstrucția nazală / Cauze; chunk_id=466b30b89fe0cc2e; text=- Polipii nazali: De obicei bilaterali, determină pe lângă obstrucție nazală și anosmie (sunt cea mai frecventă cauză de anosmie). - Alte cauze: deviație de sept, traumatisme nazale, corpi străini intranazali, tumori. Obstrucția nazală poate determina apariția de simptome asoc...\n[3] score=0.5939; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie; chunk_id=5f1c0c0303da0835; text=Cea mai frecventă cauză este infecția bacteriană. - Conjunctivita acută hemoragică: dată de infecția cu enterovirusuri, pneumococ, Haemophilus influenzae; este foarte contagioasă, bilaterală. - Conjunctivita cu papile gigante: papile gigante (> 1 mm) pe conjunctiva tarsală, se...",
-      "tp": 1,
-      "fp": 0,
-      "fn": 0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "exact_match": true
-    },
-    {
-      "id": 610,
-      "query": "Cea mai frecventa cauza de anosmie este:",
-      "gold_answers": [
-        "D"
-      ],
-      "predicted_answers": [
-        "B",
-        "D"
-      ],
-      "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: B,D\n\nMost similar chunks:\n[1] score=0.6931; source_file=cap_1_2_3_rag.md; page=-1; section=Nasul / Funcții / Simptomatologia din afecțiunile nazale / 1. Obstrucția nazală / Cauze; chunk_id=466b30b89fe0cc2e; text=- Polipii nazali: De obicei bilaterali, determină pe lângă obstrucție nazală și anosmie (sunt cea mai frecventă cauză de anosmie). - Alte cauze: deviație de sept, traumatisme nazale, corpi străini intranazali, tumori. Obstrucția nazală poate determina apariția de simptome asoc...\n[2] score=0.5455; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul; chunk_id=170bb38832449f49; text=- Cauze: - traumatisme/ agresiuni chimice - infecții (conjunctivită, irită) - alergii - creșterea presiunii intraoculare (glaucom) - unele medicamente (antimalarice, tuberculostatice) - tuse/ vomă (aspect hemoragic) - lentile de contact\n[3] score=0.5387; source_file=cap_1_2_3_rag.md; page=-1; section=Nasul / Funcții / Simptomatologia din afecțiunile nazale / 1. Obstrucția nazală; chunk_id=3b662485d18b2156; text=- Este cel mai frecvent simptom ce apare în afecțiunile nazale. Se va întreba pacientul dacă este uni- sau bilaterală și care nară este implicată, momentul debutului, simptomele asociate, existența sau nu a unei agravări sezoniere, dacă există afecțiuni oculare sau otice asoci...",
-      "tp": 1,
-      "fp": 1,
-      "fn": 0,
-      "precision": 0.5,
-      "recall": 1.0,
-      "f1": 0.6667,
-      "exact_match": false
-    },
-    {
-      "id": 611,
-      "query": "Cea mai frecventa cauza de orbire secundara afectarii corneei este data de cheratita:",
-      "gold_answers": [
-        "B"
-      ],
-      "predicted_answers": [],
-      "single_answer_retry_used": false,
-      "raw_response": "I don't know based on the available data.\n\nMost similar chunks:\n[1] score=0.6922; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V.; chunk_id=7387d6b805c623aa; text=- arie limitată de acuitate vizuală scăzută. - Cauze: - oculară (glaucom) - neurologică (tumori cerebrale) - vizual ex. Y, inferioară a C.V. - Cauză: ocluzia unei ramuri a a. retiniene. - totală a cecitate. - Cauze: - oculare (traumatisme/infecții oculare grave) - afecțiuni al...\n[2] score=0.6745; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V.; chunk_id=0237093bf412eb78; text=bilateral. - Cauze: leziunile de tract optic/ radiații optice. - lipsa vederii într-un cadran vizual (1/4 - Cauze: leziunile parțiale de radiații optice. - Exemplu: în cuadranopsia omonimă stângă superioară, leziunea este la nivelul radiației optice drepte inferioare.\n[3] score=0.6478; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice: / Tratament / Cicatricea corneeană: / Pupila / Modificări ale diametrului pupilar: / Diagnostic diferential anomalii pupile / Irisul / Aspecte patologice / Uveita anterioară (irita sau iridociclita) / Camera anterioară / Măsurarea presiunii oculare / Patologie / Glaucom cronic / Glaucom cu unghi închis; chunk_id=6ae337a752e6ee1c; text=- 15% din cazurile de glaucom - Unghi îngust de drenaj - de 50-85 ani - Îngustată anterioară - Îngust - - Tardiv: scăderea acuității vizuale - Cefalee, durere oculară brusc instalată, vărsături - Atrofie progresivă în optic după atacuri netratate - - Afectare tardivă centrală...",
-      "tp": 0,
-      "fp": 0,
-      "fn": 1,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "exact_match": false
-    },
-    {
-      "id": 612,
-      "query": "Chemozisul:",
-      "gold_answers": [
-        "C"
-      ],
-      "predicted_answers": [],
-      "single_answer_retry_used": false,
-      "raw_response": "I don't know based on the available data.\n\nMost similar chunks:\n[1] score=0.5124; source_file=cap_1_2_3_rag.md; page=-1; section=Evaluarea pacientului cu edem / Edem localizat (cauze locale de edem):; chunk_id=14f32e2e9e8e9cdf; text=- obstrucție venoasă sau limfatică, inflamator. - aspectul tegumentelor (culoare, grosime, umiditate, pilozitate), durere locală, circulație colaterală? - durere, căldură și roșeață locală → edem inflamator.\n[2] score=0.4717; source_file=cap_1_2_3_rag.md; page=-1; section=Urechea / Anatomie si fiziologie / Urechea externă: / Urechea medie: / Urechea internă: / Simptomatologia din afecțiunile otice / 1. Pierderea auzului / 2. Vertijul / Cauze / 3. Tinitusul / 4. Otoreea; chunk_id=aabe3ceb5fb1cae9; text=Secreție otică semnificând o infecție (otită acută sau cronică).\n[3] score=0.4680; source_file=cap_1_2_3_rag.md; page=-1; section=Nasul / Funcții / Simptomatologia din afecțiunile nazale / 1. Obstrucția nazală; chunk_id=3b662485d18b2156; text=- Este cel mai frecvent simptom ce apare în afecțiunile nazale. Se va întreba pacientul dacă este uni- sau bilaterală și care nară este implicată, momentul debutului, simptomele asociate, existența sau nu a unei agravări sezoniere, dacă există afecțiuni oculare sau otice asoci...",
-      "tp": 0,
-      "fp": 0,
-      "fn": 1,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "exact_match": false
-    },
-    {
-      "id": 613,
-      "query": "Chremosul reprezinta:",
-      "gold_answers": [
-        "C"
-      ],
-      "predicted_answers": [
-        "A"
-      ],
-      "single_answer_retry_used": false,
-      "raw_response": "RASPUNS: A\n\nMost similar chunks:\n[1] score=0.6091; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice:; chunk_id=32116473aa0186ff; text=- anomalie dobândită a formei corneei, cu deteriorarea treptată a vederii. - Este bilaterală, dar asimetrică, corneea proeminând ca un con (vizibil mai bine când pacientul este rugat să privească în jos - semnul Munson). - Polul anterior al conului se subțiază și apar cicatrici.\n[2] score=0.6007; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice: / Tratament / Cicatricea corneeană: / Pupila / Modificări ale diametrului pupilar: / Diagnostic diferential anomalii pupile / Irisul / Aspecte patologice / Uveita anterioară (irita sau iridociclita); chunk_id=617c5805fb2155db; text=- aderențe anterioare (sinechii) la cornee sau posterioare la cristalin, cu apariția glaucomului.\n[3] score=0.5800; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare; chunk_id=b817c36aa31a1856; text=: - protruzia G.O. Poate fi bilaterală (boala Basedow) sau unilaterală (boala Basedow/ tumori orbitale/ inflamații orbitale); se poate asocia cu edem palpebral și eritem conjunctival. - glob ocular \"înfundat\" în orbită; apare în scăderile ponderale importante, deshidratare, sd...",
-      "tp": 0,
-      "fp": 1,
-      "fn": 1,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "exact_match": false
-    },
-    {
-      "id": 614,
-      "query": "Clinic, in glaucomul cu unghi inchis pot aparea, c.e.:",
-      "gold_answers": [
-        "B"
-      ],
-      "predicted_answers": [
-        "A",
-        "C",
-        "D",
-        "E"
-      ],
-      "single_answer_retry_used": true,
-      "raw_response": "RASPUNS: A, C, D, E\n\nMost similar chunks:\n[1] score=0.6216; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice: / Tratament / Cicatricea corneeană: / Pupila / Modificări ale diametrului pupilar: / Diagnostic diferential anomalii pupile / Irisul / Aspecte patologice / Uveita anterioară (irita sau iridociclita) / Camera anterioară / Măsurarea presiunii oculare / Patologie / Glaucom cronic / Glaucom cu unghi închis; chunk_id=6ae337a752e6ee1c; text=- 15% din cazurile de glaucom - Unghi îngust de drenaj - de 50-85 ani - Îngustată anterioară - Îngust - - Tardiv: scăderea acuității vizuale - Cefalee, durere oculară brusc instalată, vărsături - Atrofie progresivă în optic după atacuri netratate - - Afectare tardivă centrală...\n[2] score=0.6143; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice: / Tratament / Cicatricea corneeană: / Pupila / Modificări ale diametrului pupilar: / Diagnostic diferential anomalii pupile / Irisul / Aspecte patologice / Uveita anterioară (irita sau iridociclita) / Camera anterioară / Măsurarea presiunii oculare / Patologie / Glaucom cronic; chunk_id=f7ceec5051c00edd; text=- 85% din cazurile de glaucom - Neclară - de Variabilă - Normală - Normal - Tardiv: scăderea acuității vizuale - Cefalee, durere oculară brusc instalată, vărsături - Atrofie progresivă în optic după atacuri netratate - Inițial afectate - Tardiv: afectare centrală - Creștere in...\n[3] score=0.5542; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V.; chunk_id=7387d6b805c623aa; text=- arie limitată de acuitate vizuală scăzută. - Cauze: - oculară (glaucom) - neurologică (tumori cerebrale) - vizual ex. Y, inferioară a C.V. - Cauză: ocluzia unei ramuri a a. retiniene. - totală a cecitate. - Cauze: - oculare (traumatisme/infecții oculare grave) - afecțiuni al...",
-      "tp": 0,
-      "fp": 4,
-      "fn": 1,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "exact_match": false
-    },
-    {
-      "id": 615,
-      "query": "Clinic, in otita externa domina:",
-      "gold_answers": [
-        "D"
-      ],
-      "predicted_answers": [],
-      "single_answer_retry_used": false,
-      "raw_response": "I don't know based on the available data.\n\nMost similar chunks:\n[1] score=0.5154; source_file=cap_1_2_3_rag.md; page=-1; section=Nasul / Funcții / Simptomatologia din afecțiunile nazale / 1. Obstrucția nazală; chunk_id=3b662485d18b2156; text=- Este cel mai frecvent simptom ce apare în afecțiunile nazale. Se va întreba pacientul dacă este uni- sau bilaterală și care nară este implicată, momentul debutului, simptomele asociate, existența sau nu a unei agravări sezoniere, dacă există afecțiuni oculare sau otice asoci...\n[2] score=0.4988; source_file=cap_1_2_3_rag.md; page=-1; section=Evaluarea pacientului cu edem / Edem localizat (cauze locale de edem):; chunk_id=14f32e2e9e8e9cdf; text=- obstrucție venoasă sau limfatică, inflamator. - aspectul tegumentelor (culoare, grosime, umiditate, pilozitate), durere locală, circulație colaterală? - durere, căldură și roșeață locală → edem inflamator.\n[3] score=0.4929; source_file=cap_1_2_3_rag.md; page=-1; section=Urechea / Anatomie si fiziologie / Urechea externă: / Urechea medie: / Urechea internă: / Simptomatologia din afecțiunile otice / 1. Pierderea auzului / 2. Vertijul / Cauze / 3. Tinitusul / 4. Otoreea / 5. Otalgia / Cauze ale durerii urechii / Pruritul / Examinarea obiectivă; chunk_id=23d8d0b335a5aac2; text=Examinarea externă; 2. Testarea acuității auditive; 3. Examinarea otoscopică.",
-      "tp": 0,
-      "fp": 0,
-      "fn": 1,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "exact_match": false
-    },
-    {
-      "id": 616,
-      "query": "Coloboma reprezinta:",
-      "gold_answers": [
-        "E"
-      ],
-      "predicted_answers": [],
-      "single_answer_retry_used": false,
-      "raw_response": "I don't know based on the available data.\n\nMost similar chunks:\n[1] score=0.5668; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul; chunk_id=862912c89c1c01fa; text=4. Structurile extrași intraoculare 5. Examenul oftalmoscopic\n[2] score=0.5609; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice:; chunk_id=32116473aa0186ff; text=- anomalie dobândită a formei corneei, cu deteriorarea treptată a vederii. - Este bilaterală, dar asimetrică, corneea proeminând ca un con (vizibil mai bine când pacientul este rugat să privească în jos - semnul Munson). - Polul anterior al conului se subțiază și apar cicatrici.\n[3] score=0.5506; source_file=cap_1_2_3_rag.md; page=-1; section=Ochiul / Conjunctiva: / Aparatul lacrimal / Mușchii extraoculari: / Globii oculari / 1. Pierderea vederii / 2. Durerea oculară / 3. Diplopia (vedere dublă) / 4. Lacrimare / uscăciune / 5. Secreția oculară / 6. Eritemul / 7. Pruritul / 1. Acuitatea vizuală / 2. Câmpul vizual / Anormalitățile C.V. / 3. Mișcările G.O. / Teste de evaluare a strabismului: / Direcțiile în care G.O. nu se vor mișca funcție de mu chiul aretic: / Structurile extra- și intraoculare / Leziuni / b. Aparatul lacrimal / Patologie / c. Conjunctiva / Patologie / d. Sclera / Icterul scleral / Corneea / Modificări/aspecte patologice: / Tratament / Cicatricea corneeană: / Pupila / Modificări ale diametrului pupilar: / Diagnostic diferential anomalii pupile / Irisul / Aspecte patologice / Uveita anterioară (irita sau iridociclita); chunk_id=617c5805fb2155db; text=- aderențe anterioare (sinechii) la cornee sau posterioare la cristalin, cu apariția glaucomului.",
-      "tp": 0,
-      "fp": 0,
-      "fn": 1,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
+      "f1": 0.5,
       "exact_match": false
     }
   ]
