@@ -25,7 +25,7 @@ from agent.evaluation.benchmark import (
     run_retrieval_benchmark,
 )
 from agent.orchestrator.chat_loop import run_chat_loop
-from config.logging_config import new_correlation_id, setup_logging
+from config.logging_config import add_file_handler, new_correlation_id, setup_logging
 from config.settings import (
     SETTINGS,
     SUPPORTED_CHUNKING_STRATEGIES,
@@ -98,7 +98,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--markdown-path",
         action="append",
         default=None,
-        help="Markdown corpus path for direct ingest (for example output/document.md). Repeat to include multiple files.",
+        help="Markdown corpus path for direct ingest (for example data/dataset/cap_1_2_3.md). Repeat to include multiple files.",
     )
     ingest_parser.add_argument(
         "--skip-pdf-ingest",
@@ -234,6 +234,17 @@ def _build_parser() -> argparse.ArgumentParser:
         default=0,
         help="Optional max number of benchmark items to evaluate (0 means all)",
     )
+    eval_parser.add_argument(
+        "--benchmark-use-guardrail",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Keep guardrail enabled during benchmark (default disables it for cleaner scoring)",
+    )
+    eval_parser.add_argument(
+        "--benchmark-output",
+        default="output/benchmark_latest.txt",
+        help="File path where benchmark logs and metrics are saved (default: output/benchmark_latest.txt)",
+    )
     return parser
 
 
@@ -311,12 +322,15 @@ def main() -> None:
     if args.command == "eval":
         ensure_startup_valid(command=args.command)
         if args.benchmark:
+            if args.benchmark_output:
+                add_file_handler(args.benchmark_output)
             result = run_retrieval_benchmark(
                 benchmark_json_path=args.benchmark_json_path,
                 answer_key_path=args.answer_key_path,
                 top_k=args.benchmark_top_k,
                 language="ro",
                 limit=(args.benchmark_limit if args.benchmark_limit > 0 else None),
+                use_guardrail=args.benchmark_use_guardrail,
             )
         else:
             result = run_evaluation_smoke()

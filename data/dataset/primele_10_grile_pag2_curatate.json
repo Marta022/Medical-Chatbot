@@ -88,5 +88,95 @@
     "C": "a-2, b-1, c-3",
     "D": "a-2, b-3, c-1",
     "E": "a-3, b-1, c-2"
+  },
+  {
+    "id": 607,
+    "intrebare": "Ambliopia reprezinta:",
+    "A": "pierderea in timp a acuitatii vizuale a globului ocular strabic, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la copii cu strabism;",
+    "B": "pierderea in timp a acuitatii vizuale a globului ocular strabic, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la adulti cu strabism;",
+    "C": "pierderea in timp a acuitatii vizuale a globului ocular sanatos, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la copii cu strabism;",
+    "D": "pierderea in timp a acuitatii vizuale a globului ocular sanatos, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la adulti cu strabism;",
+    "E": "scaderea acuitatii vizuale bilaterale, la pacienti cu strabism."
+  },
+  {
+    "id": 608,
+    "intrebare": "Cataracta poate da urmatoarele manifestari clinice, c.e.:",
+    "A": "vedere in nuante de galben, estomparea celorlalte culori;",
+    "B": "scaderea vederii pe timp de noapte;",
+    "C": "vedere \"incetosata\";",
+    "D": "necesitatea cresterii iluminarii la citit;",
+    "E": "durere oculara intensa prin cresterea presiunii intraoculare."
+  },
+  {
+    "id": 609,
+    "intrebare": "Cea mai frecventa cauza a otitei externe este infectia:",
+    "A": "cu pneumococ;",
+    "B": "cu stafilococ auriu;",
+    "C": "cu Pseudomonas Aeruginosa;",
+    "D": "micotica a canalului auditiv extern;",
+    "E": "herpes simplex."
+  },
+  {
+    "id": 610,
+    "intrebare": "Cea mai frecventa cauza de anosmie este:",
+    "A": "abuzul de cocaina;",
+    "B": "traumatismele nazale, cu fracturarea piramidei nazale;",
+    "C": "rinita vasomotorie;",
+    "D": "polipoza nazala;",
+    "E": "rinofima."
+  },
+  {
+    "id": 611,
+    "intrebare": "Cea mai frecventa cauza de orbire secundara afectarii corneei este data de cheratita:",
+    "A": "cu pneumococ;",
+    "B": "cu virus herpes simplex;",
+    "C": "fungica;",
+    "D": "cu Pseudomonas Aeruginosa;",
+    "E": "gonococica."
+  },
+  {
+    "id": 612,
+    "intrebare": "Chemozisul:",
+    "A": "semnifica edem palpebral;",
+    "B": "semnifica hiperemie sclerala;",
+    "C": "semnifica edem conjunctival;",
+    "D": "reprezinta o zona de dehiscenta la nivelul sclerei;",
+    "E": "reprezinta inflamatia corneei datorata unei infectii, abraziuni sau substante chimice."
+  },
+  {
+    "id": 613,
+    "intrebare": "Chremosul reprezinta:",
+    "A": "ingrosare triunghiulara a conjunctivei bulbare, care se extinde pe suprafata corneei;",
+    "B": "lacrimare excesiva datorata obstructiei canalului lacrimal;",
+    "C": "edem conjunctival;",
+    "D": "edem periorbital;",
+    "E": "inflamatie corneana secundara unei abraziuni."
+  },
+  {
+    "id": 614,
+    "intrebare": "Clinic, in glaucomul cu unghi inchis pot aparea, c.e.:",
+    "A": "cefalee;",
+    "B": "mioza intensa;",
+    "C": "varsaturi;",
+    "D": "durere intensa oculara;",
+    "E": "cornee cu aspect \"fumuriu\"."
+  },
+  {
+    "id": 615,
+    "intrebare": "Clinic, in otita externa domina:",
+    "A": "febra;",
+    "B": "otoreea;",
+    "C": "disfonia;",
+    "D": "otalgia;",
+    "E": "edemul pavilionului."
+  },
+  {
+    "id": 616,
+    "intrebare": "Coloboma reprezinta:",
+    "A": "lipsa de substanta la nivelul irisului survenita posttraumatic;",
+    "B": "lipsa de substanta la nivelul corneei survenita posttraumatic;",
+    "C": "anomalie dobandita a formei corneei (aspect de con);",
+    "D": "opacifierea cristalinului;",
+    "E": "lipsa congenitala de substanta la nivelul irisului."
   }
 ]

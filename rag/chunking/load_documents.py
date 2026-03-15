@@ -206,9 +206,9 @@ def discover_pdf_paths(
 def discover_markdown_paths(
     dataset_dir: str = "data/dataset",
     *,
-    preferred_filename: str = "document.md",
+    preferred_filename: str = "cap_1_2_3.md",
 ) -> list[str]:
-    """Discover markdown files, preferring `document.md` when present."""
+    """Discover markdown files, preferring the configured filename when present."""
     root = Path(dataset_dir)
     if not root.exists():
         return []
@@ -570,6 +570,84 @@ def _repair_common_mojibake_ro(text: str) -> str:
     for broken, fixed in _RO_MOJIBAKE_REPLACEMENTS:
         repaired = repaired.replace(broken, fixed)
     return repaired
+
+
+_MOJIBAKE_HINT_PATTERN = re.compile(r"[ÃÂÄÅÈ]")
+_ROMANIAN_DIACRITICS_PATTERN = re.compile(r"[ĂÂÎȘȚăâîșț]")
+
+
+def _repair_mojibake_line_if_needed(line: str) -> str:
+    compact = line.strip()
+    if not compact:
+        return line
+    if not _MOJIBAKE_HINT_PATTERN.search(compact):
+        return line
+
+    candidates: list[str] = [line]
+    for codec in ("cp1252", "latin1"):
+        try:
+            candidates.append(line.encode(codec, errors="ignore").decode("utf-8", errors="ignore"))
+        except Exception:
+            continue
+
+    def _score(value: str) -> tuple[int, int]:
+        # Prefer strings with fewer mojibake markers and more Romanian diacritics.
+        marker_penalty = sum(value.count(marker) for marker in ("Ã", "Â", "Ä", "Å", "È", "�"))
+        diacritics_bonus = len(_ROMANIAN_DIACRITICS_PATTERN.findall(value))
+        return (marker_penalty, -diacritics_bonus)
+
+    repaired = min(candidates, key=_score)
+    return _repair_common_mojibake_ro(repaired)
+
+
+def _is_probably_ocr_noise_line(line: str) -> bool:
+    compact = re.sub(r"\s+", " ", line).strip()
+    if not compact:
+        return False
+    if _MARKDOWN_HEADING_PATTERN.match(compact):
+        return False
+    if _is_numbered_item(compact) or _is_bullet_item(compact):
+        return False
+    if len(compact) < 8:
+        return False
+    if re.fullmatch(r"[0-9]+(?:[.,][0-9]+)?(?:°C|%)?", compact):
+        return False
+
+    symbol_count = len(re.findall(r"[~\\/_{}\[\]<>|`^!$@#%&*=+]", compact))
+    alpha_count = len(re.findall(r"[A-Za-zĂÂÎȘȚăâîșț]", compact))
+    if alpha_count == 0:
+        return True
+    if symbol_count >= 4 and symbol_count / max(len(compact), 1) >= 0.12:
+        return True
+    return False
+
+
+def _normalize_markdown_for_ingest(text: str) -> str:
+    if not text or not text.strip():
+        return ""
+
+    cleaned = _strip_markdown_code_fences(text)
+    cleaned = _repair_common_mojibake_ro(cleaned)
+
+    normalized_lines: list[str] = []
+    for raw_line in cleaned.splitlines():
+        line = _repair_mojibake_line_if_needed(raw_line)
+        line = line.replace("•", "- ")
+        line = line.replace("◦", "- ")
+        line = line.replace("▪", "- ")
+        line = line.replace("●", "- ")
+        line = line.replace("–", "-")
+        line = line.replace("—", "-")
+        line = re.sub(r"[ \t]+", " ", line).rstrip()
+
+        if _is_probably_ocr_noise_line(line):
+            continue
+
+        normalized_lines.append(line)
+
+    normalized = "\n".join(normalized_lines)
+    normalized = re.sub(r"\n{3,}", "\n\n", normalized).strip()
+    return normalized
 
 
 def _split_text_for_llm_cleanup(text: str, *, max_chars: int = 3500) -> list[str]:
@@ -1198,7 +1276,9 @@ def parse_markdown_to_structured_chunks(markdown_path: str) -> list[PdfStructure
     if not source.exists():
         raise FileNotFoundError(f"Markdown file not found: {markdown_path}")
 
-    lines = source.read_text(encoding="utf-8").splitlines()
+    raw_markdown = source.read_text(encoding="utf-8")
+    normalized_markdown = _normalize_markdown_for_ingest(raw_markdown)
+    lines = normalized_markdown.splitlines()
     source_file = source.name
 
     chunks: list[PdfStructuredChunk] = []

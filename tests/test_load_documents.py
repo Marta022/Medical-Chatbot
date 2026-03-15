@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 from rag.chunking.load_documents import (
+    _normalize_markdown_for_ingest,
     discover_markdown_paths,
     discover_pdf_paths,
     load_medical_items,
@@ -108,6 +109,40 @@ class TestLoadDocuments(unittest.TestCase):
         self.assertTrue(all(chunk.section == "Sectiune 1.1" for chunk in chunks))
         self.assertTrue(any(chunk.is_list for chunk in chunks))
         self.assertTrue(all(chunk.chunk_id for chunk in chunks))
+
+    def test_normalize_markdown_for_ingest_repairs_mojibake_and_removes_noise(self) -> None:
+        raw = "\n".join(
+            [
+                "```markdown",
+                "# Semiologie generalÄƒ",
+                "Temperatura corporalÄƒ.",
+                "fe.JJL{LLQ[Â§,S\\lgciÈ™~",
+                "```",
+            ]
+        )
+        normalized = _normalize_markdown_for_ingest(raw)
+        self.assertIn("# Semiologie generală", normalized)
+        self.assertIn("Temperatura corporală.", normalized)
+        self.assertNotIn("fe.JJL{LLQ[Â§,S\\lgciÈ™~", normalized)
+
+    def test_parse_markdown_to_structured_chunks_applies_ingest_normalization(self) -> None:
+        markdown = "\n".join(
+            [
+                "# Capitol 1",
+                "## Sectiune 1.1",
+                "Text cu diacritice: temperaturÄƒ crescutÄƒ.",
+                "LLQ[Â§,S\\lgciÈ™~",
+            ]
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            markdown_path = Path(tmpdir) / "document.md"
+            markdown_path.write_text(markdown, encoding="utf-8")
+
+            chunks = parse_markdown_to_structured_chunks(str(markdown_path))
+
+        merged = " ".join(chunk.text for chunk in chunks)
+        self.assertIn("temperatură", merged)
+        self.assertNotIn("LLQ[Â§,S\\lgciÈ™~", merged)
 
 
 if __name__ == "__main__":

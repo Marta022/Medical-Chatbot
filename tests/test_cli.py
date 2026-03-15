@@ -45,6 +45,7 @@ class TestCLI(unittest.TestCase):
         self.assertIn("answer_key_path", eval_option_dests)
         self.assertIn("benchmark_top_k", eval_option_dests)
         self.assertIn("benchmark_limit", eval_option_dests)
+        self.assertIn("benchmark_use_guardrail", eval_option_dests)
 
     def test_help_command_smoke(self) -> None:
         completed = subprocess.run(
@@ -144,6 +145,32 @@ class TestCLI(unittest.TestCase):
         kwargs = ingest_mock.call_args.kwargs
         self.assertEqual(kwargs["pdf_paths"], ["output/document.md"])
         self.assertTrue(kwargs["include_structured_sources"] is False)
+
+    def test_eval_benchmark_disables_guardrail_by_default(self) -> None:
+        argv = ["run.py", "eval", "--benchmark"]
+        with patch.object(sys, "argv", argv):
+            with patch("run.ensure_startup_valid"):
+                with patch(
+                    "run.run_retrieval_benchmark",
+                    return_value={"evaluated_count": 0, "aggregate": {}},
+                ) as benchmark_mock:
+                    run.main()
+
+        benchmark_mock.assert_called_once()
+        self.assertFalse(benchmark_mock.call_args.kwargs["use_guardrail"])
+
+    def test_eval_benchmark_can_enable_guardrail_via_flag(self) -> None:
+        argv = ["run.py", "eval", "--benchmark", "--benchmark-use-guardrail"]
+        with patch.object(sys, "argv", argv):
+            with patch("run.ensure_startup_valid"):
+                with patch(
+                    "run.run_retrieval_benchmark",
+                    return_value={"evaluated_count": 0, "aggregate": {}},
+                ) as benchmark_mock:
+                    run.main()
+
+        benchmark_mock.assert_called_once()
+        self.assertTrue(benchmark_mock.call_args.kwargs["use_guardrail"])
 
 
 if __name__ == "__main__":

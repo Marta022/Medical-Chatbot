@@ -51,7 +51,7 @@ class TestGraphClient(unittest.TestCase):
                 client.close()
 
         self.assertEqual(result, "ok")
-        self.assertEqual(state["db_path"], str(graph_path))
+        self.assertEqual(state["db_path"], str(graph_path / "graph.kuzu"))
         self.assertIsInstance(state["conn"], _FakeConnection)
         self.assertTrue(state["conn"].closed)
 

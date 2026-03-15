@@ -31,8 +31,11 @@ class KuzuGraphClient:
         storage_path = Path(db_path)
         storage_path.mkdir(parents=True, exist_ok=True)
 
+        # Newer kuzu versions expect a database file path rather than a directory path.
+        database_path = storage_path / "graph.kuzu"
+
         kuzu = _import_kuzu()
-        database = kuzu.Database(str(storage_path))
+        database = kuzu.Database(str(database_path))
         self._connection = kuzu.Connection(database)
 
     def execute(self, query: str, parameters: dict[str, Any] | None = None) -> Any:

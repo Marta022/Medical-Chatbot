@@ -92,8 +92,6 @@ Pirogenii (exogeni și endogeni) nu trec din sânge în creier, ci interacțione
 De asemenea, pirogenii exogeni (produșii microbieni) acționează pe receptori diferiți de receptorii pe care acționează citokinele, dar similari cu aceștia în multe privințe. este un cuvânt german (însemnând uimitor, ciudat, grozav) exprimând reacția pe care unul dintre cercetători a avut-o descoperind un anumit efect al acestui receptor.
 Rețele de capilare dilatate care fac parte din organul vascular al laminei terminale (implicat și în reglarea osmolarității sângelui). Distrugerea acestor organe vasculare circumventriculare reduce capacitatea pirogenilor de a produce febră.
 
----
-
  Leziunile endoteliului hipotalamic
 1. Activarea receptorului EP-32 pentru PGE2 de pe celulele gliale.
 2. Eliberarea de adenozin-5'-monofosfat ciclic (AMPc).
@@ -103,7 +101,8 @@ Rețele de capilare dilatate care fac parte din organul vascular al laminei term
 6. Citokinele produse în SNC pot ridica nivelul de referință hipotalamic fără intermedierea organelor circumventriculare, explicând hiperpirexia din hemoragiile, traumatismele sau infecțiile SNC.
 7. Producția de citokine TNF, IL-6) în SNC (din microglii și posibil din neuroni) este stimulată de diverse evenimente generatoare de inflamație (infecții virale ale SNC, hemoragii, traumatisme).
 8. Concentrația citokinelor necesară pentru a provoca febră este cu câteva ordine de mărime mai mică dacă citokinele sunt injectate direct în creier sau în ventriculii cerebrali decât dacă sunt injectate în circulația sistemică.
-### Evaluarea pacientului cu febră sau hipertermie
+
+## Evaluarea pacientului cu febră sau hipertermie
 Nou-născuții, vârstnicii, pacienții cu insuficiență hepatică sau renală cronică și pacienții care iau glucocorticoizi pot fi afebrili, deși au o infecție.
 - trebuie stabilită cronologia evenimentelor care au precedat febra (de exemplu, expunerea la alte persoane infectate sau la vectori de boală).
 - monitorizarea febrei trebuie făcută folosind de fiecare dată aceeași modalitate de măsurare a temperaturii.
@@ -135,9 +134,9 @@ Nou-născuții, vârstnicii, pacienții cu insuficiență hepatică sau renală 
 ### Febra neregulată
 Febra nu urmează un tipar anume (este nesistematizată) - în stările septice, febra poate fi neregulată sau poate avea o anumită regularitate (cu oscilații relativ mari sau foarte mari).
 
-
+# Semiologie ORL şi oftalmologică - dr.J.F.B.
 ## Ochiul
-și
+
 Globul ocular este o structură sferică ce are rolul de a focaliza lumina la nivelul elementelor neurosenzoriale ale retinei. Este delimitat anterior De pleoape, cea superioară acoperind o porțiune din iris, dar, în mod normal, niciodată pupila. Deschiderea dintre cele 2 pleoape se numește fantă palpebrală. Închiderea pleoapelor este realizată de către m. orbicularis oculi, inervat de n. VII (facial). Ridicarea pleoapelor superioare m. Jevator palpebrae, inervat de n. III (oculomotor). Rolul pleoapelor este de a proteja ochii (îl acoperă dar au și rol lubrifiant, prin secreția unei substanțe uleioase de către glandele meibomiene, care se deschid pe marginile pleoapelor).
 ### Conjunctiva:
 Membrană subțire, transparentă, vascularizată, care tapetează fața internă a pleoapelor (conjunctiva tarsală) și fața anterioară a globului ocular până la nivelul Jimbusului (conjunctiva bulbară). La unirea celor 2 porțiuni ale conjunctivei se formează recesul conjunctival.
@@ -315,11 +314,7 @@ Observăm dacă există lăcrimare/ uscăciune oculară. Inspectăm punctele lac
 - Clinic: edem, eritem, durere spontană și la palpare în regiunea dintre nas și pleoapa inferioară; lacrimare excesivă; apare de obicei la copii și bătrâni;
 - Cauze: infecții/ stenoze de canal lacrimal (congenital/ tumoral/ posttraumatic, etc).
 - lăcrimare excesivă datorată unei obstrucții a canalului lacrimal.
-
----
-
-## Ochiul
-## c. Conjunctiva
+### c. Conjunctiva
 Conjunctiva tarsală se examinează prin întoarcerea pleoapelor, pacientul privind în sus/jos. Se caută semne de inflamație, paloare, pigmentație neobișnuită, edem, formațiuni tumorale, hemoragie. Conjunctiva normală are culoare roz.
 ### Patologie
 - edem conjunctival; apare în alergii, traumatisme, exoftalmie.
@@ -330,7 +325,6 @@ Conjunctiva tarsală se examinează prin întoarcerea pleoapelor, pacientul priv
 - Conjunctivita acută hemoragică: dată de infecția cu enterovirusuri, pneumococ, Haemophilus influenzae; este foarte contagioasă, bilaterală.
 - Conjunctivita cu papile gigante: papile gigante (> 1 mm) pe conjunctiva tarsală, secreție mucoasă, prurit la pacienții cu lentile de contact, proteze oculare, corpi străini intraoculari.
 - apare spontan, la orice vârstă, de obicei unilateral, prin ruperea unui vas sangvin conjunctival după un efort de tuse, strănut, vomă. Nu necesită tratament, vindecându-se spontan în 2 săptămâni.
--
 - nevi conjunctivali
 - dermolipomul conjunctival: tumoră congenitală, frecvent bilaterală, localizată de obicei în cadranul temporal superior al conjunctivei bulbare, de culoare gălbuie datorită depozitelor lipidice; nu necesită tratament.
 - pinguecula: nodul triunghiular, gălbui, situat la nivelul conjunctivei bulbare, lateral de iris; apare cu înaintarea în vârstă, inițial pe partea nazală, apoi pe cea temporală a conjunctivei bulbare.
@@ -347,7 +341,7 @@ Căutăm dacă există modificări ale colorației sau leziuni. Sclera normală 
 - inflamație recurentă, bilaterală, dureroasă. Apare mai frecvent la vârstnici (femei > bărbați). Inflamația poate cuprinde și carnea, tractul uveal (iris, coroida, corpul ciliar). Este difuză sau localizată, nodulară (pete de culoare albastru închis în regiunea anterioară a sclerei datorate vizibilității coroidei prin sclera subțiată);
 - boli de colagen.
 - dehiscență la nivelul sclerei în absența unor modificări inflamatorii; este nedureroasă, uveea subiacentă este vizibilă. Apare în poliartrita reumatoidă.
-## # Corneea
+### Corneea
 Corneea normală este transparentă, fără ulcerații, opacități sau arii neclare.
 ### Modificări/aspecte patologice:
 - inel argintiu, situat la periferia corneei. Apare la > 40 ani; de obicei nu are semnificație patologică; apariția la tineri (mai ales afro-americani) sugerează dislipidemie.
@@ -378,13 +372,11 @@ Pupilele trebuie să fie egale în diametru, rotunde și reactive la lumină și
 - inegalitatea pupilelor. Mici inegalități (< 0,5 mm) pot apărea și la oamenii normali (aprox. 20%), anizocoria fiind considerată benignă dacă reactivitatea pupilelor la lumină este normală.
 - sdr. Claude-Bernard-Horner, paralizia de n. III, pupila tonică Addie, pupila farmacologică, leziuni ale irisului: mecanice, postinflamatorii - ex. uveită, postchirurgicale.
 - constricția pupilelor.
--
 - parasimpatomimetice;
 - irită;
 - sdr. Claude-Bernard-Horner: paralizia simpaticului cervical prin lezarea, de obicei tumorală, a ganglionului stelat - mioză, ptoză palpebrală, enoftalmie;
 - neurosifilis: pupila Argyll-Robertson: pupilă de 1-2 mm care reacționează la acomodație, dar nu și la lumină.
 - dilatația pupilelor.
--
 - medicamente (simpatomimetice, picături cu parasimpatolitice);
 - glaucom acut cu unghi închis;
 - pupila tonică Adie: dilatată la 3-6 mm, cu răspuns slab la acomodație și lumină;
@@ -423,22 +415,18 @@ Nu prin compresia cu degetul a G.O. (pericol de dezlipire de retină), ci cu un 
 - Cauza este neclară.
 - Mecanismul de producere: creștere progresivă a presiunii intraoculare, cu distrugere progresivă a fibrelor nervului optic la nivelul discului optic, determinând scăderea progresivă a vederii inițial apar defecte în câmpurile vizuale nazal
  Diagnostic diferențial între glaucomul cronic și glaucomul cu unghi închis
-## Glaucom cronic
+### Glaucom cronic
 - 85% din cazurile de glaucom
 - Neclară
 - de Variabilă
 - Normală
 - Normal
--
 - Tardiv: scăderea acuității vizuale
 - Cefalee, durere oculară brusc instalată, vărsături
 - Atrofie progresivă în optic după atacuri netratate
--
 - Inițial afectate
 - Tardiv: afectare centrală
--
 - Creștere inițială: detectată doar cu teste de provocare
--
 - Pupile fixe, parțial dilatate
 - Conjunctive injectate
 - Cornee "fumurie"
@@ -584,7 +572,7 @@ Secreția apoasă, clară, poate semnifica lichid cerebrospinal, cea sangvinolen
 Medicamentele ototoxice pot determina pierderea bruscă bilaterală a auzului: temporară (salicilați, diureticele furosemid, acid etacrinic administrate în doze mari) sau definitivă (aminoglicozidele - gentamicina, streptomicina), unele imunosupresoare: cisplatinul.
 ### 5. Otalgia
 Durere otică datorată unei afecțiuni inflamatorii locale sau iradiată de la distanță (afecțiune cervicală sau craniană).
-## Cauze ale durerii urechii
+### Cauze ale durerii urechii
 - Otitele externe și medii (cele mai frecvente cauze locale);
 - Afecțiuni faringiene, dentare, ale coloanei cervicale;
 - Inflamații, traumatisme sau neoplasme la nivelul nervilor cranieni V, VII, IX și X sau cervicali C2, C3 (durere proiectată în urechea omolaterală).
@@ -657,7 +645,8 @@ Infecție cronică a urechii medii, favorizată de episoadele repetate de otită
 - otalgia este de obicei absentă.
 
 
-### Cavitatea bucală
+## Cavitatea bucală
+
 ### I. Anatomie
 Este formată din: mucoasa bucală, buze, limba, palatul moale și palatul dur, dinții și glandele salivare.
 ### Limba
@@ -671,7 +660,7 @@ Se află posterior de cel dur, marginile sale posterior continuându-se cu uvula
 ### Dinții
 Dentiția primară este formată din 20 de dinți care apar între 6 și 30 de luni (2 incisivi, 1 canin și 2 premolari pe fiecare maxilar), iar cea definitivă din 32 de dinți care apar între 6 și 22 ani (2 incisivi, un canin, 2 premolari și 3 molari pe maxilar). Dintele este alcătuit din coroană (partea vizibilă) alcătuită din trei straturi (smalțul, dentina și pulpa dentară) și rădăcina cu rol de fixare a dintelui în os, alcătuită din cement, dentină și canal/-le radicular/e. Pulpa dentară conține vase de sânge și terminații nervoase din nervul V. Amigoolele și pilierii anteriori și posteriori, între care se află, formează limita posterior a cavității bucale.
 
-## Glandele salivare
+### Glandele salivare
 - cele mai mari glande salivare, străbătute de n. facial; situate anterior de ureche. Canalele lor se deschid în cavitatea bucală printr-un orificiu situat pe mucoasa bucală a obrajilor, în dreptul molarului 2 superior.
 - situate inferior și anterior de unghiul mandibulei. Canalele lor (duetele lui Wharton) se deschid la baza limbii, pe fața ventrală, de o parte și de alta a frenulum-ului lingual.
 - mici, situate pe podeaua cavității bucale, sub limbă; prezintă numeroase duete de evacuare, unele se deschid în ductul lui Wharton.
@@ -686,10 +675,6 @@ Dentiția primară este formată din 20 de dinți care apar între 6 și 30 de l
 - Întrebăm: dacă a mai avut asemenea leziuni, dacă sunt unice sau multiple, cât durează până dispar, dacă are asociate leziuni și în regiunea dacă sunt dureroase, dacă pacientul fumează/consumă alcool, istoricul bolilor venerice/obiceiuri sexuale.
 3.
 - Poate avea drept cauze afecțiuni hematologice, hepatice, leziuni orale (inclusiv cancer), medicamente.
-
----
-
-## Cavitatea bucală
 ## 4. Tumefacția
 - Este asociată formațiunilor infecțiilor/inflamațiilor cu localizare glandelor salivare/ limbii/ buzelor.
 ## 5. Halitoza sau Halena
@@ -844,6 +829,8 @@ Apare prin prăbușirea piramidei nazale la pacienți cu sifilis congenital. Dis
 - Apare prin hipertrofia glandelor sebacee și a țesutului moale nazal, nasul având un aspect lobulat, eritematos. Apare mai frecvent la bărbați consumatori de alcool.
 - Se face cu pacientul având capul dat pe spate, medicul ridicând vârful nasului pacientului și examinând cu o sursă luminoasă și un speculum narile. Se vor examina cu atenție vestibulul nazal pentru semne de inflamație și septul nazal pentru devieri sau perforații. Se apreciază culoarea mucoasei nazale (normal este roșie, moale și cu suprafața netedă), se observă dacă există secreții (și se descrie tipul secreției), cruste, sângerare, urme de traumatisme, polipi, tumori.
 
+
+
 ## Sinusurile
 
 Sinusurile paranazale sunt: maxilare, etmoidale, frontale și sfenoid. Sunt pline cu aer și sunt căptușite cu membrane mucoase. Sinusurile maxilare sunt cele mai mari, delimitate de orbita, cavitatea nazală, palatul dur și obraz. Sinusurile etmoidale sunt multiple, situate la nivelul osului etmoid. Sinusurile frontale sunt situate deasupra celor etmoidale, în timp ce sinusul sfenoid este localizat posterior de acestea.
@@ -893,9 +880,9 @@ Din punct de vedere clinic, afecțiunile tiroidiene pot evolua cu hipertiroidism
 - nodul imobil
 - adenopatie unilaterala asociată
 - disfagie asociată
-## Manifestări clinice
+### Manifestări clinice
 
-# Organul/Sistemul afectat
+### Organul/Sistemul afectat
 | Hipertiroidism | Hipotiroidism |
 | Manifestări | Intoleranță la căldură, creștere ponderală cu apetitul crescut | Intoleranță la frig, scădere ponderală cu apetitul scăzut |
 | Tegumente | Calde, umede, aspre, hiperhidroză, uneori catifelate; fir de păr subțiat; ± alopecie; edeme (membre, față) | Uscate; uneori gălbuie; edeme periferice - "mixedem pretibial": depunere de mucopolizaharide. |
@@ -907,9 +894,6 @@ Din punct de vedere clinic, afecțiunile tiroidiene pot evolua cu hipertiroidism
 
 
 # Semiologia țesutului subcutanat
-Bruckner I.I. - *Semiologie medicală*. Editura Medicală București 2008 (Examenul extremității cefalice, 335-343).
-Bickley LS, Szilagyi PG - *Bate's Guide to Physical Examination and History Taking*. 9th Edition. Lippincott Williams & Wilkins, 2007. Chapter 6, The head and neck: 153-173.
-Fauci AS, Kasper DL, Longo DL, Braunwald E, Hauser SL, Jameson JL, Loscalzo J - *Harrison's Principles of Internal Medicine* 17th Ed, The McGraw-Hill Companies, 2008.
 ## Semiologia țesutului subcutanat
 Patologia țesutului subcutanat vizează starea de hidratare și țesutul adipos. În ambele cazuri, principalele modificări sunt prin exces sau prin deficit:
 - pentru hidratare:
@@ -1435,7 +1419,9 @@ Edemul pulmonar necardiogen poate fi provocat de:
 - descărcări vegetative bruște în edemul pulmonar neurogen și în cel de altitudine;
 - oscilații bruște ale presiunii pleurale asociate cu lezarea trecătoare a capilarelor pulmonare în edemul pulmonar de reexpansiune;
 - presiune crescută în arterele pulmonare: embolism pulmonar (poate contribui și leziunea de reperfuzie).
-### Evaluarea pacientului cu edem
+
+
+## Evaluarea pacientului cu edem
 Edemul este localizat sau generalizat?
 ### Edem localizat (cauze locale de edem):
 - obstrucție venoasă sau limfatică, inflamator.
@@ -1633,7 +1619,7 @@ Cele mai frecvente cauze de scădere în greutate în funcție de vârstă (așa
 ## Diagnosticarea scăderii în greutate
 Cauza scăderii în greutate involuntară:
 
-### Evaluarea pacientului cu scădere în greutate
+## Evaluarea pacientului cu scădere în greutate
 - Se poate depista prin istoric,
 - Examen fizic,
 - Investigații diagnostice direcționate la 75% din pacienți;
@@ -1654,7 +1640,7 @@ Scăderea în greutate poate fi prima manifestare în:
 - Tumorile digestive (de tub digestiv, ficat și pancreas) - pot afecta aportul de alimente timpuriu în evoluția bolii, determinând scădere în greutate înainte de apariția altor simptome;
 - Cancerul pulmonar poate să nu producă simptome respiratorii - trebuie avut în vedere chiar și la pacienții fără istoric de fumat;
 - Hipertiroidismul subclinic/frust, mai ales la pacienții vârstnici, care se pot prezenta cu scădere în greutate și astenie și cu puține alte manifestări de tireotoxicoză;
-## Certificarea scăderii ponderale
+### Certificarea scăderii ponderale
 Înainte de a se efectua o evaluare extensivă, este important să se confirme scăderea ponderală și să se determine intervalul de timp în care s-a produs.
 - La aproape jumătate din pacienții care afirmă scădere în greutate semnificativă nu există o modificare reală a greutății corporale când aceasta este măsurată obiectiv;
 - În absența unei măsurări obiective a greutății, scăderea în greutate a unui pacient poate fi retrospectivă la vârstnicii cu scădere în greutate confirmată prin faptul că trebuie să strângă cureaua semnificativă arată o mortalitate de 9-38% pe o perioadă de 2-3 ani.

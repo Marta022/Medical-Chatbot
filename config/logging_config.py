@@ -52,3 +52,17 @@ def setup_logging(level: str | int | None = None) -> None:
     root.addHandler(handler)
 
     _CONFIGURED = True
+
+
+def add_file_handler(path: str) -> None:
+    """Add a file handler to the root logger so all subsequent log messages are also written to *path*."""
+    import pathlib
+
+    pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(path, mode="w", encoding="utf-8")
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)s | %(name)s | %(correlation_id)s | %(message)s"
+    )
+    file_handler.setFormatter(formatter)
+    file_handler.addFilter(CorrelationIdFilter())
+    logging.getLogger().addHandler(file_handler)
