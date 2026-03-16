@@ -187,6 +187,250 @@
     "C": "a-3, b-1, c-2",
     "D": "a-1, b-2, c-3",
     "E": "a-3, b-2, c-1"
-  }
-
+  },
+  {
+    "id": 607,
+    "intrebare": "Ambliopia reprezinta:",
+    "A": "pierderea in timp a acuitatii vizuale a globului ocular strabic, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la copii cu strabism;",
+    "B": "pierderea in timp a acuitatii vizuale a globului ocular strabic, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la adulti cu strabism;",
+    "C": "pierderea in timp a acuitatii vizuale a globului ocular sanatos, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la copii cu strabism;",
+    "D": "pierderea in timp a acuitatii vizuale a globului ocular sanatos, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la adulti cu strabism;",
+    "E": "scaderea acuitatii vizuale bilaterale, la pacienti cu strabism."
+  },
+  {
+    "id": 608,
+    "intrebare": "Cataracta poate da urmatoarele manifestari clinice, care este EXCEPTIA:",
+    "A": "vedere in nuante de galben, estomparea celorlalte culori;",
+    "B": "scaderea vederii pe timp de noapte;",
+    "C": "vedere \"incetosata\";",
+    "D": "necesitatea cresterii iluminarii la citit;",
+    "E": "durere oculara intensa prin cresterea presiunii intraoculare."
+  },
+  {
+    "id": 609,
+    "intrebare": "Cea mai frecventa cauza a otitei externe este infectia:",
+    "A": "cu pneumococ;",
+    "B": "cu stafilococ auriu;",
+    "C": "cu Pseudomonas Aeruginosa;",
+    "D": "micotica a canalului auditiv extern;",
+    "E": "herpes simplex."
+  },
+  {
+    "id": 610,
+    "intrebare": "Cea mai frecventa cauza de anosmie este:",
+    "A": "abuzul de cocaina;",
+    "B": "traumatismele nazale, cu fracturarea piramidei nazale;",
+    "C": "rinita vasomotorie;",
+    "D": "polipoza nazala;",
+    "E": "rinofima."
+  },
+  {
+    "id": 611,
+    "intrebare": "Cea mai frecventa cauza de orbire secundara afectarii corneei este data de cheratita:",
+    "A": "cu pneumococ;",
+    "B": "cu virus herpes simplex;",
+    "C": "fungica;",
+    "D": "cu Pseudomonas Aeruginosa;",
+    "E": "gonococica."
+  },
+  {
+    "id": 612,
+    "intrebare": "Chemozisul:",
+    "A": "semnifica edem palpebral;",
+    "B": "semnifica hiperemie sclerala;",
+    "C": "semnifica edem conjunctival;",
+    "D": "reprezinta o zona de dehiscenta la nivelul sclerei;",
+    "E": "reprezinta inflamatia corneei datorata unei infectii, abraziuni sau substante chimice."
+  },
+  {
+    "id": 613,
+    "intrebare": "Chemozisul reprezinta:",
+    "A": "ingrosare triunghiulara a conjunctivei bulbare, care se extinde pe suprafata corneei;",
+    "B": "lacrimare excesiva datorata obstructiei canalului lacrimal;",
+    "C": "edem conjunctival;",
+    "D": "edem periorbital;",
+    "E": "inflamatie corneana secundara unei abraziuni."
+  },
+  {
+    "id": 614,
+    "intrebare": "Clinic, in glaucomul cu unghi inchis pot aparea, care este EXCEPTIA:",
+    "A": "cefalee;",
+    "B": "mioza intensa;",
+    "C": "varsaturi;",
+    "D": "durere intensa oculara;",
+    "E": "cornee cu aspect \"fumuriu\"."
+  },
+  {
+    "id": 615,
+    "intrebare": "Clinic, in otita externa domina:",
+    "A": "febra;",
+    "B": "otoreea;",
+    "C": "disfonia;",
+    "D": "otalgia;",
+    "E": "edemul pavilionului."
+  },
+  {
+    "id": 616,
+    "intrebare": "Coloboma reprezinta:",
+    "A": "lipsa de substanta la nivelul irisului survenita posttraumatic;",
+    "B": "lipsa de substanta la nivelul corneei survenita posttraumatic;",
+    "C": "anomalie dobandita a formei corneei (aspect de con);",
+    "D": "opacifierea cristalinului;",
+    "E": "lipsa congenitala de substanta la nivelul irisului."
+  },
+  {
+    "id": 621,
+    "intrebare": "Despre xerostomie este adevarat ca:",
+    "A": "apare in urma hipersecretiei glandelor salivare;",
+    "B": "apare datorita igienei orale deficitare;",
+    "C": "predispune la aparitia candidozei orale si a cariilor dentare;",
+    "D": "predispune la aparitia leucoplaziei;",
+    "E": "se asociaza cu macroglosie;"
+  },
+  {
+    "id": 622,
+    "intrebare": "Dintii Hutchinson:",
+    "A": "sunt incisivi ce prezinta eroziuni determinate de refluxul de suc gastric;",
+    "B": "sunt dinti ce prezinta incizuri sau abraziuni provocate de traumatisme repetate;",
+    "C": "apar in sarcoidoza;",
+    "D": "apar in sifilisul secundar;",
+    "E": "apar in sifilisul congenital;"
+  },
+  {
+    "id": 623,
+    "intrebare": "Durerea la presiunea aplicata pe tragus sau la tractionarea pavilionului apare in:",
+    "A": "otita medie purulenta;",
+    "B": "otita externa;",
+    "C": "otita medie seroasa;",
+    "D": "otoscleroza;",
+    "E": "prezenta dopurilor gutosi;"
+  },
+  {
+    "id": 624,
+    "intrebare": "Entropionul reprezinta:",
+    "A": "imposibilitatea inchiderii complete a pleoapei;",
+    "B": "intoarcerea marginii pleoapei afectate catre exterior;",
+    "C": "intoarcerea marginii pleoapei afectate catre interior;",
+    "D": "protruzia unui glob ocular;",
+    "E": "pierderea de substanta la nivelul corneei;"
+  },
+  {
+    "id": 625,
+    "intrebare": "Epifora reprezinta:",
+    "A": "secretie oculara purulenta;",
+    "B": "lacrimare excesiva;",
+    "C": "prezenta sangelui in camera anterioara a globului ocular;",
+    "D": "hemoragie in corpul vitros;",
+    "E": "inflamatia sclerei;"
+  },
+  {
+    "id": 626,
+    "intrebare": "Epifora reprezinta:",
+    "A": "protruzia unui glob ocular;",
+    "B": "inflamatia cronica a marginii pleoapei;",
+    "C": "intoarcerea marginii pleoapei catre exterior, cu expunerea conjunctivei;",
+    "D": "lacrimare excesiva ce apare in obstructia canalului lacrimal;",
+    "E": "placa cu suprafata alba, situata sub nivelul mucoasei, la nivelul pleoapei;"
+  },
+  {
+    "id": 627,
+    "intrebare": "Esotropia reprezinta:",
+    "A": "devierea temporala a unui glob ocular;",
+    "B": "devierea supero-externa a unui glob ocular;",
+    "C": "devierea infero-externa a unui glob ocular;",
+    "D": "devierea nazala a unui glob ocular;",
+    "E": "devierea supero-interna a unui glob ocular;"
+  },
+  {
+    "id": 628,
+    "intrebare": "Gustul este detectat la nivelul limbii dupa cum urmeaza:",
+    "A": "sarat la nivelul varfului limbii;",
+    "B": "dulce la nivelul marginilor limbii;",
+    "C": "amar la baza limbii;",
+    "D": "amar si sarat la baza limbii;",
+    "E": "amar la varful limbii;"
+  },
+  {
+    "id": 629,
+    "intrebare": "Halitoza:",
+    "A": "este un miros neplacut al respiratiei determinat cel mai frecvent de igiena precara a cavitatii bucale;",
+    "B": "este un miros neplacut al respiratiei determinat cel mai frecvent de afectiune nazala;",
+    "C": "este un miros neplacut al respiratiei determinat cel mai frecvent de afectiune pulmonara cronica;",
+    "D": "este un miros neplacut al respiratiei care apare cel mai frecvent in diabet;",
+    "E": "este un miros neplacut al respiratiei care apare cel mai frecvent in uremie;"
+  },
+  {
+    "id": 630,
+    "intrebare": "Hemianopsia bitemporala apare in:",
+    "A": "leziuni ale chiasmei optice;",
+    "B": "leziuni ale nervului optic;",
+    "C": "leziuni ale radiatiei optice;",
+    "D": "leziuni ale cortexului occipital;",
+    "E": "glaucom;"
+  },
+  {
+    "id": 631,
+    "intrebare": "Hemianopsia bitemporala:",
+    "A": "reprezinta pierderea acuitatii vizuale a globilor oculari in cadranele temporale ale campului vizual;",
+    "B": "reprezinta pierderea acuitatii vizuale la nivelul jumatatilor temporale ale campului vizual prin lezarea fibrelor temporale bilateral;",
+    "C": "reprezinta pierderea acuitatii vizuale la nivelul jumatatilor temporale ale campului vizual prin lezarea radiatiilor optice;",
+    "D": "reprezinta pierderea acuitatii vizuale la nivelul jumatatilor temporale ale campului vizual prin lezarea fibrelor nazale bilateral;",
+    "E": "reprezinta pierderea acuitatii vizuale la nivelul jumatatilor temporale ale campului vizual prin lezarea posttraumatica a retinei;"
+  },
+  {
+    "id": 632,
+    "intrebare": "Hemianopsia bitemporala poate fi semn de:",
+    "A": "dezlipire de retina;",
+    "B": "leziune unilaterala de tract optic;",
+    "C": "leziune a chiasmei optice (de exemplu tumora hipofizara);",
+    "D": "leziuni ale radiatiilor optice;",
+    "E": "leziuni ale cortexului occipital;"
+  },
+  {
+    "id": 633,
+    "intrebare": "Hipopionul reprezinta:",
+    "A": "un inel cornean de culoare gri-verde ce apare in boala Wilson;",
+    "B": "prezenta sangelui in camera anterioara a globului ocular;",
+    "C": "prezenta unui corp strain intraocular;",
+    "D": "prezenta puroiului in camera anterioara a globului ocular;",
+    "E": "constrictie pupilara bilaterala;"
+  },
+  {
+    "id": 634,
+    "intrebare": "In boala Basedow pot aparea, c. e.:",
+    "A": "exoftalmie;",
+    "B": "cresterea de volum a tiroidei;",
+    "C": "tegumente reci, aspre;",
+    "D": "tegumente calde, umede;",
+    "E": "intoleranta la cald;"
+  },
+  {
+    "id": 635,
+    "intrebare": "In hipotiroidism NU apare:",
+    "A": "bradilalie;",
+    "B": "crestere ponderala;",
+    "C": "tremor al mainilor;",
+    "D": "bradicardie;",
+    "E": "constipatie;"
+  },
+  {
+    "id": 636,
+    "intrebare": "Inelul Kayser-Fleischer:",
+    "A": "are culoare albastra si apare in boala Wilson;",
+    "B": "apare la nivelul irisului, are culoare verde si semnifica intoxicatie acuta cu fier;",
+    "C": "se gaseste la nivelul irisului, are culoare verde-galbuie si apare in hemocromatoza;",
+    "D": "se gaseste la periferia corneei, are culoare verde-galbuie si apare in hemocromatoza;",
+    "E": "se gaseste la periferia corneei, are culoare verde-galbuie si apare in boala Wilson;"
+  },
+  {
+    "id": 637,
+  "intrebare": "Inelul Kayser-Fleischer:",
+  "A": "apare prin depunere de cupru in membrana Descemet;",
+  "B": "apare la persoanele varstnice, la periferia corneei si are aspect argintiu;",
+  "C": "semnifica prezenta unei dislipidemii;",
+  "D": "apare prin depunere de cupru la nivelul corneei;",
+  "E": "apare in boala Wilson, prin depunere de cupru la nivelul cristalinului;"
+}
 ]
+
+
