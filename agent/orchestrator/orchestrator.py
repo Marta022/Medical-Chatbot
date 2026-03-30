@@ -14,7 +14,7 @@ from agent.orchestrator.citations import (
     append_retrieved_chunks_block,
     build_citation_rows,
 )
-from agent.reasoning.llm_router import llm_ask_request
+from llm.llm_router import llm_ask_request
 from agent.reasoning.translator import translate_to_english, translate_to_romanian
 from config.eval_config import EVAL_CONFIG, EvalConfig
 from config.prompts import LOW_CONFIDENCE_MESSAGE, build_context_block

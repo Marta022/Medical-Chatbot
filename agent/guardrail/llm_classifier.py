@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """LLM-backed fallback classification for guardrail decisioning."""
 
-from agent.reasoning.llm_router import llm_classify
+from llm.llm_router import llm_classify
 from config.prompts import GUARDRAIL_SYSTEM_PROMPT
 
 LABEL_EMERGENCY = "EMERGENCY"

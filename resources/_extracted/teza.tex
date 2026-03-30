@@ -489,31 +489,196 @@ Pentru a evidenția diferențele dintre principalele tipuri de sisteme de inteli
 
 \cleardoublepage
 \chapter{Prezentarea tehnologiilor folosite}
+
 \section{Limbajul de programare și organizarea aplicației}
-Implementarea aplicației este realizată în Python 3.10, limbaj ales datorită ecosistemului matur pentru procesarea limbajului natural, integrarea modelelor lingvistice și dezvoltarea rapidă a prototipurilor. Arhitectura software este organizată modular, cu separarea clară a responsabilităților între orchestrare, mecanisme de protecție, evaluare, regăsire contextuală, ingestie și interfața API. Această structură facilitează atât testarea independentă a componentelor, cât și extinderea ulterioară a sistemului.
+
+Python reprezintă în prezent unul dintre cele mai utilizate limbaje de programare în domeniul inteligenței artificiale și al procesării limbajului natural, datorită ecosistemului extins de biblioteci specializate și simplității sintaxei care facilitează prototiparea rapidă \cite{python310}. Implementarea prezentului proiect utilizează Python 3.10, versiune care aduce îmbunătățiri semnificative la nivel de performanță și introduce noua sintaxă de potrivire structurală a datelor (\textit{structural pattern matching}), relevantă pentru gestionarea tipurilor contractuale ale sistemului.
+
+\subsection{Justificarea alegerii Python}
+
+Alegerea Python ca limbaj principal de implementare este motivată de mai mulți factori convergenti. În primul rând, disponibilitatea unor biblioteci mature pentru integrarea modelelor lingvistice — precum \texttt{openai}, \texttt{anthropic} și \texttt{llama-index} — reduce semnificativ efortul de integrare cu furnizorii de servicii LLM. În al doilea rând, suportul extins pentru procesarea documentelor, gestionarea datelor tabelare și apelurile HTTP asincrone permite construirea unui pipeline de ingestie complet fără a recurge la limbaje auxiliare. Nu în ultimul rând, adoptarea largă a Python în comunitatea de cercetare a inteligenței artificiale asigură o documentație bogată și un suport comunitar consistent \cite{goodfellow2016}.
+
+Ecosistemul Python pentru inteligența artificială include, de asemenea, instrumente standardizate pentru gestionarea mediilor virtuale și a dependențelor, ceea ce simplifică reproducerea exactă a configurației software și reduce riscul incompatibilităților între versiunile bibliotecilor.
+
+\subsection{Arhitectura modulară a aplicației}
+
+Organizarea internă a proiectului respectă principiul separării responsabilităților (\textit{separation of concerns}), fiecare pachet Python corespunzând unui domeniu funcțional distinct. Modulul \texttt{agent} conține orchestratorul principal, mecanismele de protecție, evaluatorul și logica de interacțiune conversațională. Modulul \texttt{rag} gestionează segmentarea documentelor, generarea embedding-urilor și interogarea bazei vectoriale. Modulul \texttt{knowledge} cuprinde clientul bazei de date vectoriale, extractorul de entități și componenta de graf de cunoștințe. Modulul \texttt{api} expune interfața REST a aplicației, iar \texttt{config} centralizează configurația și definițiile de prompturi.
+
+Această structură permite testarea independentă a fiecărui modul, reîncărcarea configurației fără modificarea codului aplicativ și înlocuirea sau extinderea componentelor individuale fără impact asupra restului sistemului. Contractele de date dintre module sunt definite explicit în pachetul \texttt{models}, prin utilizarea modelelor \texttt{Pydantic}, ceea ce garantează consistența tipurilor pe întregul flux de execuție și facilitează detectarea timpurie a erorilor de integrare.
 
 \section{Interfața API}
-Pentru expunerea funcționalităților aplicației este utilizat framework-ul Flask. Interfața API oferă endpoint-uri dedicate fluxului intern, dar și endpoint-uri compatibile cu formatul OpenAI Chat Completions, ceea ce permite integrarea directă cu OpenWebUI. Această compatibilitate asigură interoperabilitatea cu instrumente existente și reduce efortul necesar pentru integrarea într-un flux de utilizare conversațională.
+
+\subsection{Framework-ul Flask}
+
+Flask este un micro-framework web pentru Python, proiectat pentru a oferi fundamente simple și extensibile pentru construirea aplicațiilor web și a interfețelor REST \cite{flask_doc}. Spre deosebire de framework-urile de tip \textit{full-stack}, Flask nu impune o structură de proiect predefinită, oferind flexibilitate în organizarea codului și permițând integrarea selectivă a extensiilor necesare. Această filosofie de design îl face potrivit pentru aplicații cu arhitectură bine definită, în care stratul web nu reprezintă decât interfața de acces la o logică aplicativă separată.
+
+În cadrul proiectului, Flask este utilizat pentru a expune funcționalitățile chatbot-ului ca serviciu HTTP. Această abordare permite decuplarea stratului de prezentare de logica de orchestrare, facilitând integrarea cu diverse interfețe de utilizator fără a modifica nucleul aplicației.
+
+\subsection{Structura endpoint-urilor}
+
+Interfața API este structurată în două categorii de endpoint-uri. Prima categorie cuprinde endpoint-uri interne dedicate fluxului aplicației, care includ operații de ingestie a documentelor, interogare conversațională și evaluare a calității răspunsului. A doua categorie cuprinde endpoint-uri compatibile cu formatul OpenAI Chat Completions API \cite{openai_api}, care permit utilizarea sistemului ca backend pentru orice client ce implementează protocolul OpenAI, fără modificări suplimentare la nivelul clientului.
+
+Această compatibilitate bidirecțională este esențială pentru integrarea cu OpenWebUI, un front-end open-source pentru interfețe conversaționale. Prin expunerea unui endpoint \texttt{/v1/chat/completions} conform specificației OpenAI, chatbot-ul medical poate fi accesat direct din OpenWebUI fără a necesita adaptări specifice de protocol.
+
+\subsection{Securitatea interfaței}
+
+Accesul la interfața API este protejat printr-un mecanism de autentificare bazat pe chei API (\textit{API key authentication}). Fiecare cerere trebuie să includă în header-ul HTTP un token de autorizare valid, verificat de un nivel de middleware înainte ca solicitarea să fie transmisă logicii aplicative. Această abordare reprezintă o practică standard de securitate pentru serviciile RESTful, protejând accesul la resurse sensibile și prevenind utilizarea neautorizată a serviciului \cite{flask_doc}.
+
+Middleware-ul de autentificare este parametrizat prin variabile de mediu, ceea ce permite activarea sau dezactivarea sa în funcție de contextul de deployment: dezactivat în mediul de dezvoltare locală și activ în orice configurație expusă extern.
 
 \section{Tehnologiile RAG: vectori, chunking și căutare semantică}
-Componenta Retrieval-Augmented Generation utilizează Qdrant ca bază de date vectorială pentru stocarea embedding-urilor și regăsirea fragmentelor relevante. În fluxul curent, embedding-urile sunt generate prin clientul OpenAI, iar documentele sunt indexate împreună cu metadate necesare pentru trasabilitate și citare.
 
-Segmentarea documentelor este realizată prin două strategii complementare. Prima strategie este una euristică, bazată pe structurarea textului în secțiuni și paragrafe. A doua strategie utilizează chunking semantic prin LlamaIndex (\texttt{llama-index-core}), cu scopul de a obține fragmente mai coerente din punct de vedere contextual. În cazul în care dependențele necesare pentru chunking semantic nu sunt disponibile, sistemul revine controlat la metoda euristică, menținând stabilitatea procesului de ingestie.
+\subsection{Baza de date vectorială Qdrant}
+
+Qdrant este o bază de date vectorială de înaltă performanță, proiectată pentru stocarea și regăsirea eficientă a reprezentărilor numerice de înaltă dimensionalitate \cite{qdrant_doc}. Spre deosebire de bazele de date relaționale tradiționale, Qdrant este optimizată pentru interogări de tip \textit{nearest neighbor}, permițând identificarea rapidă a vectorilor cei mai similari dintr-o colecție de dimensiuni mari.
+
+Arhitectura internă a Qdrant se bazează pe algoritmul \textit{Hierarchical Navigable Small World} (HNSW), care permite căutarea aproximativă a vecinilor cei mai apropiați cu complexitate sub-liniară, adecvată pentru scenarii de producție în care timpul de răspuns este critic. Fiecare document stocat în Qdrant este asociat cu un vector de embedding și un set de metadate structurate, care includ informații despre sursa documentului, pagina și secțiunea de origine, necesare pentru procesul de citare al răspunsurilor.
+
+În implementarea curentă, Qdrant rulează ca un serviciu Docker independent, accesibil prin intermediul unui client Python oficial. Colecția principală stochează embedding-urile documentelor medicale ingerate, iar interogările utilizatorilor sunt transformate în vectori și comparate cu colecția prin similaritate cosinus, returnând fragmentele cu cel mai ridicat scor de relevanță semantică.
+
+\subsection{Generarea embedding-urilor}
+
+Transformarea textului în reprezentări vectoriale este realizată prin modelele de embedding ale OpenAI, care produc vectori denși de dimensiune fixă ce captează semantica textului în spațiul vectorial multidimensional \cite{mikolov2013word2vec}. Această reprezentare permite compararea semantică a interogărilor cu fragmentele de document fără a fi necesară o potrivire lexicală exactă, modelul detectând similaritățile conceptuale chiar și în absența termenilor comuni.
+
+Procesul de generare a embedding-urilor se desfășoară în două faze distincte. În faza de ingestie, vectorii sunt calculați pentru fiecare fragment de document și stocați în Qdrant alături de metadatele corespunzătoare. În faza de interogare, vectorul interogării utilizatorului este calculat la momentul cererii și comparat cu vectorii stocați, identificând fragmentele cel mai relevante pentru construcția contextului.
+
+\subsection{Strategii de segmentare a documentelor}
+
+Calitatea procesului de regăsire depinde în mod direct de modul în care documentele sunt segmentate în fragmente înainte de indexare. Fragmentele prea lungi pot introduce zgomot semantic și pot depăși limita de tokeni acceptată de modelele LLM, în timp ce fragmentele prea scurte pot lipsi de context suficient pentru a genera răspunsuri coerente \cite{lewis2020retrieval}.
+
+Proiectul implementează două strategii complementare de segmentare. Prima strategie este euristică, bazată pe delimitatori structurali ai textului: titluri de secțiuni, paragrafe și marcatori de listă. Această abordare este deterministă și eficientă computațional, dar poate produce fragmente neomogene din punct de vedere semantic în documentele cu structură complexă.
+
+A doua strategie utilizează segmentarea semantică prin intermediul bibliotecii LlamaIndex (\texttt{llama-index-core}) \cite{llamaindex_doc}. LlamaIndex analizează coeziunea semantică a propozițiilor și paragrafelor consecutive, grupând unitățile tematice similare în același fragment. Această abordare produce fragmente cu o coerență semantică mai ridicată, cu prețul unui cost computațional crescut. Sistemul include un mecanism de fallback controlat: dacă dependențele necesare pentru segmentarea semantică nu sunt disponibile, procesul de ingestie revine automat la strategia euristică, menținând funcționalitatea completă a pipeline-ului.
+
+\subsection{Regăsirea hibridă a contextului}
+
+Pe lângă regăsirea vectorială pură, sistemul suportă un mod de regăsire hibrid, care combină similaritatea vectorială cu o componentă de căutare lexicală. Această combinație permite identificarea documentelor relevante atât prin similitudine semantică, cât și prin potrivire exactă a termenilor tehnici, deosebit de importantă în domenii cu terminologie specifică, precum medicina, unde termenii de specialitate nu au sinonime comune în limbajul natural.
+
+Parametrii de regăsire, inclusiv numărul maxim de fragmente returnate și scorul minim de relevanță, sunt configurabili prin variabile de mediu, permițând ajustarea comportamentului sistemului fără modificarea codului sursă.
 
 \section{Modele lingvistice și rutare multi-provider}
-Sistemul este proiectat pentru a opera cu mai mulți furnizori LLM, integrați printr-un strat comun de rutare. În implementarea actuală sunt folosiți furnizori cloud, precum OpenAI și Anthropic, dar și furnizori locali prin Ollama (de exemplu, modele Gemma sau Qwen). Această abordare permite mecanisme de fallback în scenariile în care evaluarea răspunsului nu este satisfăcătoare sau unul dintre furnizori devine indisponibil. În consecință, aplicația poate funcționa atât în configurații bazate pe servicii externe, cât și în configurații locale.
+
+\subsection{Arhitectura multi-provider}
+
+Proiectul implementează un strat de abstractizare pentru accesul la modelele lingvistice, care permite utilizarea transparentă a mai multor furnizori LLM printr-o interfață comună. Această arhitectură reduce dependența față de un singur furnizor de servicii și permite mecanisme de fallback automat în scenariile de degradare a serviciului sau de calitate insuficientă a răspunsului generat.
+
+Stratul de rutare este implementat în modulul \texttt{agent/reasoning/llm\_router.py} și expune o interfață unificată pentru generarea completărilor de text, indiferent de furnizorul selectat. Selecția furnizorului activ este configurabilă prin variabile de mediu, cu un furnizor principal definit și o ierarhie de alternative activate în caz de eșec.
+
+\subsection{Furnizorii de servicii cloud: OpenAI și Anthropic}
+
+OpenAI reprezintă furnizorul principal al sistemului, oferind acces la modele din familia GPT prin intermediul unui API REST cu autentificare prin chei \cite{openai_api}. Modelele GPT sunt caracterizate printr-o capacitate ridicată de urmărire a instrucțiunilor complexe, generare de text coerent în limba română și suport pentru prompturi structurate pe roluri, ceea ce le face potrivite pentru domeniul medical informațional unde precizia și tonul răspunsului sunt esențiale.
+
+Anthropic Claude reprezintă al doilea furnizor cloud integrat \cite{anthropic_claude}. Modelele Claude sunt proiectate cu un accent explicit pe siguranță și comportament conservator în situații ambigue, caracteristici relevante pentru un chatbot medical. Integrarea se realizează prin SDK-ul oficial Python (\texttt{anthropic}), care expune o interfață similară cu cea a OpenAI, simplificând implementarea stratului de abstractizare comun.
+
+\subsection{Inferența locală cu Ollama}
+
+Pentru scenariile care necesită funcționare fără conexiune la internet sau care nu permit transmiterea datelor către servicii externe din considerente de confidențialitate, proiectul integrează Ollama ca furnizor de inferență locală \cite{ollama_doc}. Ollama permite rularea modelelor open-source — din familiile LLaMA, Gemma sau Qwen — direct pe hardware-ul local, fără a necesita abonament la servicii cloud sau transmiterea datelor utilizatorilor prin rețea.
+
+Integrarea cu Ollama se realizează prin intermediul unui endpoint REST compatibil cu formatul OpenAI, ceea ce permite utilizarea aceluiași strat de abstractizare fără modificări ale logicii de orchestrare. Această compatibilitate de protocol elimină necesitatea unor adaptoare separate pe furnizor și simplifică adăugarea de noi modele locale în configurație.
+
+\subsection{Mecanismele de fallback și evaluare dinamică}
+
+Un element central al arhitecturii multi-provider este integrarea strânsă dintre stratul de rutare și evaluatorul de răspuns. Atunci când evaluatorul detectează un răspuns de calitate insuficientă — prin criterii precum lipsa fundamentării pe contextul recuperat, prezența afirmațiilor contradictorii sau nerespectarea instrucțiunilor de siguranță — orchestratorul poate relua generarea cu un prompt ajustat sau poate comuta pe un furnizor alternativ din ierarhia configurată.
+
+Această strategie de reluare controlată (\textit{retry with fallback}) crește robustețea sistemului în scenariile în care un model are dificultăți cu un anumit tip de interogare medicală, fără a expune utilizatorul final la răspunsuri nesigure sau incomplete.
 
 \section{Componenta de graf de cunoștințe}
-Pentru extinderea capabilităților de regăsire, proiectul include o componentă Graph-RAG bazată pe Kuzu. Aceasta permite reprezentarea explicită a entităților și relațiilor extrase din documente, completând regăsirea vectorială clasică. În scenariile hibride, contextul este construit prin combinarea rezultatelor vectoriale cu informațiile obținute din graf, ceea ce poate crește relevanța răspunsului în întrebările cu dependențe semantice mai complexe.
+
+\subsection{Graful de cunoștințe în contextul RAG}
+
+Regăsirea vectorială clasică operează la nivel de fragment de text, identificând pasajele semantice cel mai similare cu interogarea utilizatorului. Această abordare poate fi insuficientă pentru întrebările care implică relații explicite între mai multe entități medicale, de tipul asocierilor dintre simptome, diagnostice și tratamente \cite{lewis2020retrieval}.
+
+Grafurile de cunoștințe oferă o reprezentare structurată a entităților și a relațiilor dintre acestea, permițând interogări de tip traversal care recuperează lanțuri de informații interdependente. Integrarea unui graf de cunoștințe în fluxul RAG — denumită în literatura de specialitate Graph-RAG \cite{edge2024local} — permite construirea unui context mai bogat și mai structurat pentru generarea răspunsurilor, capturând relații semantice care nu sunt evidente prin similaritate vectorială.
+
+\subsection{Kuzu -- baza de date grafică embeddată}
+
+Kuzu este o bază de date grafică de tip embedded, optimizată pentru interogări analitice pe grafuri de dimensiuni medii și mari \cite{kuzu_doc}. Spre deosebire de bazele de date grafice de tip client-server — precum Neo4j — Kuzu rulează în același proces cu aplicația Python, eliminând latența de rețea și simplificând semnificativ arhitectura de deployment. Această caracteristică îl face deosebit de potrivit pentru aplicații care necesită integrare strânsă între procesarea grafului și logica aplicativă.
+
+Kuzu implementează modelul de date Property Graph și suportă un subset al limbajului de interogare Cypher, familiar din ecosistemul Neo4j. Schema grafului definită în cadrul proiectului include noduri pentru entitățile medicale (afecțiuni, simptome, tratamente, medicamente, structuri anatomice) și muchii tipizate pentru relațiile semantice dintre acestea, de tipul \textit{are\_simptom}, \textit{are\_tratament} sau \textit{interacționează\_cu}.
+
+\subsection{Extracția entităților și construirea grafului}
+
+Popularea grafului de cunoștințe se realizează prin extracția automată a entităților din documentele medicale ingerate. Un modul specializat (\texttt{knowledge/entities/extractor.py}) utilizează un model LLM pentru identificarea entităților medicale și a relațiilor dintre acestea din textul sursă, structurând rezultatele conform schemei predefinite a grafului.
+
+Această abordare permite construirea incrementală a grafului pe măsura ingestiei de noi documente, fără a necesita o bază de cunoștințe predefinită. Entitățile extrase sunt normalizate și deduplicate, iar noile înregistrări sunt fuzionate cu nodurile existente atunci când sunt detectate corespondențe, prevenind fragmentarea reprezentării aceluiași concept în mai multe noduri distincte.
+
+\subsection{Regăsirea hibrida vector-graf}
+
+În modul hibrid de regăsire, contextul furnizat modelului LLM este construit prin combinarea rezultatelor vectoriale cu informațiile obținute din traversarea grafului de cunoștințe. Pentru o interogare dată, sistemul identifică mai întâi fragmentele de text relevante prin similaritate vectorială, extrage entitățile medicale menționate în interogare, interogează graful pentru relațiile asociate acestor entități și concatenează toate informațiile recuperate într-un context unificat.
+
+Această abordare poate crește semnificativ relevanța răspunsului în cazul întrebărilor cu dependențe semantice complexe, permițând modelului să beneficieze atât de flexibilitatea regăsirii vectoriale, cât și de structura explicită a relațiilor codificate în graf.
 
 \section{Procesarea datelor și utilitare}
-Etapa de ingestie se bazează pe mai multe biblioteci specializate. PyMuPDF este utilizat pentru extracția textului din fișiere PDF, iar pandas pentru prelucrarea datelor din surse tabelare, precum CSV sau JSON. Configurarea aplicației este gestionată prin python-dotenv, care permite controlul parametrilor de execuție prin variabile de mediu. Pentru apeluri HTTP auxiliare în fluxurile de date este utilizată biblioteca httpx.
+
+\subsection{Extracția textului din documente PDF cu PyMuPDF}
+
+Documentele medicale utilizate ca sursă de cunoștințe sunt disponibile predominant în format PDF, un format opac din perspectiva prelucrării automate a textului. Extracția fidelă a conținutului textual reprezintă primul pas critic al pipeline-ului de ingestie, cu impact direct asupra calității informațiilor indexate.
+
+PyMuPDF (denumit și \texttt{fitz}) este o bibliotecă Python de înaltă performanță pentru procesarea documentelor PDF, care oferă acces la conținutul textual, metadatele documentului și structura de pagini a fișierelor \cite{pymupdf_doc}. Spre deosebire de alte soluții de extracție PDF, PyMuPDF menține informații despre poziția, dimensiunea și stilul textului pe pagină, permițând reconstruirea parțială a structurii logice a documentului după extracție.
+
+\subsection{Pipeline-ul de extracție asistată de LLM}
+
+O abordare naivă de extracție PDF — în care întregul document este procesat ca un singur bloc de text — s-a dovedit insuficientă în contextul documentelor medicale utilizate. Documentele de tip curs sau ghid clinic prezintă frecvent artefacte de extracție semnificative: text reordonat față de fluxul logic al paginii, coloane detectate incorect, antete și subsoluri intercalate în corp, formule sau tabele transformate în șiruri de caractere fără semnificație. Aceste defecte sunt greu de detectat și corectat printr-o singură trecere automată, fără un pas de validare a calității extracției.
+
+Pentru a rezolva aceste limitări, a fost proiectat un pipeline de extracție în trei etape, ilustrat conceptual în figura de mai jos. În \textbf{prima etapă}, PyMuPDF parcurge documentul pagină cu pagină, extragând independent conținutul textual al fiecărei pagini sub formă de bloc brut. Procesarea individuală a paginilor permite izolarea artefactelor la nivelul paginii de origine și simplifică etapele ulterioare de corecție.
+
+În \textbf{a doua etapă}, textul brut al fiecărei pagini este transmis unui model LLM cu un prompt specializat, care are rolul de a verifica și corecta extracția. Modelul identifică și elimină elementele parazite — antete, subsoluri, numere de pagină, caractere de silabisire — reconstruiește ordinea logică a propoziților fragmentate și normalizează formatarea, producând o versiune curată și coerentă a textului paginii respective. Această abordare exploatează capacitatea modelelor lingvistice de mari dimensiuni de a înțelege contextul și de a reconstrui semnificația textului parțial degradat, un rol în care regulile heuristice rigide se dovedesc insuficiente \cite{llm_review_2024}.
+
+În \textbf{a treia etapă}, paginile verificate și corectate sunt concatenate secvențial, obținând un document Markdown structurat care poate fi procesat ulterior de strategia de segmentare corespunzătoare. Concatenarea se realizează cu delimitatori explicite între pagini, menținând trasabilitatea fiecărui fragment față de pagina sursă, informație necesară pentru procesul de citare al răspunsurilor.
+
+Această strategie în trei etape a produs o calitate semnificativ superioară a textului indexat față de extracția directă, cu reducerea vizibilă a fragmentelor incoerente stocate în baza vectorială și, implicit, a răspunsurilor generate pe baza unui context degradat.
+
+\subsection{Procesarea datelor tabelare cu pandas}
+
+Sursele de date ale sistemului includ fișiere în format CSV și JSON care conțin informații structurate despre afecțiuni, simptome, tratamente și relații clinice. Biblioteca pandas oferă structuri de date de tip \texttt{DataFrame} optimizate pentru manipularea și analiza eficientă a datelor tabelare în Python \cite{pandas_doc}.
+
+În cadrul proiectului, pandas este utilizat pentru încărcarea și preprocesarea seturilor de date structurate, normalizarea câmpurilor de text, filtrarea înregistrărilor invalide sau incomplete și conversia în formatul necesar pentru indexare. Flexibilitatea pandas în gestionarea formatelor de date heterogene permite integrarea simplă a noi surse de date structurate fără modificarea logicii aplicative principale.
+
+\subsection{Gestionarea configurației și apelurile HTTP auxiliare}
+
+Configurarea aplicației este gestionată prin biblioteca \texttt{python-dotenv}, care permite definirea parametrilor de execuție prin fișiere \texttt{.env} și variabile de mediu. Această abordare separă configurația de cod și facilitează adaptarea aplicației pentru diferite medii de execuție (dezvoltare, testare, producție) fără modificarea fișierelor sursă, respectând principiul de design cunoscut ca \textit{twelve-factor app}.
+
+Pentru apeluri HTTP auxiliare în fluxurile de date, proiectul utilizează biblioteca \texttt{httpx}, care oferă un client HTTP asincron și sincron cu suport pentru HTTP/2 și un API modern. \texttt{httpx} este utilizat în special pentru comunicarea cu serviciile externe și pentru testarea programatică a endpoint-urilor REST ale aplicației.
 
 \section{Containerizare și rulare}
-Pentru asigurarea reproductibilității mediului de execuție și a unei instalări rapide, aplicația este containerizată cu Docker. Orchestrarea serviciilor este realizată cu Docker Compose, într-o topologie care include aplicația principală, serviciul API, Qdrant, OpenWebUI și, opțional, Ollama pentru inferență locală. Această organizare permite rularea consecventă a sistemului atât în mediul de dezvoltare, cât și în scenarii de demonstrare.
+
+\subsection{Principiile containerizării cu Docker}
+
+Docker reprezintă platforma standard de facto pentru containerizarea aplicațiilor software, oferind un mecanism de ambalare a codului sursă împreună cu toate dependențele sale într-o imagine portabilă și reproductibilă \cite{docker_doc}. Containerele Docker sunt izolate la nivel de sistem de operare prin mecanisme de tip namespace și cgroup, garantând că aplicația se comportă identic indiferent de mediul gazdă și eliminând problemele clasice de incompatibilitate a dependențelor.
+
+Imaginea Docker a proiectului este definită printr-un fișier \texttt{Dockerfile} multi-etapă, care separă etapa de instalare a dependențelor de imaginea finală de execuție. Această strategie reduce dimensiunea imaginii de producție prin excluderea instrumentelor de build din artefactul final, producând imagini mai mici și cu o suprafață de atac mai redusă din perspectiva securității.
+
+\subsection{Orchestrarea serviciilor cu Docker Compose}
+
+Aplicația este compusă din mai multe servicii independente care trebuie să funcționeze coordonat pentru a oferi funcționalitate completă. Docker Compose permite definirea și gestionarea acestor servicii printr-un fișier YAML unic, simplificând semnificativ procesul de pornire, oprire și configurare a întregii stive aplicative \cite{docker_compose_doc}.
+
+Topologia Docker Compose a proiectului include serviciile principale: \texttt{app} — aplicația CLI principală, responsabilă pentru logica de orchestrare, ingestie și evaluare; \texttt{api} — serviciul Flask care expune interfața REST; \texttt{qdrant} — baza de date vectorială, rulată ca serviciu persistent cu stocare montată pe sistemul gazdă; \texttt{openwebui} — front-end-ul grafic pentru interacțiunea conversațională. Opțional, serviciul \texttt{ollama} pentru inferența locală a modelelor LLM open-source poate fi activat prin profilul \texttt{local-llm}, fără a afecta configurația implicită.
+
+\subsection{Reproductibilitatea mediului de execuție}
+
+Containerizarea garantează reproductibilitatea completă a mediului de execuție: orice utilizator care pornește stiva Docker Compose pornind de la aceeași configurație va obține un mediu funcțional identic cu cel utilizat în dezvoltare și testare. Această proprietate este esențială în contextul cercetării și evaluării academice, unde reproductibilitatea rezultatelor reprezintă un criteriu fundamental de validitate științifică \cite{goodfellow2016}.
+
+Fișierul \texttt{.env.example} inclus în repository documentează exhaustiv toate variabilele de mediu necesare pentru configurarea sistemului, cu valori implicite sigure și comentarii explicative. Acest fișier template simplifică procesul de configurare inițială și reduce bariera de intrare pentru noi utilizatori sau evaluatori ai sistemului.
 
 \section{Calitatea codului și testare}
-Controlul calității codului este susținut prin instrumente de analiză statică și testare automată. Black și Ruff sunt utilizate pentru formatare și verificări de stil, iar coverage este folosit pentru monitorizarea acoperirii testelor. În plus, proiectul include o suită de teste orientată către componentele critice, precum guardrails, orchestrare, retrieval și ingestie, cu scopul de a menține stabilitatea funcțională pe măsură ce aplicația evoluează.
+
+\subsection{Instrumente de formatare și analiză statică}
+
+Menținerea unui standard uniform al stilului de cod este importantă în proiectele cu arhitectură modulară, deoarece facilitează citirea, revizuirea și extinderea codului pe durata întregului ciclu de viață al proiectului. Proiectul utilizează Black ca formator automat de cod Python \cite{black_doc}. Black aplică un stil de formatare opinionat și neambiguu, eliminând necesitatea deciziilor manuale de formatare și asigurând uniformitatea vizuală a întregii baze de cod.
+
+Ruff este un linter Python de înaltă performanță, implementat în Rust, care verifică respectarea unui set extins de reguli de calitate a codului: detecția variabilelor neutilizate, a importurilor redundante sau incorect ordonate, a anti-pattern-urilor comune și a potențialelor erori logice. Spre deosebire de soluțiile tradiționale de analiză statică, Ruff oferă o performanță de zeci de ori mai rapidă, permițând integrarea sa ca pas de verificare în pipeline-ul de CI/CD fără impact semnificativ asupra timpului total de build.
+
+\subsection{Cadrul de testare automată}
+
+Proiectul include o suită extinsă de teste automate, organizată pe două niveluri de abstractizare. Testele unitare verifică comportamentul corect al componentelor individuale în izolare, prin injectarea dependențelor simulate (\textit{mocks}) care elimină efectele colaterale ale apelurilor externe. Testele de integrare verifică comportamentul fluxurilor complete de execuție, asigurând că interacțiunile dintre componente se desfășoară conform așteptărilor.
+
+Testele sunt implementate cu framework-ul \texttt{pytest}, care oferă o sintaxă concisă, un sistem extensibil de fixture-uri pentru configurarea stărilor de test și un mecanism de parametrizare care permite rularea aceluiași test cu seturi variate de date de intrare. Suita de teste acoperă componentele critice ale sistemului: modulul de protecție (\textit{guardrails}) este testat pentru detectarea corectă a interogărilor periculoase, a mesajelor de urgență și a conținutului în afara domeniului medical; modulul de orchestrare este testat pentru construcția corectă a promptului și pentru logica de reluare în caz de evaluare eșuată; modulele de ingestie sunt testate pentru corectitudinea extracției, segmentării și indexării documentelor.
+
+\subsection{Monitorizarea acoperirii testelor}
+
+Acoperirea testelor (\textit{test coverage}) este monitorizată prin instrumentul \texttt{coverage.py}, care măsoară procentul de linii de cod executate în cursul rulării complete a suitei de teste. Deși o acoperire ridicată nu garantează în sine absența defectelor, ea oferă un indicator obiectiv al gradului în care comportamentul sistemului este validat și documentat prin scenarii explicite.
+
+Rapoartele de acoperire sunt generate periodic și urmărite ca metrică de calitate pe parcursul dezvoltării proiectului. Componentele cu acoperire redusă sunt identificate și prioritizate pentru completarea suitei de teste în iterațiile ulterioare, menținând un nivel ridicat de încredere în stabilitatea funcțională a sistemului pe măsura extinderii sale.
 
 \chapter{Arhitectura proiectului}
 \section{Fluxul operațional al agentului principal}

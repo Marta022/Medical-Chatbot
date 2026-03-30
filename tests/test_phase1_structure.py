@@ -11,7 +11,7 @@ class TestPhase1Structure(unittest.TestCase):
             Path("agent/orchestrator/chat_loop.py"),
             Path("agent/guardrail/rules_engine.py"),
             Path("agent/evaluation/evaluator.py"),
-            Path("agent/reasoning/llm_router.py"),
+            Path("llm/llm_router.py"),
             Path("knowledge/qdrant/client.py"),
             Path("rag/chunking/load_documents.py"),
             Path("rag/retrieval/retriever.py"),

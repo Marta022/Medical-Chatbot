@@ -568,7 +568,7 @@ class TestBenchmark(unittest.TestCase):
 
         try:
             with patch("rag.retrieval.retriever.retrieve_top_similar") as retrieve_mock:
-                with patch("agent.reasoning.llm_router.llm_ask_request") as llm_mock:
+                with patch("llm.llm_router.llm_ask_request") as llm_mock:
                     retrieve_mock.return_value.hits = retrieval_hits
                     llm_mock.return_value.content = "RASPUNS: A"
                     result = run_retrieval_benchmark(
@@ -610,7 +610,7 @@ class TestBenchmark(unittest.TestCase):
 
         try:
             with patch("rag.retrieval.retriever.retrieve_top_similar") as retrieve_mock:
-                with patch("agent.reasoning.llm_router.llm_ask_request") as llm_mock:
+                with patch("llm.llm_router.llm_ask_request") as llm_mock:
                     retrieve_mock.return_value.hits = []
                     llm_mock.return_value.content = (
                         "STATUT_A: ADEVARAT\nSTATUT_B: FALS\nSTATUT_C: FALS\n"

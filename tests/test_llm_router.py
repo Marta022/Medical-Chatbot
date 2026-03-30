@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from agent.reasoning import llm_router
+from llm import llm_router
 from config.settings import SETTINGS
 from models import LLMRequest
 
@@ -16,7 +16,7 @@ class TestLLMRouter(unittest.TestCase):
             context_block="",
             provider="openai",
         )
-        with patch("agent.reasoning.llm_router.openai_call", return_value="ok") as mocked:
+        with patch("llm.llm_router.openai_call", return_value="ok") as mocked:
             response = llm_router.llm_ask_request(request)
         mocked.assert_called_once()
         self.assertEqual(response.content, "ok")
@@ -30,7 +30,7 @@ class TestLLMRouter(unittest.TestCase):
             context_block="",
             provider="ollama",
         )
-        with patch("agent.reasoning.llm_router.ollama_call", return_value="ok") as mocked:
+        with patch("llm.llm_router.ollama_call", return_value="ok") as mocked:
             response = llm_router.llm_ask_request(request)
         mocked.assert_called_once()
         self.assertEqual(response.content, "ok")
@@ -44,7 +44,7 @@ class TestLLMRouter(unittest.TestCase):
             context_block="",
             provider="qwen3.5",
         )
-        with patch("agent.reasoning.llm_router.qwen_call", return_value="ok") as mocked:
+        with patch("llm.llm_router.qwen_call", return_value="ok") as mocked:
             response = llm_router.llm_ask_request(request)
         mocked.assert_called_once()
         self.assertEqual(response.content, "ok")
@@ -52,7 +52,7 @@ class TestLLMRouter(unittest.TestCase):
         self.assertEqual(response.model, SETTINGS.qwen_model)
 
     def test_llm_classify_uses_provider(self) -> None:
-        with patch("agent.reasoning.llm_router.ollama_call", return_value="SAFE") as mocked:
+        with patch("llm.llm_router.ollama_call", return_value="SAFE") as mocked:
             response = llm_router.llm_classify(
                 messages=[{"role": "user", "content": "test"}],
                 provider="ollama",
@@ -61,7 +61,7 @@ class TestLLMRouter(unittest.TestCase):
         self.assertEqual(response, "SAFE")
 
     def test_llm_classify_uses_qwen35_provider(self) -> None:
-        with patch("agent.reasoning.llm_router.qwen_call", return_value="SAFE") as mocked:
+        with patch("llm.llm_router.qwen_call", return_value="SAFE") as mocked:
             response = llm_router.llm_classify(
                 messages=[{"role": "user", "content": "test"}],
                 provider="qwen3.5",
@@ -74,7 +74,7 @@ class TestLLMRouter(unittest.TestCase):
             llm_router._select_provider("invalid")
 
     def test_llm_cleanup_pdf_page_uses_openai_request_flow(self) -> None:
-        with patch("agent.reasoning.llm_router.openai_call", return_value="# Page") as mocked:
+        with patch("llm.llm_router.openai_call", return_value="# Page") as mocked:
             response = llm_router.llm_cleanup_pdf_page(
                 source_file="demo.pdf",
                 page_number=6,

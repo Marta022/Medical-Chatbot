@@ -970,7 +970,7 @@ def run_retrieval_benchmark(
 
     if ask_fn is None:
         from agent.guardrail.rules_engine import apply_guardrails
-        from agent.reasoning.llm_router import llm_ask_request
+        from llm.llm_router import llm_ask_request
         from rag.retrieval.retriever import retrieve_top_similar
 
         def _ask_with_item(prompt: str, item: dict[str, Any]) -> tuple[str, list[RetrievalHit], str | None]:
