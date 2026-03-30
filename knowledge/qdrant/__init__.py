@@ -1,3 +1,5 @@
+"""Public exports for Qdrant ingestion and client helpers."""
+
 from knowledge.qdrant.client import COLLECTION, client, ensure_collection
 from knowledge.qdrant.ingest import ingest
 

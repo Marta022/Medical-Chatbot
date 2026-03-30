@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Ollama provider wrapper for local model inference."""
+
 from config.settings import SETTINGS
 
 try:
@@ -13,6 +15,8 @@ def ollama_call(
     model: str | None = None,
     temperature: float = 0.0,
 ) -> str:
+    """Run a local Ollama chat request and return stripped text content."""
+
     if ollama is None:
         raise RuntimeError("ollama package is not installed")
 

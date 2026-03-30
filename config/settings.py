@@ -1,3 +1,5 @@
+"""Application settings, prompt loading, and startup validation."""
+
 from __future__ import annotations
 
 import os
@@ -7,138 +9,171 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from config.common import env_bool, env_float, env_int
+
 load_dotenv()
 
 SUPPORTED_LLM_PROVIDERS = {"openai", "ollama", "qwen3.5"}
 SUPPORTED_CHUNKING_STRATEGIES = {"section", "sentence", "window", "semantic"}
 SUPPORTED_GRAPH_BACKENDS = {"kuzu"}
 SUPPORTED_RETRIEVAL_MODES = {"vector", "hybrid"}
-
-
-def _env_bool(name: str, default: bool) -> bool:
-    raw = os.getenv(name)
-    if raw is None:
-        return default
-    return raw.strip().lower() in {"1", "true", "yes", "on"}
-
-
-def _env_int(name: str, default: int) -> int:
-    raw = os.getenv(name)
-    if raw is None:
-        return default
-    try:
-        return int(raw.strip())
-    except ValueError:
-        return default
+DEFAULT_QDRANT_URL = "http://localhost:6333"
+DEFAULT_QDRANT_COLLECTION = "medical_docs"
+DEFAULT_LLM_TXT_PATH = "llm.txt"
+DEFAULT_LLM_PROVIDER = "openai"
+DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
+DEFAULT_OLLAMA_MODEL = "gemma2:2b"
+DEFAULT_QWEN_MODEL = "qwen3.5"
+DEFAULT_TOP_K = 3
+DEFAULT_RETRIEVAL_MIN_SCORE = 0.2
+DEFAULT_RETRIEVAL_RERANK_TOP_K = 12
+DEFAULT_KEYWORD_FALLBACK_MIN_SCORE = 0.18
+DEFAULT_KEYWORD_FALLBACK_CANDIDATE_LIMIT = 1500
+DEFAULT_DATASET_JSON_PATH = "data/dataset/disease_database.json"
+DEFAULT_DATASET_CSV_PATH = "data/dataset/dataset_sheet1.csv"
+DEFAULT_DATASET_PRIMARY_PDF_PATH = "data/dataset/DORIN-CURS_SEM2_searchable.pdf"
+DEFAULT_DATASET_VALIDATION_PDF_PATH = (
+    "data/dataset/DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf"
+)
+DEFAULT_CHUNKING_STRATEGY = "semantic"
+DEFAULT_SEMANTIC_CHUNK_MAX_CHARS = 700
+DEFAULT_ENTITY_MIN_CONFIDENCE = 0.65
+DEFAULT_CHUNK_MIN_CHARS = 40
+DEFAULT_CHUNK_MIN_WORDS = 8
+DEFAULT_LIST_CHUNK_MIN_WORDS = 2
+DEFAULT_GRAPH_BACKEND = "kuzu"
+DEFAULT_KUZU_DB_PATH = "knowledge/graph/kuzu_storage"
+DEFAULT_RELATION_MIN_CONFIDENCE = 0.7
+DEFAULT_RETRIEVAL_MODE = "vector"
+DEFAULT_GRAPH_RETRIEVAL_TOP_K = 3
+DEFAULT_GRAPH_TRAVERSAL_DEPTH = 1
+DEFAULT_HYBRID_VECTOR_WEIGHT = 1.0
+DEFAULT_HYBRID_GRAPH_WEIGHT = 0.9
+DEFAULT_GITNEXUS_BASE_URL = "http://localhost:8088"
+DEFAULT_SYSTEM_PROMPT = "You are an AI medical assistant. Use only provided context."
+INGEST_COMMAND = "ingest"
+CHAT_COMMAND = "chat"
+EXTRACT_MARKDOWN_COMMAND = "extract-markdown"
+OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
 
 
 @dataclass(frozen=True)
 class AppSettings:
-    qdrant_url: str = "http://localhost:6333"
+    """Runtime configuration loaded from environment variables."""
+
+    qdrant_url: str = DEFAULT_QDRANT_URL
     qdrant_api_key: str | None = None
-    qdrant_collection: str = "medical_docs"
+    qdrant_collection: str = DEFAULT_QDRANT_COLLECTION
     guardrail_llm_enabled: bool = True
-    llm_txt_path: str = "llm.txt"
-    llm_provider: str = "openai"
-    openai_model: str = "gpt-4o-mini"
-    ollama_model: str = "gemma2:2b"
-    qwen_model: str = "qwen3.5"
-    default_top_k: int = 3
-    retrieval_min_score: float = 0.2
+    llm_txt_path: str = DEFAULT_LLM_TXT_PATH
+    llm_provider: str = DEFAULT_LLM_PROVIDER
+    openai_model: str = DEFAULT_OPENAI_MODEL
+    ollama_model: str = DEFAULT_OLLAMA_MODEL
+    qwen_model: str = DEFAULT_QWEN_MODEL
+    default_top_k: int = DEFAULT_TOP_K
+    retrieval_min_score: float = DEFAULT_RETRIEVAL_MIN_SCORE
     retrieval_rerank_enabled: bool = True
-    retrieval_rerank_top_k: int = 12
+    retrieval_rerank_top_k: int = DEFAULT_RETRIEVAL_RERANK_TOP_K
     keyword_fallback_enabled: bool = True
-    keyword_fallback_min_score: float = 0.18
-    keyword_fallback_candidate_limit: int = 1500
-    dataset_json_path: str = "data/dataset/disease_database.json"
-    dataset_csv_path: str = "data/dataset/dataset_sheet1.csv"
-    dataset_primary_pdf_path: str = "data/dataset/DORIN-CURS_SEM2_searchable.pdf"
-    dataset_validation_pdf_path: str = (
-        "data/dataset/DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf"
-    )
-    chunking_strategy: str = "semantic"
-    semantic_chunk_max_chars: int = 700
+    keyword_fallback_min_score: float = DEFAULT_KEYWORD_FALLBACK_MIN_SCORE
+    keyword_fallback_candidate_limit: int = DEFAULT_KEYWORD_FALLBACK_CANDIDATE_LIMIT
+    dataset_json_path: str = DEFAULT_DATASET_JSON_PATH
+    dataset_csv_path: str = DEFAULT_DATASET_CSV_PATH
+    dataset_primary_pdf_path: str = DEFAULT_DATASET_PRIMARY_PDF_PATH
+    dataset_validation_pdf_path: str = DEFAULT_DATASET_VALIDATION_PDF_PATH
+    chunking_strategy: str = DEFAULT_CHUNKING_STRATEGY
+    semantic_chunk_max_chars: int = DEFAULT_SEMANTIC_CHUNK_MAX_CHARS
     semantic_use_llamaindex: bool = True
     allow_semantic_chunk_fallback: bool = False
     allow_fallback_embeddings: bool = False
-    entity_min_confidence: float = 0.65
-    chunk_min_chars: int = 40
-    chunk_min_words: int = 8
-    list_chunk_min_words: int = 2
-    graph_backend: str = "kuzu"
-    kuzu_db_path: str = "knowledge/graph/kuzu_storage"
+    entity_min_confidence: float = DEFAULT_ENTITY_MIN_CONFIDENCE
+    chunk_min_chars: int = DEFAULT_CHUNK_MIN_CHARS
+    chunk_min_words: int = DEFAULT_CHUNK_MIN_WORDS
+    list_chunk_min_words: int = DEFAULT_LIST_CHUNK_MIN_WORDS
+    graph_backend: str = DEFAULT_GRAPH_BACKEND
+    kuzu_db_path: str = DEFAULT_KUZU_DB_PATH
     graph_ingest_enabled: bool = True
-    relation_min_confidence: float = 0.7
-    retrieval_mode: str = "vector"
-    graph_retrieval_top_k: int = 3
-    graph_traversal_depth: int = 1
-    hybrid_vector_weight: float = 1.0
-    hybrid_graph_weight: float = 0.9
+    relation_min_confidence: float = DEFAULT_RELATION_MIN_CONFIDENCE
+    retrieval_mode: str = DEFAULT_RETRIEVAL_MODE
+    graph_retrieval_top_k: int = DEFAULT_GRAPH_RETRIEVAL_TOP_K
+    graph_traversal_depth: int = DEFAULT_GRAPH_TRAVERSAL_DEPTH
+    hybrid_vector_weight: float = DEFAULT_HYBRID_VECTOR_WEIGHT
+    hybrid_graph_weight: float = DEFAULT_HYBRID_GRAPH_WEIGHT
     gitnexus_enabled: bool = False
-    gitnexus_base_url: str = "http://localhost:8088"
+    gitnexus_base_url: str = DEFAULT_GITNEXUS_BASE_URL
 
 
 def load_settings() -> AppSettings:
+    """Load application settings from environment variables."""
+
     return AppSettings(
-        qdrant_url=os.getenv("QDRANT_URL", "http://localhost:6333").strip(),
+        qdrant_url=os.getenv("QDRANT_URL", DEFAULT_QDRANT_URL).strip(),
         qdrant_api_key=os.getenv("QDRANT_API_KEY"),
-        qdrant_collection=os.getenv("QDRANT_COLLECTION", "medical_docs").strip(),
-        guardrail_llm_enabled=_env_bool("GUARDRAIL_LLM_ENABLED", True),
-        llm_txt_path=os.getenv("LLM_TXT_PATH", "llm.txt").strip(),
-        llm_provider=os.getenv("LLM_PROVIDER", "openai").strip().lower(),
-        openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip(),
-        ollama_model=os.getenv("OLLAMA_MODEL", "gemma2:2b").strip(),
-        qwen_model=os.getenv("QWEN_MODEL", "qwen3.5").strip(),
-        default_top_k=_env_int("DEFAULT_TOP_K", 3),
-        retrieval_min_score=float(os.getenv("RETRIEVAL_MIN_SCORE", "0.2").strip()),
-        retrieval_rerank_enabled=_env_bool("RETRIEVAL_RERANK_ENABLED", True),
-        retrieval_rerank_top_k=_env_int("RETRIEVAL_RERANK_TOP_K", 12),
-        keyword_fallback_enabled=_env_bool("KEYWORD_FALLBACK_ENABLED", True),
-        keyword_fallback_min_score=float(os.getenv("KEYWORD_FALLBACK_MIN_SCORE", "0.18").strip()),
-        keyword_fallback_candidate_limit=_env_int("KEYWORD_FALLBACK_CANDIDATE_LIMIT", 1500),
-        dataset_json_path=os.getenv(
-            "DATASET_JSON_PATH",
-            "data/dataset/disease_database.json",
-        ).strip(),
-        dataset_csv_path=os.getenv(
-            "DATASET_CSV_PATH",
-            "data/dataset/dataset_sheet1.csv",
-        ).strip(),
+        qdrant_collection=os.getenv("QDRANT_COLLECTION", DEFAULT_QDRANT_COLLECTION).strip(),
+        guardrail_llm_enabled=env_bool("GUARDRAIL_LLM_ENABLED", True),
+        llm_txt_path=os.getenv("LLM_TXT_PATH", DEFAULT_LLM_TXT_PATH).strip(),
+        llm_provider=os.getenv("LLM_PROVIDER", DEFAULT_LLM_PROVIDER).strip().lower(),
+        openai_model=os.getenv("OPENAI_MODEL", DEFAULT_OPENAI_MODEL).strip(),
+        ollama_model=os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL).strip(),
+        qwen_model=os.getenv("QWEN_MODEL", DEFAULT_QWEN_MODEL).strip(),
+        default_top_k=env_int("DEFAULT_TOP_K", DEFAULT_TOP_K),
+        retrieval_min_score=env_float("RETRIEVAL_MIN_SCORE", DEFAULT_RETRIEVAL_MIN_SCORE),
+        retrieval_rerank_enabled=env_bool("RETRIEVAL_RERANK_ENABLED", True),
+        retrieval_rerank_top_k=env_int("RETRIEVAL_RERANK_TOP_K", DEFAULT_RETRIEVAL_RERANK_TOP_K),
+        keyword_fallback_enabled=env_bool("KEYWORD_FALLBACK_ENABLED", True),
+        keyword_fallback_min_score=env_float(
+            "KEYWORD_FALLBACK_MIN_SCORE",
+            DEFAULT_KEYWORD_FALLBACK_MIN_SCORE,
+        ),
+        keyword_fallback_candidate_limit=env_int(
+            "KEYWORD_FALLBACK_CANDIDATE_LIMIT",
+            DEFAULT_KEYWORD_FALLBACK_CANDIDATE_LIMIT,
+        ),
+        dataset_json_path=os.getenv("DATASET_JSON_PATH", DEFAULT_DATASET_JSON_PATH).strip(),
+        dataset_csv_path=os.getenv("DATASET_CSV_PATH", DEFAULT_DATASET_CSV_PATH).strip(),
         dataset_primary_pdf_path=os.getenv(
             "DATASET_PRIMARY_PDF_PATH",
-            "data/dataset/DORIN-CURS_SEM2_searchable.pdf",
+            DEFAULT_DATASET_PRIMARY_PDF_PATH,
         ).strip(),
         dataset_validation_pdf_path=os.getenv(
             "DATASET_VALIDATION_PDF_PATH",
-            "data/dataset/DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf",
+            DEFAULT_DATASET_VALIDATION_PDF_PATH,
         ).strip(),
-        chunking_strategy=os.getenv("CHUNKING_STRATEGY", "semantic").strip().lower(),
-        semantic_chunk_max_chars=_env_int("SEMANTIC_CHUNK_MAX_CHARS", 700),
-        semantic_use_llamaindex=_env_bool("SEMANTIC_USE_LLAMAINDEX", True),
-        allow_semantic_chunk_fallback=_env_bool("ALLOW_SEMANTIC_CHUNK_FALLBACK", False),
-        allow_fallback_embeddings=_env_bool("ALLOW_FALLBACK_EMBEDDINGS", False),
-        entity_min_confidence=float(os.getenv("ENTITY_MIN_CONFIDENCE", "0.65").strip()),
-        chunk_min_chars=_env_int("CHUNK_MIN_CHARS", 40),
-        chunk_min_words=_env_int("CHUNK_MIN_WORDS", 8),
-        list_chunk_min_words=_env_int("LIST_CHUNK_MIN_WORDS", 2),
-        graph_backend=os.getenv("GRAPH_BACKEND", "kuzu").strip().lower(),
-        kuzu_db_path=os.getenv("KUZU_DB_PATH", "knowledge/graph/kuzu_storage").strip(),
-        graph_ingest_enabled=_env_bool("GRAPH_INGEST_ENABLED", True),
-        relation_min_confidence=float(os.getenv("RELATION_MIN_CONFIDENCE", "0.7").strip()),
-        retrieval_mode=os.getenv("RETRIEVAL_MODE", "vector").strip().lower(),
-        graph_retrieval_top_k=_env_int("GRAPH_RETRIEVAL_TOP_K", 3),
-        graph_traversal_depth=_env_int("GRAPH_TRAVERSAL_DEPTH", 1),
-        hybrid_vector_weight=float(os.getenv("HYBRID_VECTOR_WEIGHT", "1.0").strip()),
-        hybrid_graph_weight=float(os.getenv("HYBRID_GRAPH_WEIGHT", "0.9").strip()),
-        gitnexus_enabled=_env_bool("GITNEXUS_ENABLED", False),
-        gitnexus_base_url=os.getenv("GITNEXUS_BASE_URL", "http://localhost:8088").strip(),
+        chunking_strategy=os.getenv("CHUNKING_STRATEGY", DEFAULT_CHUNKING_STRATEGY).strip().lower(),
+        semantic_chunk_max_chars=env_int(
+            "SEMANTIC_CHUNK_MAX_CHARS",
+            DEFAULT_SEMANTIC_CHUNK_MAX_CHARS,
+        ),
+        semantic_use_llamaindex=env_bool("SEMANTIC_USE_LLAMAINDEX", True),
+        allow_semantic_chunk_fallback=env_bool("ALLOW_SEMANTIC_CHUNK_FALLBACK", False),
+        allow_fallback_embeddings=env_bool("ALLOW_FALLBACK_EMBEDDINGS", False),
+        entity_min_confidence=env_float("ENTITY_MIN_CONFIDENCE", DEFAULT_ENTITY_MIN_CONFIDENCE),
+        chunk_min_chars=env_int("CHUNK_MIN_CHARS", DEFAULT_CHUNK_MIN_CHARS),
+        chunk_min_words=env_int("CHUNK_MIN_WORDS", DEFAULT_CHUNK_MIN_WORDS),
+        list_chunk_min_words=env_int("LIST_CHUNK_MIN_WORDS", DEFAULT_LIST_CHUNK_MIN_WORDS),
+        graph_backend=os.getenv("GRAPH_BACKEND", DEFAULT_GRAPH_BACKEND).strip().lower(),
+        kuzu_db_path=os.getenv("KUZU_DB_PATH", DEFAULT_KUZU_DB_PATH).strip(),
+        graph_ingest_enabled=env_bool("GRAPH_INGEST_ENABLED", True),
+        relation_min_confidence=env_float(
+            "RELATION_MIN_CONFIDENCE",
+            DEFAULT_RELATION_MIN_CONFIDENCE,
+        ),
+        retrieval_mode=os.getenv("RETRIEVAL_MODE", DEFAULT_RETRIEVAL_MODE).strip().lower(),
+        graph_retrieval_top_k=env_int("GRAPH_RETRIEVAL_TOP_K", DEFAULT_GRAPH_RETRIEVAL_TOP_K),
+        graph_traversal_depth=env_int("GRAPH_TRAVERSAL_DEPTH", DEFAULT_GRAPH_TRAVERSAL_DEPTH),
+        hybrid_vector_weight=env_float("HYBRID_VECTOR_WEIGHT", DEFAULT_HYBRID_VECTOR_WEIGHT),
+        hybrid_graph_weight=env_float("HYBRID_GRAPH_WEIGHT", DEFAULT_HYBRID_GRAPH_WEIGHT),
+        gitnexus_enabled=env_bool("GITNEXUS_ENABLED", False),
+        gitnexus_base_url=os.getenv("GITNEXUS_BASE_URL", DEFAULT_GITNEXUS_BASE_URL).strip(),
     )
 
 
 def _read_system_prompt(path: str) -> str:
+    """Read the base system prompt from disk, or return a safe default."""
+
     prompt_path = Path(path)
     if not prompt_path.exists():
-        return "You are an AI medical assistant. Use only provided context."
+        return DEFAULT_SYSTEM_PROMPT
     return prompt_path.read_text(encoding="utf-8").strip()
 
 
@@ -146,6 +181,8 @@ def validate_startup(
     command: str | None = None,
     settings: AppSettings | None = None,
 ) -> list[str]:
+    """Validate startup configuration for the selected runtime command."""
+
     current = settings or load_settings()
     errors: list[str] = []
 
@@ -165,9 +202,7 @@ def validate_startup(
         errors.append("KEYWORD_FALLBACK_CANDIDATE_LIMIT must be greater than 0.")
     if current.llm_provider not in SUPPORTED_LLM_PROVIDERS:
         providers = sorted(SUPPORTED_LLM_PROVIDERS)
-        errors.append(
-            f"LLM_PROVIDER must be one of {providers}, got '{current.llm_provider}'."
-        )
+        errors.append(f"LLM_PROVIDER must be one of {providers}, got '{current.llm_provider}'.")
     if current.chunking_strategy not in SUPPORTED_CHUNKING_STRATEGIES:
         errors.append(
             "CHUNKING_STRATEGY must be one of "
@@ -175,21 +210,17 @@ def validate_startup(
         )
     if current.semantic_chunk_max_chars <= 0:
         errors.append("SEMANTIC_CHUNK_MAX_CHARS must be greater than 0.")
-    if command in {"ingest"} and current.chunking_strategy == "semantic" and not current.semantic_use_llamaindex:
+    if command in {INGEST_COMMAND} and current.chunking_strategy == "semantic" and not current.semantic_use_llamaindex:
         errors.append(
             "Semantic chunking is strict in this project. Set SEMANTIC_USE_LLAMAINDEX=true."
         )
-    if (
-        command in {"ingest"}
-        and current.chunking_strategy == "semantic"
-        and current.semantic_use_llamaindex
-    ):
+    if command in {INGEST_COMMAND} and current.chunking_strategy == "semantic" and current.semantic_use_llamaindex:
         if not _llamaindex_semantic_available():
             errors.append(
                 "Semantic chunking requires llama-index-core in runtime when "
                 "SEMANTIC_USE_LLAMAINDEX=true. Install dependency before ingest."
             )
-    if command in {"chat", "ingest"} and not current.allow_fallback_embeddings:
+    if command in {CHAT_COMMAND, INGEST_COMMAND} and not current.allow_fallback_embeddings:
         if _using_fallback_embeddings():
             errors.append(
                 "Embedding backend is running in deterministic fallback mode. "
@@ -205,9 +236,7 @@ def validate_startup(
         errors.append("LIST_CHUNK_MIN_WORDS must be greater than 0.")
     if current.graph_backend not in SUPPORTED_GRAPH_BACKENDS:
         backends = sorted(SUPPORTED_GRAPH_BACKENDS)
-        errors.append(
-            f"GRAPH_BACKEND must be one of {backends}, got '{current.graph_backend}'."
-        )
+        errors.append(f"GRAPH_BACKEND must be one of {backends}, got '{current.graph_backend}'.")
     if not current.kuzu_db_path:
         errors.append("KUZU_DB_PATH is required.")
     if not 0 <= current.relation_min_confidence <= 1:
@@ -230,7 +259,7 @@ def validate_startup(
     if not prompt_path.exists():
         errors.append(f"Prompt file not found at '{current.llm_txt_path}'.")
 
-    if command in {"ingest"}:
+    if command in {INGEST_COMMAND}:
         if not Path(current.dataset_json_path).exists():
             errors.append(f"Dataset JSON not found at '{current.dataset_json_path}'.")
         if not Path(current.dataset_csv_path).exists():
@@ -243,8 +272,8 @@ def validate_startup(
                 f"'{current.dataset_validation_pdf_path}'."
             )
 
-    if command in {"chat", "extract-markdown"} and current.llm_provider == "openai":
-        if not os.getenv("OPENAI_API_KEY"):
+    if command in {CHAT_COMMAND, EXTRACT_MARKDOWN_COMMAND} and current.llm_provider == DEFAULT_LLM_PROVIDER:
+        if not os.getenv(OPENAI_API_KEY_ENV):
             errors.append(
                 "OPENAI_API_KEY is required when LLM_PROVIDER=openai for chat or extract-markdown."
             )
@@ -253,10 +282,14 @@ def validate_startup(
 
 
 def _llamaindex_semantic_available() -> bool:
+    """Return whether the semantic chunking dependency is installed."""
+
     return find_spec("llama_index.core.node_parser") is not None
 
 
 def _using_fallback_embeddings() -> bool:
+    """Probe whether retrieval is currently forced into fallback embeddings mode."""
+
     try:
         from rag.retrieval.embeddings import embed_query, using_fallback_embeddings
 
@@ -270,6 +303,8 @@ def ensure_startup_valid(
     command: str | None = None,
     settings: AppSettings | None = None,
 ) -> None:
+    """Raise a runtime error when startup validation finds configuration issues."""
+
     errors = validate_startup(command=command, settings=settings)
     if not errors:
         return

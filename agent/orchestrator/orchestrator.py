@@ -1,3 +1,5 @@
+"""Core orchestrator for the medical chatbot request pipeline."""
+
 from __future__ import annotations
 
 import logging
@@ -5,6 +7,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from agent.evaluation.evaluator import evaluate_response
+from agent.orchestrator.common import clone_llm_request
 from agent.guardrail.rules_engine import apply_guardrails
 from agent.orchestrator.citations import (
     append_citation_block,
@@ -29,10 +32,15 @@ from rag.retrieval.embeddings import using_fallback_embeddings
 from rag.retrieval.retriever import retrieve_top_similar
 
 logger = logging.getLogger(__name__)
+FALLBACK_EMBEDDING_MIN_SCORE_FACTOR = 0.5
+FALLBACK_EMBEDDING_MIN_SCORE_FLOOR = 0.05
+RETRY_GUIDANCE_PREFIX = "Revise your answer to address: "
 
 
 @dataclass(frozen=True)
 class OrchestratorDependencies:
+    """Injected dependencies used by the orchestrator."""
+
     guardrail: Callable[[str], GuardrailResult] = apply_guardrails
     retrieve: Callable[[str, int, dict[str, str] | None], RetrievalResult] = retrieve_top_similar
     llm_call: Callable[[LLMRequest], LLMResponse] = llm_ask_request
@@ -42,6 +50,8 @@ class OrchestratorDependencies:
 
 
 class Orchestrator:
+    """Execute guardrails, retrieval, generation, and evaluation for one query."""
+
     def __init__(
         self,
         deps: OrchestratorDependencies | None = None,
@@ -53,6 +63,8 @@ class Orchestrator:
         self._system_prompt = system_prompt or BASE_SYSTEM_PROMPT
 
     def run(self, request: QueryRequest) -> OrchestratorResponse:
+        """Run the full request lifecycle and return the final orchestrator response."""
+
         guardrail_result = self._deps.guardrail(request.query)
         if not guardrail_result.is_valid:
             return OrchestratorResponse(
@@ -79,7 +91,10 @@ class Orchestrator:
         )
         min_score = SETTINGS.retrieval_min_score
         if using_fallback_embeddings():
-            min_score = max(min_score * 0.5, 0.05)
+            min_score = max(
+                min_score * FALLBACK_EMBEDDING_MIN_SCORE_FACTOR,
+                FALLBACK_EMBEDDING_MIN_SCORE_FLOOR,
+            )
         if not retrieval_result.hits or retrieval_result.max_score() < min_score:
             return OrchestratorResponse(
                 response=LOW_CONFIDENCE_MESSAGE,
@@ -105,6 +120,7 @@ class Orchestrator:
         max_attempts = max(self._eval_config.max_retries + 1, 1)
         last_eval: EvaluatorResult | None = None
         last_response: LLMResponse | None = None
+        attempt = 0
 
         for attempt in range(max_attempts):
             provider = self._select_provider(attempt)
@@ -140,6 +156,8 @@ class Orchestrator:
     def _build_retrieval_filters(
         filters: dict[str, str] | None,
     ) -> dict[str, str] | None:
+        """Attach graph retrieval controls when hybrid retrieval is enabled."""
+
         normalized = dict(filters or {})
         if SETTINGS.retrieval_mode != "hybrid":
             return normalized or None
@@ -154,27 +172,19 @@ class Orchestrator:
         base_request: LLMRequest,
         last_eval: EvaluatorResult | None,
     ) -> LLMRequest:
-        if not last_eval or last_eval.passed or not last_eval.reasons:
-            return LLMRequest(
-                system_prompt=base_request.system_prompt,
-                user_message=base_request.user_message,
-                context_block=base_request.context_block,
-                temperature=base_request.temperature,
-                provider=base_request.provider,
-            )
+        """Copy the base request and append evaluator guidance for retry attempts."""
 
-        guidance = "Revise your answer to address: " + ", ".join(last_eval.reasons) + "."
+        if not last_eval or last_eval.passed or not last_eval.reasons:
+            return clone_llm_request(base_request)
+
+        guidance = RETRY_GUIDANCE_PREFIX + ", ".join(last_eval.reasons) + "."
         revised_message = f"{base_request.user_message}\n\n{guidance}"
-        return LLMRequest(
-            system_prompt=base_request.system_prompt,
-            user_message=revised_message,
-            context_block=base_request.context_block,
-            temperature=base_request.temperature,
-            provider=base_request.provider,
-        )
+        return clone_llm_request(base_request, user_message=revised_message)
 
     @staticmethod
     def _log_evaluator_result(attempt: int, provider: str, result: EvaluatorResult) -> None:
+        """Log evaluator output for each generation attempt."""
+
         logger.info(
             "Evaluator result",
             extra={
@@ -188,20 +198,28 @@ class Orchestrator:
         )
 
     def _safe_translate_to_english(self, text: str) -> str:
+        """Translate query text while preserving behavior on translator failure."""
+
         try:
             return self._deps.translate_to_english(text)
-        except Exception:
+        except Exception as exc:
+            logger.warning("English translation failed; using original query: %s", exc)
             return text
 
     def _safe_translate_to_romanian(self, items: list[str]) -> list[str]:
+        """Translate context lines while preserving behavior on translator failure."""
+
         if not items:
             return []
         try:
             return self._deps.translate_to_romanian(items)
-        except Exception:
+        except Exception as exc:
+            logger.warning("Romanian translation failed; using original context: %s", exc)
             return items
 
     def _select_provider(self, attempt: int) -> str:
+        """Pick the provider for the current attempt using configured fallback order."""
+
         primary = SETTINGS.llm_provider
         fallback_order = [primary]
         for candidate in getattr(self._eval_config, "provider_fallback_order", []):

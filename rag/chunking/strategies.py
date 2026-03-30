@@ -21,14 +21,22 @@ import hashlib
 import re
 
 from models.contracts import PdfStructuredChunk
+from rag.chunking.common import clean_line, is_bullet_item, is_markdown_heading, is_numbered_item
 
 _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
-_NUMBERED_ITEM_PATTERN = re.compile(r"^\s*\d+[\.\)]\s+\S+")
-_BULLET_ITEM_PATTERN = re.compile(r"^\s*[-*\u2022]\s+\S+")
-_MARKDOWN_HEADING_PATTERN = re.compile(r"^\s*(#{1,3})\s+\S+")
+DEFAULT_MAX_SENTENCES = 3
+DEFAULT_WINDOW_SIZE = 3
+DEFAULT_WINDOW_STRIDE = 2
+DEFAULT_STRATEGY = "section"
+DEFAULT_SEMANTIC_MAX_CHARS = 700
+SEMANTIC_SPLITTER_BUFFER_SIZE = 1
+SEMANTIC_BREAKPOINT_PERCENTILE = 95
+CHUNK_ID_ENCODING = "utf-8"
 
 
 def split_sentences(text: str) -> list[str]:
+    """Split text into sentence-like units."""
+
     cleaned = text.strip()
     if not cleaned:
         return []
@@ -36,7 +44,9 @@ def split_sentences(text: str) -> list[str]:
     return [part.strip() for part in parts if part.strip()]
 
 
-def sentence_chunks(text: str, max_sentences: int = 3) -> list[str]:
+def sentence_chunks(text: str, max_sentences: int = DEFAULT_MAX_SENTENCES) -> list[str]:
+    """Build fixed-size sentence chunks."""
+
     sentences = split_sentences(text)
     if not sentences:
         return []
@@ -47,7 +57,13 @@ def sentence_chunks(text: str, max_sentences: int = 3) -> list[str]:
     return chunks
 
 
-def window_chunks(text: str, window_size: int = 3, stride: int = 2) -> list[str]:
+def window_chunks(
+    text: str,
+    window_size: int = DEFAULT_WINDOW_SIZE,
+    stride: int = DEFAULT_WINDOW_STRIDE,
+) -> list[str]:
+    """Build overlapping sentence windows."""
+
     sentences = split_sentences(text)
     if not sentences:
         return []
@@ -63,6 +79,8 @@ def window_chunks(text: str, window_size: int = 3, stride: int = 2) -> list[str]
 
 
 def section_chunks(text: str) -> list[str]:
+    """Group text by markdown-like headings, lists, and paragraphs."""
+
     cleaned = text.strip()
     if not cleaned:
         return []
@@ -70,25 +88,29 @@ def section_chunks(text: str) -> list[str]:
 
 
 def _is_list_item(line: str) -> bool:
-    return bool(_NUMBERED_ITEM_PATTERN.match(line) or _BULLET_ITEM_PATTERN.match(line))
+    return is_numbered_item(line) or is_bullet_item(line)
 
 
 def _is_markdown_heading(line: str) -> bool:
-    return bool(_MARKDOWN_HEADING_PATTERN.match(line))
+    return is_markdown_heading(line)
 
 
 def _is_list_block(block: str) -> bool:
+    """Return whether a block begins as a list structure."""
+
     lines = [line.strip() for line in block.splitlines() if line.strip()]
     return bool(lines and _is_list_item(lines[0]))
 
 
 def _group_lines_with_markdown_structure(text: str) -> list[str]:
+    """Collapse raw text lines into structure-aware chunk candidates."""
+
     blocks: list[str] = []
     paragraph: list[str] = []
     list_block: list[str] = []
 
     for raw_line in text.splitlines():
-        line = re.sub(r"\s+", " ", raw_line).strip()
+        line = clean_line(raw_line)
         if not line:
             if list_block:
                 blocks.append("\n".join(list_block))
@@ -133,6 +155,8 @@ def _group_lines_with_markdown_structure(text: str) -> list[str]:
 
 
 def _llamaindex_semantic_chunks(text: str) -> list[str]:
+    """Split text with the strict LlamaIndex semantic splitter."""
+
     try:
         from llama_index.core.node_parser import SemanticSplitterNodeParser
         from llama_index.core.schema import Document
@@ -141,8 +165,8 @@ def _llamaindex_semantic_chunks(text: str) -> list[str]:
 
     try:
         parser = SemanticSplitterNodeParser.from_defaults(
-            buffer_size=1,
-            breakpoint_percentile_threshold=95,
+            buffer_size=SEMANTIC_SPLITTER_BUFFER_SIZE,
+            breakpoint_percentile_threshold=SEMANTIC_BREAKPOINT_PERCENTILE,
         )
         nodes = parser.get_nodes_from_documents([Document(text=text)])
     except Exception:
@@ -155,9 +179,11 @@ def _llamaindex_semantic_chunks(text: str) -> list[str]:
 def semantic_chunks(
     text: str,
     *,
-    max_chars: int = 700,
+    max_chars: int = DEFAULT_SEMANTIC_MAX_CHARS,
     use_llamaindex: bool = True,
 ) -> list[str]:
+    """Run strict semantic chunking after structure-aware preparation."""
+
     cleaned = text.strip()
     if not cleaned:
         return []
@@ -180,12 +206,14 @@ def semantic_chunks(
 
 def chunk_text(
     text: str,
-    strategy: str = "section",
+    strategy: str = DEFAULT_STRATEGY,
     *,
-    semantic_max_chars: int = 700,
+    semantic_max_chars: int = DEFAULT_SEMANTIC_MAX_CHARS,
     semantic_use_llamaindex: bool = True,
 ) -> list[str]:
-    normalized = (strategy or "section").strip().lower()
+    """Dispatch one of the supported raw-text chunking strategies."""
+
+    normalized = (strategy or DEFAULT_STRATEGY).strip().lower()
     if normalized == "sentence":
         return sentence_chunks(text)
     if normalized == "window":
@@ -202,20 +230,24 @@ def chunk_text(
 
 
 def _derive_semantic_chunk_id(base: PdfStructuredChunk, ordinal: int, text: str) -> str:
+    """Build a stable chunk ID for rechunked structured content."""
+
     payload = (
         f"{base.source_file}|{base.page}|{base.chapter}|{base.section}|"
         f"{base.chunk_id}|{ordinal}|{text}"
     )
-    return hashlib.sha1(payload.encode("utf-8")).hexdigest()[:16]
+    return hashlib.sha1(payload.encode(CHUNK_ID_ENCODING)).hexdigest()[:16]
 
 
 def chunk_structured_chunks(
     chunks: list[PdfStructuredChunk],
     strategy: str = "semantic",
     *,
-    semantic_max_chars: int = 700,
+    semantic_max_chars: int = DEFAULT_SEMANTIC_MAX_CHARS,
     semantic_use_llamaindex: bool = True,
 ) -> list[PdfStructuredChunk]:
+    """Apply a chunking strategy while preserving structured chunk metadata."""
+
     rechunked: list[PdfStructuredChunk] = []
     for item in chunks:
         pieces = chunk_text(

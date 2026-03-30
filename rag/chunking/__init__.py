@@ -1,3 +1,5 @@
+"""Public exports for chunking and document-loading helpers."""
+
 from rag.chunking.load_documents import (
     discover_markdown_paths,
     discover_pdf_paths,

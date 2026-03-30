@@ -1,6 +1,10 @@
+"""Prompt constants and builders used by the runtime."""
+
 from __future__ import annotations
 
 from config.settings import BASE_SYSTEM_PROMPT
+
+CONTEXT_BULLET_PREFIX = "- "
 
 GUARDRAIL_SYSTEM_PROMPT = (
     "Esti un filtru de siguranta pentru un chatbot medical. "
@@ -41,11 +45,15 @@ PDF_MARKDOWN_CLEANUP_SYSTEM_PROMPT = (
 
 
 def get_base_system_prompt() -> str:
+    """Return the loaded base system prompt."""
+
     return BASE_SYSTEM_PROMPT
 
 
 def build_context_block(context_lines: list[str]) -> str:
-    return CONTEXT_BLOCK_HEADER + "\n" + "\n".join(f"- {line}" for line in context_lines)
+    """Build the retrieval context block injected into generation prompts."""
+
+    return CONTEXT_BLOCK_HEADER + "\n" + "\n".join(f"{CONTEXT_BULLET_PREFIX}{line}" for line in context_lines)
 
 
 def build_pdf_markdown_cleanup_user_message(
@@ -54,6 +62,8 @@ def build_pdf_markdown_cleanup_user_message(
     page_number: int,
     page_text: str,
 ) -> str:
+    """Build the user message for page-level PDF-to-Markdown cleanup."""
+
     return (
         f"Source file: {source_file}\n"
         f"Page: {page_number}\n\n"

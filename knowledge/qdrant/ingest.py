@@ -15,10 +15,9 @@ Design note:
 
 from __future__ import annotations
 
-import hashlib
 import logging
 import time
-import uuid
+from typing import Any
 
 import httpx
 from qdrant_client.http.exceptions import ResponseHandlingException
@@ -27,15 +26,42 @@ from qdrant_client.models import PointStruct
 from knowledge.entities.extractor import extract_entities_from_chunk, load_disease_terms
 from knowledge.graph.ingest import ingest_pdf_chunks_to_graph_safe
 from knowledge.qdrant.client import COLLECTION, client, ensure_collection
+from knowledge.qdrant.common import (
+    PDF_SOURCE,
+    build_pdf_payload,
+    build_stable_point_id,
+    build_structured_payload,
+)
 from rag.chunking.load_documents import load_medical_items, load_pdf_chunks
 from rag.chunking.strategies import chunk_text
 from rag.retrieval.embeddings import embed_texts, vector_size
 
 
 logger = logging.getLogger(__name__)
+DEFAULT_CHUNKING_STRATEGY = "section"
+DEFAULT_SEMANTIC_CHUNK_MAX_CHARS = 700
+DEFAULT_SEMANTIC_USE_LLAMAINDEX = True
+DEFAULT_GRAPH_INGEST_ENABLED = True
+DEFAULT_RELATION_MIN_CONFIDENCE = 0.7
+DEFAULT_ENTITY_MIN_CONFIDENCE = 0.65
+DEFAULT_QDRANT_UPSERT_BATCH_SIZE = 128
+DEFAULT_QDRANT_UPSERT_MAX_RETRIES = 3
+DEFAULT_QDRANT_UPSERT_RETRY_DELAY_SECONDS = 0.5
+DEFAULT_CHUNK_MIN_CHARS = 1
+DEFAULT_CHUNK_MIN_WORDS = 1
+DEFAULT_LIST_CHUNK_MIN_WORDS = 1
+MIN_QUALITY_THRESHOLD = 1
+
+
+def _clamp_quality_threshold(value: int) -> int:
+    """Normalize a chunk-quality threshold to a positive integer."""
+
+    return max(value, MIN_QUALITY_THRESHOLD)
 
 
 def _yield_batches(points: list[PointStruct], batch_size: int) -> list[list[PointStruct]]:
+    """Split a point list into deterministic upsert batches."""
+
     if batch_size <= 0:
         raise ValueError("qdrant_upsert_batch_size must be greater than 0")
     return [points[index : index + batch_size] for index in range(0, len(points), batch_size)]
@@ -48,6 +74,8 @@ def _upsert_points_with_retry(
     max_retries: int,
     retry_delay_seconds: float,
 ) -> None:
+    """Upsert Qdrant points with exponential-backoff retry for transient failures."""
+
     if max_retries < 0:
         raise ValueError("qdrant_upsert_max_retries must be >= 0")
     if retry_delay_seconds < 0:
@@ -83,9 +111,9 @@ def build_point_id(
     chunk_text_value: str,
     chunk_index: int,
 ) -> str:
-    payload = f"{source}|{title}|{category or ''}|{chunk_index}|{chunk_text_value}"
-    digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()
-    return str(uuid.uuid5(uuid.NAMESPACE_URL, digest))
+    """Build a deterministic point ID for a structured dataset chunk."""
+
+    return build_stable_point_id(source, title, category or "", chunk_index, chunk_text_value)
 
 
 def build_pdf_point_id(
@@ -94,30 +122,83 @@ def build_pdf_point_id(
     chunk_id: str,
     text: str,
 ) -> str:
-    payload = f"pdf|{source_file}|{page}|{chunk_id}|{text}"
-    digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()
-    return str(uuid.uuid5(uuid.NAMESPACE_URL, digest))
+    """Build a deterministic point ID for a PDF chunk."""
+
+    return build_stable_point_id(PDF_SOURCE, source_file, page, chunk_id, text)
+
+
+def _build_structured_point(
+    *,
+    item: Any,
+    chunk: str,
+    vector: list[float],
+    chunk_index: int,
+    chunking_strategy: str,
+    semantic_chunk_max_chars: int,
+    semantic_use_llamaindex: bool,
+) -> PointStruct:
+    """Create a Qdrant point for a structured source chunk."""
+
+    payload = build_structured_payload(
+        item,
+        chunk=chunk,
+        chunk_index=chunk_index,
+        chunking_strategy=chunking_strategy,
+        semantic_chunk_max_chars=semantic_chunk_max_chars,
+        semantic_use_llamaindex=semantic_use_llamaindex,
+    )
+    point_id = build_point_id(item.source, item.title, item.category, chunk, chunk_index)
+    return PointStruct(id=point_id, vector=vector, payload=payload)
+
+
+def _build_pdf_point(
+    *,
+    pdf_chunk: Any,
+    vector: list[float],
+    entities: list[Any],
+    chunking_strategy: str,
+    semantic_chunk_max_chars: int,
+    semantic_use_llamaindex: bool,
+) -> PointStruct:
+    """Create a Qdrant point for a PDF chunk."""
+
+    payload = build_pdf_payload(
+        pdf_chunk,
+        entities=entities,
+        chunking_strategy=chunking_strategy,
+        semantic_chunk_max_chars=semantic_chunk_max_chars,
+        semantic_use_llamaindex=semantic_use_llamaindex,
+    )
+    point_id = build_pdf_point_id(
+        pdf_chunk.source_file,
+        pdf_chunk.page,
+        pdf_chunk.chunk_id,
+        pdf_chunk.text,
+    )
+    return PointStruct(id=point_id, vector=vector, payload=payload)
 
 
 def ingest(
     json_path: str,
     csv_path: str,
-    chunking_strategy: str = "section",
+    chunking_strategy: str = DEFAULT_CHUNKING_STRATEGY,
     *,
-    semantic_chunk_max_chars: int = 700,
-    semantic_use_llamaindex: bool = True,
+    semantic_chunk_max_chars: int = DEFAULT_SEMANTIC_CHUNK_MAX_CHARS,
+    semantic_use_llamaindex: bool = DEFAULT_SEMANTIC_USE_LLAMAINDEX,
     pdf_paths: list[str] | None = None,
     include_structured_sources: bool = True,
-    graph_ingest_enabled: bool = True,
-    relation_min_confidence: float = 0.7,
-    entity_min_confidence: float = 0.65,
-    qdrant_upsert_batch_size: int = 128,
-    qdrant_upsert_max_retries: int = 3,
-    qdrant_upsert_retry_delay_seconds: float = 0.5,
-    chunk_min_chars: int = 1,
-    chunk_min_words: int = 1,
-    list_chunk_min_words: int = 1,
+    graph_ingest_enabled: bool = DEFAULT_GRAPH_INGEST_ENABLED,
+    relation_min_confidence: float = DEFAULT_RELATION_MIN_CONFIDENCE,
+    entity_min_confidence: float = DEFAULT_ENTITY_MIN_CONFIDENCE,
+    qdrant_upsert_batch_size: int = DEFAULT_QDRANT_UPSERT_BATCH_SIZE,
+    qdrant_upsert_max_retries: int = DEFAULT_QDRANT_UPSERT_MAX_RETRIES,
+    qdrant_upsert_retry_delay_seconds: float = DEFAULT_QDRANT_UPSERT_RETRY_DELAY_SECONDS,
+    chunk_min_chars: int = DEFAULT_CHUNK_MIN_CHARS,
+    chunk_min_words: int = DEFAULT_CHUNK_MIN_WORDS,
+    list_chunk_min_words: int = DEFAULT_LIST_CHUNK_MIN_WORDS,
 ) -> int:
+    """Ingest structured items and PDF chunks into Qdrant with stable IDs."""
+
     ensure_collection(vector_size())
 
     points: list[PointStruct] = []
@@ -153,27 +234,20 @@ def ingest(
                 zip(filtered_chunks, vectors, strict=False),
                 start=1,
             ):
-                payload = {
-                    "text": chunk,
-                    "title": item.title,
-                    "source": item.source,
-                    "category": item.category,
-                    "chunk_index": chunk_index,
-                    "chunking_strategy": chunking_strategy,
-                    "semantic_chunk_max_chars": semantic_chunk_max_chars,
-                    "semantic_use_llamaindex": semantic_use_llamaindex,
-                }
-                point_id = build_point_id(
-                    item.source,
-                    item.title,
-                    item.category,
-                    chunk,
-                    chunk_index,
+                points.append(
+                    _build_structured_point(
+                        item=item,
+                        chunk=chunk,
+                        vector=vector,
+                        chunk_index=chunk_index,
+                        chunking_strategy=chunking_strategy,
+                        semantic_chunk_max_chars=semantic_chunk_max_chars,
+                        semantic_use_llamaindex=semantic_use_llamaindex,
+                    )
                 )
-                points.append(PointStruct(id=point_id, vector=vector, payload=payload))
 
     disease_terms = load_disease_terms(json_path)
-    graph_chunks = []
+    graph_chunks: list[Any] = []
     for pdf_path in (pdf_paths or []):
         pdf_chunks = load_pdf_chunks(
             pdf_path,
@@ -205,27 +279,16 @@ def ingest(
                 disease_terms=disease_terms,
                 min_confidence=entity_min_confidence,
             )
-            payload = {
-                "text": pdf_chunk.text,
-                "title": pdf_chunk.section,
-                "source": "pdf",
-                "source_file": pdf_chunk.source_file,
-                "chapter": pdf_chunk.chapter,
-                "section": pdf_chunk.section,
-                "chunk_id": pdf_chunk.chunk_id,
-                "is_list": pdf_chunk.is_list,
-                "entities": [entity.to_dict() for entity in entities],
-                "chunking_strategy": chunking_strategy,
-                "semantic_chunk_max_chars": semantic_chunk_max_chars,
-                "semantic_use_llamaindex": semantic_use_llamaindex,
-            }
-            point_id = build_pdf_point_id(
-                pdf_chunk.source_file,
-                pdf_chunk.page,
-                pdf_chunk.chunk_id,
-                pdf_chunk.text,
+            points.append(
+                _build_pdf_point(
+                    pdf_chunk=pdf_chunk,
+                    vector=vector,
+                    entities=entities,
+                    chunking_strategy=chunking_strategy,
+                    semantic_chunk_max_chars=semantic_chunk_max_chars,
+                    semantic_use_llamaindex=semantic_use_llamaindex,
+                )
             )
-            points.append(PointStruct(id=point_id, vector=vector, payload=payload))
 
     if graph_ingest_enabled and graph_chunks:
         ingest_pdf_chunks_to_graph_safe(
@@ -252,10 +315,14 @@ def _passes_chunk_quality(
     min_words: int,
     list_min_words: int,
 ) -> bool:
+    """Return whether a chunk meets the configured minimum information threshold."""
+
     normalized = " ".join((text or "").split()).strip()
     if not normalized:
         return False
     words = len(normalized.split())
     if is_list:
-        return words >= max(list_min_words, 1)
-    return len(normalized) >= max(min_chars, 1) and words >= max(min_words, 1)
+        return words >= _clamp_quality_threshold(list_min_words)
+    return len(normalized) >= _clamp_quality_threshold(min_chars) and words >= _clamp_quality_threshold(
+        min_words
+    )

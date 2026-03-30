@@ -29,6 +29,7 @@ from typing import Iterator
 
 from models import MedicalItem
 from models.contracts import PdfStructuredChunk
+from rag.chunking.common import clean_line, is_bullet_item, is_markdown_heading, is_numbered_item
 from rag.chunking.strategies import chunk_structured_chunks
 
 logger = logging.getLogger(__name__)
@@ -108,6 +109,8 @@ def _is_csv_header(row: list[str]) -> bool:
 
 
 def load_medical_items(json_path: str, csv_path: str) -> list[MedicalItem]:
+    """Load and validate structured medical items from JSON and CSV datasets."""
+
     items: list[MedicalItem] = []
     errors: list[str] = []
 
@@ -206,7 +209,7 @@ def discover_pdf_paths(
 def discover_markdown_paths(
     dataset_dir: str = "data/dataset",
     *,
-    preferred_filename: str = "cap_1_2_3.md",
+    preferred_filename: str = "document.md",
 ) -> list[str]:
     """Discover markdown files, preferring the configured filename when present."""
     root = Path(dataset_dir)
@@ -453,7 +456,9 @@ def _extract_page_text_with_columns(page: object) -> str:
 
 
 def _normalize_extracted_page_text(text: str) -> str:
-    lines = [re.sub(r"\s+", " ", line).strip() for line in text.splitlines()]
+    """Normalize extracted page text into compact non-empty lines."""
+
+    lines = [clean_line(line) for line in text.splitlines()]
     lines = [line for line in lines if line]
     return "\n".join(lines).strip()
 
@@ -965,10 +970,10 @@ def extract_pdf_pages(pdf_path: str) -> list[str]:
 
 
 def _looks_like_heading(line: str) -> bool:
-    compact = re.sub(r"\s+", " ", line).strip()
+    compact = clean_line(line)
     if not compact:
         return False
-    if _MARKDOWN_HEADING_PATTERN.match(compact):
+    if is_markdown_heading(compact):
         return True
     if _CHAPTER_PATTERN.match(compact):
         return True
@@ -990,16 +995,16 @@ def _looks_like_heading(line: str) -> bool:
 
 
 def _is_numbered_item(line: str) -> bool:
-    return bool(_NUMBERED_ITEM_PATTERN.match(line.strip()))
+    return is_numbered_item(line)
 
 
 def _is_bullet_item(line: str) -> bool:
-    return bool(_BULLET_ITEM_PATTERN.match(line.strip()))
+    return is_bullet_item(line)
 
 
 def _is_numbered_heading(line: str, next_line: str | None = None) -> bool:
-    compact = re.sub(r"\s+", " ", line).strip()
-    if not _NUMBERED_ITEM_PATTERN.match(compact):
+    compact = clean_line(line)
+    if not is_numbered_item(compact):
         return False
     if _SECTION_PATTERN.match(compact) or _ROMAN_SECTION_PATTERN.match(compact):
         return True
@@ -1016,9 +1021,11 @@ def _is_numbered_heading(line: str, next_line: str | None = None) -> bool:
 
 
 def _merge_page_lines(lines: list[str]) -> list[str]:
+    """Merge wrapped page lines while preserving structural boundaries."""
+
     merged: list[str] = []
     for raw_line in lines:
-        line = re.sub(r"\s+", " ", raw_line).strip()
+        line = clean_line(raw_line)
         if not line:
             continue
         if not merged:
@@ -1054,6 +1061,8 @@ def _chunk_id_for(
     ordinal: int,
     text: str,
 ) -> str:
+    """Build a stable chunk ID from source metadata and normalized text."""
+
     payload = f"{source_file}|{page}|{chapter}|{section}|{ordinal}|{text}".encode("utf-8")
     return hashlib.sha1(payload).hexdigest()[:16]
 
@@ -1066,7 +1075,9 @@ def _build_chunk(
     chunk_order: int,
     text: str,
 ) -> PdfStructuredChunk:
-    cleaned_text = re.sub(r"\s+", " ", text).strip()
+    """Create one normalized structured chunk with deterministic metadata."""
+
+    cleaned_text = clean_line(text)
     return PdfStructuredChunk(
         source_file=source_file,
         page=page,
@@ -1090,6 +1101,8 @@ def _group_structured_chunks_for_semantic(
     *,
     group_target_chars: int | None,
 ) -> list[PdfStructuredChunk]:
+    """Merge adjacent structured chunks into larger semantic-rechunk groups."""
+
     if not chunks:
         return []
 
@@ -1315,7 +1328,7 @@ def parse_markdown_to_structured_chunks(markdown_path: str) -> list[PdfStructure
             index += 1
             continue
 
-        heading_match = _MARKDOWN_HEADING_PATTERN.match(line)
+        heading_match = is_markdown_heading(line) and re.match(r"^\s*(#{1,3})\s+(.+?)\s*$", line)
         if heading_match:
             flush_paragraph()
             level = len(heading_match.group(1))
@@ -1343,7 +1356,7 @@ def parse_markdown_to_structured_chunks(markdown_path: str) -> list[PdfStructure
                 if not candidate:
                     index += 1
                     break
-                if _MARKDOWN_HEADING_PATTERN.match(candidate):
+                if is_markdown_heading(candidate):
                     break
                 if _is_numbered_item(candidate) or _is_bullet_item(candidate):
                     list_lines.append(candidate)

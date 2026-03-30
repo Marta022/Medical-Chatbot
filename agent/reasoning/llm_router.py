@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Router helpers for LLM completion, classification, and PDF markdown cleanup."""
+
 from agent.reasoning.providers.local_gemma_client import ollama_call
 from agent.reasoning.providers.local_qwen_client import qwen_call
 from config.prompts import (
@@ -10,13 +12,21 @@ from agent.reasoning.providers.openai_client import openai_call
 from config.settings import SETTINGS
 from models import LLMRequest, LLMResponse
 
-SUPPORTED_PROVIDERS = {"openai", "ollama", "qwen3.5"}
+PROVIDER_OPENAI = "openai"
+PROVIDER_OLLAMA = "ollama"
+PROVIDER_QWEN = "qwen3.5"
+SUPPORTED_PROVIDERS = {PROVIDER_OPENAI, PROVIDER_OLLAMA, PROVIDER_QWEN}
+ERROR_UNSUPPORTED_PROVIDER = "Unsupported LLM provider: {provider}"
+ERROR_INVALID_PAGE_NUMBER = "page_number must be greater than or equal to 1"
+ERROR_EMPTY_PAGE_TEXT = "page_text must be a non-empty string"
 
 
 def _select_provider(provider: str | None = None) -> str:
+    """Resolve provider from request override or global settings."""
+
     chosen = (provider or SETTINGS.llm_provider).strip().lower()
     if chosen not in SUPPORTED_PROVIDERS:
-        raise ValueError(f"Unsupported LLM provider: {chosen}")
+        raise ValueError(ERROR_UNSUPPORTED_PROVIDER.format(provider=chosen))
     return chosen
 
 
@@ -26,6 +36,8 @@ def llm_ask(
     context_block: str,
     provider: str | None = None,
 ) -> str:
+    """Run a chat request and return only response content."""
+
     request = LLMRequest(
         system_prompt=prompt,
         user_message=input_message,
@@ -36,16 +48,22 @@ def llm_ask(
 
 
 def llm_ask_request(request: LLMRequest) -> LLMResponse:
+    """Route an LLMRequest to the configured provider and return envelope response."""
+
     provider = _select_provider(request.provider)
-    if provider == "ollama":
+    if provider == PROVIDER_OLLAMA:
         content = ollama_call(messages=request.messages(), temperature=request.temperature)
-        return LLMResponse(content=content, provider="ollama", model=SETTINGS.ollama_model)
-    if provider == "qwen3.5":
+        return LLMResponse(
+            content=content,
+            provider=PROVIDER_OLLAMA,
+            model=SETTINGS.ollama_model,
+        )
+    if provider == PROVIDER_QWEN:
         content = qwen_call(messages=request.messages(), temperature=request.temperature)
-        return LLMResponse(content=content, provider="qwen3.5", model=SETTINGS.qwen_model)
+        return LLMResponse(content=content, provider=PROVIDER_QWEN, model=SETTINGS.qwen_model)
 
     content = openai_call(messages=request.messages(), temperature=request.temperature)
-    return LLMResponse(content=content, provider="openai", model=SETTINGS.openai_model)
+    return LLMResponse(content=content, provider=PROVIDER_OPENAI, model=SETTINGS.openai_model)
 
 
 def llm_classify(
@@ -53,10 +71,12 @@ def llm_classify(
     temperature: float = 0.0,
     provider: str | None = None,
 ) -> str:
+    """Classify input using the selected model provider."""
+
     chosen = _select_provider(provider)
-    if chosen == "ollama":
+    if chosen == PROVIDER_OLLAMA:
         return ollama_call(messages=messages, temperature=temperature)
-    if chosen == "qwen3.5":
+    if chosen == PROVIDER_QWEN:
         return qwen_call(messages=messages, temperature=temperature)
     return openai_call(messages=messages, temperature=temperature)
 
@@ -68,10 +88,12 @@ def llm_cleanup_pdf_page(
     page_text: str,
     provider: str | None = None,
 ) -> LLMResponse:
+    """Convert one extracted PDF page to markdown-preserving cleaned text."""
+
     if page_number < 1:
-        raise ValueError("page_number must be greater than or equal to 1")
+        raise ValueError(ERROR_INVALID_PAGE_NUMBER)
     if not page_text or not page_text.strip():
-        raise ValueError("page_text must be a non-empty string")
+        raise ValueError(ERROR_EMPTY_PAGE_TEXT)
 
     request = LLMRequest(
         system_prompt=PDF_MARKDOWN_CLEANUP_SYSTEM_PROMPT,

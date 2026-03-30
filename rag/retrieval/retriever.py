@@ -13,26 +13,41 @@ Entrypoint:
 
 from __future__ import annotations
 
+import logging
 import re
-from typing import Any
 
 from qdrant_client.models import FieldCondition, Filter, MatchValue
 
 from config.settings import SETTINGS
 from knowledge.entities.extractor import extract_entities_from_chunk, load_disease_terms
 from knowledge.graph import get_graph_client
+from knowledge.graph.common import result_to_rows
 from knowledge.qdrant.client import COLLECTION, client
 from models import PdfStructuredChunk, RetrievalHit, RetrievalResult
+from rag.retrieval.common import (
+    DEFAULT_RETRIEVAL_SOURCE,
+    GRAPH_SOURCE,
+    KEYWORD_FALLBACK_SOURCE,
+    build_retrieval_hit,
+    tokenize,
+)
 from rag.retrieval.embeddings import embed_query
 
+logger = logging.getLogger(__name__)
 _POLICY_GRAPH_DEPTH_KEY = "__graph_depth"
 _POLICY_VECTOR_WEIGHT_KEY = "__vector_weight"
 _POLICY_GRAPH_WEIGHT_KEY = "__graph_weight"
 _POLICY_RETRIEVAL_MODE_KEY = "__retrieval_mode"
-_TOKEN_PATTERN = re.compile(r"\w+", re.UNICODE)
+SEMANTIC_SCORE_WEIGHT = 0.85
+LEXICAL_OVERLAP_WEIGHT = 0.15
+KEYWORD_PHRASE_BONUS = 0.2
+DEFAULT_GRAPH_CONFIDENCE = 0.7
+MIN_TRAVERSAL_DEPTH = 1
 
 
 def _build_filter(filter_by: dict[str, str] | None) -> Filter | None:
+    """Build a Qdrant payload filter, excluding internal policy keys."""
+
     if not filter_by:
         return None
     conditions = [
@@ -45,33 +60,27 @@ def _build_filter(filter_by: dict[str, str] | None) -> Filter | None:
     return Filter(must=conditions)
 
 
-def _tokenize(text: str) -> set[str]:
-    return {
-        token.lower()
-        for token in _TOKEN_PATTERN.findall(text or "")
-        if len(token) >= 3
-    }
-
-
 def _rerank_hits(
     query: str,
     hits: list[RetrievalHit],
     *,
     top_k: int,
 ) -> list[RetrievalHit]:
+    """Rerank hits by blending semantic score with lexical overlap."""
+
     if not hits:
         return []
-    query_tokens = _tokenize(query)
+    query_tokens = tokenize(query)
     if not query_tokens:
         return hits[:top_k]
 
     weighted: list[tuple[float, RetrievalHit]] = []
     for hit in hits:
-        hit_tokens = _tokenize(f"{hit.title} {hit.text}")
+        hit_tokens = tokenize(f"{hit.title} {hit.text}")
         overlap = len(query_tokens.intersection(hit_tokens))
         overlap_ratio = overlap / len(query_tokens)
         # Keep semantic score dominant, but boost query-term alignment.
-        rerank_score = (hit.score * 0.85) + (overlap_ratio * 0.15)
+        rerank_score = (hit.score * SEMANTIC_SCORE_WEIGHT) + (overlap_ratio * LEXICAL_OVERLAP_WEIGHT)
         weighted.append((rerank_score, hit))
     return [pair[1] for pair in sorted(weighted, key=lambda item: item[0], reverse=True)[:top_k]]
 
@@ -81,6 +90,8 @@ def _vector_hits(
     top_k: int = 5,
     filter_by: dict[str, str] | None = None,
 ) -> list[RetrievalHit]:
+    """Query Qdrant vector search and map results into retrieval hits."""
+
     query_vector = embed_query(input_message)
     payload_filter = _build_filter(filter_by)
 
@@ -95,20 +106,7 @@ def _vector_hits(
     retrieval_hits: list[RetrievalHit] = []
     for hit in hits:
         payload = hit.payload or {}
-        retrieval_hits.append(
-            RetrievalHit(
-                title=str(payload.get("title", "unknown")).strip(),
-                text=str(payload.get("text", "")).strip(),
-                score=float(hit.score),
-                source=str(payload.get("source", "unknown")),
-                source_file=(
-                    str(payload.get("source_file")) if payload.get("source_file") is not None else None
-                ),
-                page=int(payload.get("page")) if payload.get("page") is not None else None,
-                section=str(payload.get("section")) if payload.get("section") is not None else None,
-                chunk_id=str(payload.get("chunk_id")) if payload.get("chunk_id") is not None else None,
-            )
-        )
+        retrieval_hits.append(build_retrieval_hit(score=float(hit.score), payload=payload))
     return retrieval_hits
 
 
@@ -118,7 +116,9 @@ def _keyword_fallback_hits(
     top_k: int,
     filter_by: dict[str, str] | None = None,
 ) -> list[RetrievalHit]:
-    query_tokens = _tokenize(input_message)
+    """Scan candidate payloads lexically when semantic confidence is weak."""
+
+    query_tokens = tokenize(input_message)
     if not query_tokens:
         return []
 
@@ -134,35 +134,28 @@ def _keyword_fallback_hits(
     query_phrase = " ".join(sorted(query_tokens))
     for point in points:
         payload = point.payload or {}
-        title = str(payload.get("title", "unknown")).strip()
+        title = str(payload.get("title", DEFAULT_RETRIEVAL_SOURCE)).strip()
         text = str(payload.get("text", "")).strip()
         if not text:
             continue
-        hit_tokens = _tokenize(f"{title} {text}")
+        hit_tokens = tokenize(f"{title} {text}")
         if not hit_tokens:
             continue
         overlap = len(query_tokens.intersection(hit_tokens))
         if overlap == 0:
             continue
         overlap_ratio = overlap / max(len(query_tokens), 1)
-        phrase_bonus = 0.2 if query_phrase and query_phrase in text.lower() else 0.0
+        phrase_bonus = KEYWORD_PHRASE_BONUS if query_phrase and query_phrase in text.lower() else 0.0
         score = min(overlap_ratio + phrase_bonus, 1.0)
         if score < SETTINGS.keyword_fallback_min_score:
             continue
         scored.append(
             (
                 score,
-                RetrievalHit(
-                    title=title,
-                    text=text,
+                build_retrieval_hit(
                     score=score,
-                    source="keyword_fallback",
-                    source_file=(
-                        str(payload.get("source_file")) if payload.get("source_file") is not None else None
-                    ),
-                    page=int(payload.get("page")) if payload.get("page") is not None else None,
-                    section=str(payload.get("section")) if payload.get("section") is not None else None,
-                    chunk_id=str(payload.get("chunk_id")) if payload.get("chunk_id") is not None else None,
+                    payload=payload,
+                    source_override=KEYWORD_FALLBACK_SOURCE,
                 ),
             )
         )
@@ -172,6 +165,8 @@ def _keyword_fallback_hits(
 
 
 def _query_seed_entities(input_message: str) -> list[str]:
+    """Extract canonical entities from the user query for graph seeding."""
+
     disease_terms = load_disease_terms(SETTINGS.dataset_json_path)
     pseudo_chunk = PdfStructuredChunk(
         source_file="query",
@@ -197,47 +192,14 @@ def _query_seed_entities(input_message: str) -> list[str]:
     return ordered_unique
 
 
-def _result_to_rows(result: Any) -> list[dict[str, Any]]:
-    if result is None:
-        return []
-    if isinstance(result, list):
-        rows: list[dict[str, Any]] = []
-        for item in result:
-            if isinstance(item, dict):
-                rows.append(item)
-            elif hasattr(item, "_asdict"):
-                rows.append(dict(item._asdict()))
-        return rows
-
-    to_df = getattr(result, "to_df", None)
-    if callable(to_df):
-        frame = to_df()
-        to_dict = getattr(frame, "to_dict", None)
-        if callable(to_dict):
-            records = to_dict(orient="records")
-            if isinstance(records, list):
-                return [item for item in records if isinstance(item, dict)]
-
-    has_next = getattr(result, "has_next", None)
-    get_next = getattr(result, "get_next", None)
-    if callable(has_next) and callable(get_next):
-        rows: list[dict[str, Any]] = []
-        while result.has_next():
-            item = result.get_next()
-            if isinstance(item, dict):
-                rows.append(item)
-            elif hasattr(item, "_asdict"):
-                rows.append(dict(item._asdict()))
-        return rows
-    return []
-
-
 def _graph_hits(
     input_message: str,
     *,
     graph_top_k: int,
     traversal_depth: int,
 ) -> list[RetrievalHit]:
+    """Traverse the graph store from query seed entities and map relation hits."""
+
     seed_entities = _query_seed_entities(input_message)
     if not seed_entities:
         return []
@@ -247,7 +209,7 @@ def _graph_hits(
         rows: list[dict[str, Any]] = []
         frontier = seed_entities
         visited: set[str] = set(seed_entities)
-        max_depth = max(1, traversal_depth)
+        max_depth = max(MIN_TRAVERSAL_DEPTH, traversal_depth)
         for _ in range(max_depth):
             if not frontier:
                 break
@@ -268,7 +230,7 @@ def _graph_hits(
                     ),
                     {"canonical_form": canonical_form, "limit": graph_top_k},
                 )
-                parsed_rows = _result_to_rows(result)
+                parsed_rows = result_to_rows(result)
                 rows.extend(parsed_rows)
                 for row in parsed_rows:
                     target_entity = str(row.get("target_entity", "")).strip()
@@ -285,10 +247,10 @@ def _graph_hits(
         source_entity = str(row.get("source_entity", "")).strip()
         target_entity = str(row.get("target_entity", "")).strip()
         relation = str(row.get("relation_label", "")).strip().lower()
-        source_file = str(row.get("source_file", "graph")).strip() or "graph"
+        source_file = str(row.get("source_file", GRAPH_SOURCE)).strip() or GRAPH_SOURCE
         page = row.get("page", "unknown")
         chunk_id = str(row.get("chunk_id", "unknown")).strip() or "unknown"
-        confidence = float(row.get("confidence", 0.7) or 0.7)
+        confidence = float(row.get("confidence", DEFAULT_GRAPH_CONFIDENCE) or DEFAULT_GRAPH_CONFIDENCE)
         if not source_entity or not target_entity:
             continue
 
@@ -300,7 +262,7 @@ def _graph_hits(
                     f"(source: {source_file}, page: {page}, chunk: {chunk_id})"
                 ),
                 score=max(0.0, min(1.0, confidence)),
-                source="graph",
+                source=GRAPH_SOURCE,
                 source_file=source_file,
                 page=int(page) if isinstance(page, int) else None,
                 section=None,
@@ -318,6 +280,8 @@ def _merge_hits(
     vector_weight: float,
     graph_weight: float,
 ) -> list[RetrievalHit]:
+    """Merge weighted hit lists and drop duplicates while preserving rank order."""
+
     weighted: list[tuple[float, RetrievalHit]] = []
     for hit in vector_hits:
         weighted.append((hit.score * vector_weight, hit))
@@ -344,6 +308,8 @@ def retrieve_hybrid(
     *,
     graph_top_k: int | None = None,
 ) -> RetrievalResult:
+    """Run hybrid retrieval using vector search plus graph expansion."""
+
     vector_hits = _vector_hits(input_message, top_k=top_k, filter_by=filter_by)
     control_filter = filter_by or {}
     graph_depth = int(control_filter.get(_POLICY_GRAPH_DEPTH_KEY, SETTINGS.graph_traversal_depth))
@@ -358,7 +324,8 @@ def retrieve_hybrid(
             graph_top_k=graph_top_k or SETTINGS.graph_retrieval_top_k,
             traversal_depth=graph_depth,
         )
-    except Exception:
+    except Exception as exc:
+        logger.warning("Graph retrieval failed; continuing with vector hits: %s", exc)
         graph_hits = []
     merged = _merge_hits(
         vector_hits,
@@ -399,6 +366,8 @@ def retrieve_top_similar(
     *,
     retrieval_mode: str | None = None,
 ) -> RetrievalResult:
+    """Dispatch retrieval in vector or hybrid mode and apply fallback policy."""
+
     filter_mode = None
     if filter_by:
         filter_mode = filter_by.get(_POLICY_RETRIEVAL_MODE_KEY)

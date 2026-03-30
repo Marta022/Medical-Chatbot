@@ -28,29 +28,52 @@ from models import QueryRequest
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_CHAT_LANGUAGE = "ro"
+DEFAULT_INGEST_CHUNKING_STRATEGY = "section"
+FALLBACK_MODEL_ID = "medical-chatbot-default"
+OPENAI_BEARER_PREFIX = "bearer "
+HEALTH_ENDPOINT = "health"
+SERVICE_NAME = "medical-chatbot-api"
+SERVICE_VERSION = "v1-skeleton"
+OPENAI_OBJECT_LIST = "list"
+OPENAI_OBJECT_MODEL = "model"
+OPENAI_OBJECT_CHAT_COMPLETION = "chat.completion"
+OPENAI_ASSISTANT_ROLE = "assistant"
+OPENAI_FINISH_REASON_STOP = "stop"
+
 
 def _error_payload(message: str) -> dict[str, dict[str, str]]:
+    """Build standardized API error payload."""
+
     return {"error": {"message": message}}
 
 
 def _deps(app: Flask) -> ApiDependencies:
+    """Read dependency container from Flask app config."""
+
     return app.config["API_DEPS"]
 
 
 def _api_settings(app: Flask) -> ApiSettings:
+    """Read API settings from Flask app config."""
+
     return app.config["API_SETTINGS"]
 
 
 def _model_id() -> str:
+    """Resolve currently active model identifier for OpenAI-compatible endpoints."""
+
     provider = SETTINGS.llm_provider
     if provider == "openai":
         return SETTINGS.openai_model
     if provider == "ollama":
         return SETTINGS.ollama_model
-    return "medical-chatbot-default"
+    return FALLBACK_MODEL_ID
 
 
 def _extract_user_message(messages: list[dict[str, Any]]) -> str:
+    """Extract the last user-role message content from a chat history payload."""
+
     for item in reversed(messages):
         if str(item.get("role", "")).lower() == "user":
             content = item.get("content", "")
@@ -60,13 +83,17 @@ def _extract_user_message(messages: list[dict[str, Any]]) -> str:
 
 
 def _extract_api_key_from_request() -> str | None:
+    """Extract API key from Authorization Bearer token or X-API-Key header."""
+
     auth_header = request.headers.get("Authorization", "")
-    if auth_header.lower().startswith("bearer "):
+    if auth_header.lower().startswith(OPENAI_BEARER_PREFIX):
         return auth_header[7:].strip()
     return request.headers.get("X-API-Key")
 
 
 def _build_retrieval_filters(payload: dict[str, Any]) -> dict[str, str] | None:
+    """Normalize request payload into internal retrieval filter map."""
+
     raw_filters = payload.get("filters")
     filters: dict[str, str] = dict(raw_filters) if isinstance(raw_filters, dict) else {}
 
@@ -95,7 +122,7 @@ def create_app(
         # Keep API logs correlated per-request.
         new_correlation_id()
 
-        if request.endpoint == "health":
+        if request.endpoint == HEALTH_ENDPOINT:
             return
 
         settings = _api_settings(app)
@@ -135,8 +162,8 @@ def create_app(
         return jsonify(
             {
                 "status": "ok",
-                "service": "medical-chatbot-api",
-                "version": "v1-skeleton",
+                "service": SERVICE_NAME,
+                "version": SERVICE_VERSION,
                 "api_enabled": _api_settings(app).api_enabled,
                 "auth_required": _api_settings(app).require_api_key,
             }
@@ -152,7 +179,7 @@ def create_app(
         query_request = QueryRequest(
             query=raw_query,
             top_k=int(payload.get("top_k", SETTINGS.default_top_k)),
-            language=str(payload.get("language", "ro")),
+            language=str(payload.get("language", DEFAULT_CHAT_LANGUAGE)),
             filters=_build_retrieval_filters(payload),
         )
         if query_request.top_k > settings.max_top_k:
@@ -167,7 +194,9 @@ def create_app(
         payload = request.get_json(silent=True) or {}
         json_path = str(payload.get("json_path", SETTINGS.dataset_json_path))
         csv_path = str(payload.get("csv_path", SETTINGS.dataset_csv_path))
-        chunking_strategy = str(payload.get("chunking_strategy", "section"))
+        chunking_strategy = str(
+            payload.get("chunking_strategy", DEFAULT_INGEST_CHUNKING_STRATEGY)
+        )
         inserted = _deps(app).ingest(json_path, csv_path, chunking_strategy)
         return jsonify(
             {
@@ -197,11 +226,11 @@ def create_app(
         model_id = _model_id()
         return jsonify(
             {
-                "object": "list",
+                "object": OPENAI_OBJECT_LIST,
                 "data": [
                     {
                         "id": model_id,
-                        "object": "model",
+                        "object": OPENAI_OBJECT_MODEL,
                         "created": now,
                         "owned_by": "medical-chatbot",
                     }
@@ -225,7 +254,7 @@ def create_app(
         query_request = QueryRequest(
             query=query,
             top_k=int(payload.get("top_k", SETTINGS.default_top_k)),
-            language=str(payload.get("language", "ro")),
+            language=str(payload.get("language", DEFAULT_CHAT_LANGUAGE)),
             filters=_build_retrieval_filters(payload),
         )
         if query_request.top_k > settings.max_top_k:
@@ -241,14 +270,14 @@ def create_app(
         return jsonify(
             {
                 "id": completion_id,
-                "object": "chat.completion",
+                "object": OPENAI_OBJECT_CHAT_COMPLETION,
                 "created": created,
                 "model": model,
                 "choices": [
                     {
                         "index": 0,
-                        "message": {"role": "assistant", "content": content},
-                        "finish_reason": "stop",
+                        "message": {"role": OPENAI_ASSISTANT_ROLE, "content": content},
+                        "finish_reason": OPENAI_FINISH_REASON_STOP,
                     }
                 ],
                 "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},

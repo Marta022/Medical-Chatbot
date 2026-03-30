@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Benchmark utilities for Romanian medical multiple-choice evaluation."""
+
 import json
 import re
 from pathlib import Path
@@ -14,6 +16,40 @@ from models import EvaluatorResult, GuardrailResult, LLMRequest, RetrievalHit
 
 DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH = "data/dataset/primele_10_grile_pag2_curatate.json"
 DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH = "data/dataset/primele_10_grile_pag2_answer_key.txt"
+DEFAULT_BENCHMARK_LANGUAGE = "ro"
+DEFAULT_BENCHMARK_TOP_K = 3
+RETRIEVAL_POOL_MULTIPLIER = 3
+RETRIEVAL_POOL_EXTRA = 4
+MIN_RESPONSE_ATTEMPTS = 1
+REVIEW_RETRY_MESSAGE = (
+    "Revizuire obligatorie: raspunsul anterior nu a fost suficient de "
+    "bine sustinut de context sau de strict. Raspuns anterior: {previous_response}"
+)
+KEY_ORDER = "ORDINE"
+KEY_ASSOCIATIONS = "ASOCIERI"
+KEY_VARIANT = "VARIANTA"
+KEY_FRAGMENT_ISSUE = "FRAGMENT_PROBLEMA"
+QUESTION_PHRASE_SEQUENCE = "care este lantul temporal corect"
+QUESTION_PHRASE_MAPPING = "care sunt asocierile corecte"
+QUESTION_PHRASE_FDD_CHAIN = "inlantuirea temporala cauzala corecta"
+QUESTION_PHRASE_SCFCE_DOTTED = "s.c.f.c.e."
+QUESTION_PHRASE_SCFCE_SPACED = "s c f c e"
+STATUS_TRUE = "ADEVARAT"
+STATUS_FALSE = "FALS"
+STATUS_INSUFFICIENT = "INSUFICIENT"
+REJECTION_EMPTY_RESPONSE = "empty_response"
+REJECTION_FORBIDDEN_REASONING = "forbidden_reasoning"
+REJECTION_MISSING_ANSWER_LETTERS = "missing_answer_letters"
+REJECTION_MISSING_OR_INVALID_VARIANT = "missing_or_invalid_variant"
+REJECTION_DERIVED_VALUE_VARIANT_MISMATCH = "derived_value_variant_mismatch"
+REJECTION_ANSWER_VARIANT_MISMATCH = "answer_variant_mismatch"
+REJECTION_MISSING_OR_INVALID_FRAGMENT = "missing_or_invalid_fragment"
+REJECTION_ANSWER_FRAGMENT_MISMATCH = "answer_fragment_mismatch"
+REJECTION_SINGLE_ANSWER_COUNT_MISMATCH = "single_answer_count_mismatch"
+REJECTION_SINGLE_ANSWER_STATUS_MISMATCH = "single_answer_status_mismatch"
+REJECTION_ALL_OPTIONS_SELECTED = "all_options_selected"
+REJECTION_NO_DERIVED_ANSWERS = "no_derived_answers"
+REJECTION_STATUS_ANSWER_MISMATCH = "status_answer_mismatch"
 BENCHMARK_SYSTEM_PROMPT = """
 You are solving Romanian medical multiple-choice benchmark items using ONLY the retrieved context.
 
@@ -80,6 +116,8 @@ _SINGLE_ANSWER_PHRASES = (
 
 
 def _extract_answer_segment(value: str) -> str:
+    """Extract the candidate answer line from raw model output."""
+
     marker_match = _ANSWER_SEGMENT_RE.search(value)
     if marker_match:
         return marker_match.group(1)
@@ -92,6 +130,8 @@ def _extract_answer_segment(value: str) -> str:
 
 
 def _normalize_romanian_text(value: str) -> str:
+    """Normalize common Romanian diacritics and lowercase text."""
+
     return (
         (value or "")
         .lower()
@@ -106,6 +146,8 @@ def _normalize_romanian_text(value: str) -> str:
 
 
 def _extract_option_letters(value: str) -> set[str]:
+    """Parse answer letters (A-E) from response text."""
+
     answer_segment = _extract_answer_segment(value)
     normalized = answer_segment.upper().strip()
     if not normalized:
@@ -128,6 +170,8 @@ def _extract_option_letters(value: str) -> set[str]:
 
 
 def _normalize_answer_letters(raw: Any) -> set[str]:
+    """Normalize answer representations into a set of option letters."""
+
     if isinstance(raw, str):
         return _extract_option_letters(raw)
     if isinstance(raw, (list, tuple, set)):
@@ -139,6 +183,8 @@ def _normalize_answer_letters(raw: Any) -> set[str]:
 
 
 def _safe_int(value: Any) -> int | None:
+    """Parse int while tolerating invalid values."""
+
     try:
         return int(value)
     except (TypeError, ValueError):
@@ -146,6 +192,8 @@ def _safe_int(value: Any) -> int | None:
 
 
 def _extract_question_text(raw: dict[str, Any]) -> str:
+    """Extract question text from supported input key aliases."""
+
     for key in _QUESTION_KEYS:
         value = str(raw.get(key, "")).strip()
         if value:
@@ -154,6 +202,8 @@ def _extract_question_text(raw: dict[str, Any]) -> str:
 
 
 def _extract_choices(raw: dict[str, Any]) -> dict[str, str]:
+    """Extract A-E options from flat or nested dataset formats."""
+
     direct = {letter: str(raw.get(letter, "")).strip() for letter in _CHOICE_LETTERS}
     if any(direct.values()):
         return direct
@@ -173,6 +223,8 @@ def _extract_choices(raw: dict[str, Any]) -> dict[str, str]:
 
 
 def _extract_answer_letters_from_entry(entry: dict[str, Any]) -> set[str]:
+    """Extract gold answer letters from one answer-key entry."""
+
     for key in _ANSWER_VALUE_KEYS:
         if key in entry:
             parsed = _normalize_answer_letters(entry.get(key))
@@ -192,6 +244,8 @@ def _extract_answer_letters_from_entry(entry: dict[str, Any]) -> set[str]:
 
 
 def _requires_single_answer(question: str) -> bool:
+    """Heuristically decide whether a question expects exactly one letter."""
+
     normalized = _normalize_romanian_text(question)
     if _MULTI_ANSWER_TYPE_RE.search(normalized):
         return False
@@ -205,6 +259,8 @@ def _requires_single_answer(question: str) -> bool:
 
 
 def _choice_pattern_implies_single_answer(choices: dict[str, str]) -> bool:
+    """Detect single-answer patterns from option formatting."""
+
     values = [value.strip() for value in choices.values() if value and value.strip()]
     if not values:
         return False
@@ -216,6 +272,8 @@ def _choice_pattern_implies_single_answer(choices: dict[str, str]) -> bool:
 
 
 def _benchmark_requires_single_answer(item: dict[str, Any]) -> bool:
+    """Decide if benchmark item requires exactly one answer letter."""
+
     question = str(item.get("intrebare", ""))
     choices = item.get("choices", {})
     normalized_question = _normalize_romanian_text(question)
@@ -227,6 +285,8 @@ def _benchmark_requires_single_answer(item: dict[str, Any]) -> bool:
 
 
 def _tokenize(value: str) -> set[str]:
+    """Tokenize normalized text into alphanumeric tokens."""
+
     return {
         token.lower()
         for token in _TOKEN_RE.findall(_normalize_romanian_text(value))
@@ -235,6 +295,8 @@ def _tokenize(value: str) -> set[str]:
 
 
 def _compact_pattern(value: str) -> str:
+    """Build punctuation-free normalized token stream for exact pattern comparison."""
+
     return re.sub(r"[^a-z0-9]+", "", _normalize_romanian_text(value))
 
 
@@ -242,6 +304,8 @@ def _match_derived_value_to_option(
     item: dict[str, Any],
     derived_value: str,
 ) -> str | None:
+    """Match derived order/mapping text to one of the option letters."""
+
     compact_derived = _compact_pattern(derived_value)
     if not compact_derived or compact_derived == "insuficient":
         return None
@@ -252,6 +316,8 @@ def _match_derived_value_to_option(
 
 
 def _build_benchmark_retrieval_query(item: dict[str, Any]) -> str:
+    """Build retrieval query, appending options for single-answer item types."""
+
     choices = item["choices"]
     parts = [item["intrebare"]]
     if _benchmark_requires_single_answer(item):
@@ -264,6 +330,8 @@ def _build_benchmark_retrieval_query(item: dict[str, Any]) -> str:
 
 
 def _build_option_queries(item: dict[str, Any]) -> list[str]:
+    """Build query pool containing base question and per-option probes."""
+
     question = item["intrebare"]
     queries = [question]
     for letter, value in item["choices"].items():
@@ -275,6 +343,8 @@ def _build_option_queries(item: dict[str, Any]) -> list[str]:
 
 
 def _benchmark_hit_relevance(item: dict[str, Any], hit: RetrievalHit) -> float:
+    """Score benchmark retrieval hits using query and option overlap signals."""
+
     question_tokens = _tokenize(item["intrebare"])
     hit_text = f"{hit.title} {hit.text} {hit.section or ''}"
     hit_tokens = _tokenize(hit_text)
@@ -308,6 +378,8 @@ def _rerank_benchmark_hits(
     *,
     top_k: int,
 ) -> list[RetrievalHit]:
+    """Rerank and deduplicate retrieval hits, preserving top-k high-signal chunks."""
+
     weighted = sorted(
         ((_benchmark_hit_relevance(item, hit), hit) for hit in hits),
         key=lambda pair: pair[0],
@@ -327,6 +399,8 @@ def _rerank_benchmark_hits(
 
 
 def _build_benchmark_context_block(item: dict[str, Any], hits: list[RetrievalHit]) -> str:
+    """Render benchmark context block from retrieved chunks."""
+
     lines = ["Context benchmark relevant:"]
     for index, hit in enumerate(hits, start=1):
         source_file = hit.source_file or hit.source or "unknown"
@@ -344,6 +418,8 @@ def _build_benchmark_context_block(item: dict[str, Any], hits: list[RetrievalHit
 def load_retrieval_benchmark_queries(
     json_path: str = DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
 ) -> list[str]:
+    """Load unique benchmark probe queries from dataset JSON."""
+
     source = Path(json_path)
     payload = json.loads(source.read_text(encoding="utf-8"))
     if not isinstance(payload, list):
@@ -370,6 +446,8 @@ def load_retrieval_benchmark_queries(
 def load_retrieval_benchmark_items(
     json_path: str = DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
 ) -> list[dict[str, Any]]:
+    """Load benchmark items normalized to id/question/choices structure."""
+
     source = Path(json_path)
     payload = json.loads(source.read_text(encoding="utf-8"))
     if not isinstance(payload, list):
@@ -403,6 +481,8 @@ def load_retrieval_benchmark_items(
 def load_retrieval_answer_key(
     answer_key_path: str = DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH,
 ) -> dict[int, set[str]]:
+    """Load answer key from .txt or .json formats."""
+
     source = Path(answer_key_path)
     suffix = source.suffix.lower()
 
@@ -470,6 +550,8 @@ def load_retrieval_answer_key(
 
 
 def _build_grila_prompt(item: dict[str, Any]) -> str:
+    """Build strict benchmark prompt for one multiple-choice item."""
+
     choices = item["choices"]
     question_text = item["intrebare"]
     normalized_question = _normalize_romanian_text(question_text)
@@ -634,6 +716,8 @@ def _build_single_answer_repair_prompt(
     original_prompt: str,
     previous_response: str,
 ) -> str:
+    """Build corrective prompt enforcing one-letter answer format."""
+
     return (
         f"{original_prompt}\n\n"
         "Corectie obligatorie de format: aceasta intrebare cere EXACT un singur raspuns.\n"
@@ -643,73 +727,125 @@ def _build_single_answer_repair_prompt(
 
 
 def _response_violates_benchmark_rules(response: str) -> bool:
+    """Check whether model response violates benchmark constraints."""
+
     if not response.strip():
         return True
     return bool(_FORBIDDEN_REASONING_RE.search(response))
 
 
-def _benchmark_rejection_reason(item: dict[str, Any], response: str) -> str | None:
-    if not response.strip():
-        return "empty_response"
-    if _FORBIDDEN_REASONING_RE.search(response):
-        return "forbidden_reasoning"
+def _is_sequence_question(normalized_question: str) -> bool:
+    """Return whether question requests a temporal-order answer."""
 
-    predicted = _extract_option_letters(response)
-    if not predicted:
-        return "missing_answer_letters"
+    return QUESTION_PHRASE_SEQUENCE in normalized_question
 
-    normalized_question = _normalize_romanian_text(item["intrebare"])
-    if "care este lantul temporal corect" in normalized_question or "care sunt asocierile corecte" in normalized_question:
-        derived_key = "ORDINE" if "care este lantul temporal corect" in normalized_question else "ASOCIERI"
-        derived_value = _extract_named_line(response, derived_key)
-        variant = _extract_named_line(response, "VARIANTA").upper().strip(" .")
-        if len(variant) != 1 or variant not in _CHOICE_LETTERS:
-            return "missing_or_invalid_variant"
-        matched_letter = _match_derived_value_to_option(item, derived_value)
-        if matched_letter is not None and matched_letter != variant:
-            return "derived_value_variant_mismatch"
-        if predicted != {variant}:
-            return "answer_variant_mismatch"
-        return None
 
-    if "s.c.f.c.e." in normalized_question or "s c f c e" in normalized_question:
-        fragment = _extract_named_line(response, "FRAGMENT_PROBLEMA").upper().strip(" .")
-        if len(fragment) != 1 or fragment not in _CHOICE_LETTERS:
-            return "missing_or_invalid_fragment"
-        if predicted != {fragment}:
-            return "answer_fragment_mismatch"
-        return None
+def _is_mapping_question(normalized_question: str) -> bool:
+    """Return whether question requests association mapping."""
+
+    return QUESTION_PHRASE_MAPPING in normalized_question
+
+
+def _is_scfce_question(normalized_question: str) -> bool:
+    """Return whether question is sentence-fragment completion type."""
+
+    return (
+        QUESTION_PHRASE_SCFCE_DOTTED in normalized_question
+        or QUESTION_PHRASE_SCFCE_SPACED in normalized_question
+    )
+
+
+def _is_uascce_question(normalized_question: str) -> bool:
+    """Return whether question is u.a.s.c.c.e. multi-answer type."""
+
+    return bool(re.search(r"\bu\.?a\.?s\.?c\.?c\.?e\.?\b", normalized_question))
+
+
+def _extract_option_statuses(response: str) -> dict[str, str]:
+    """Extract STATUT_A..E fields from response."""
 
     statuses: dict[str, str] = {}
     for letter in _CHOICE_LETTERS:
         status = _extract_named_line(response, f"STATUT_{letter}").upper().strip(" .")
         if status:
             statuses[letter] = status
+    return statuses
+
+
+def _derive_answers_from_statuses(
+    *,
+    normalized_question: str,
+    statuses: dict[str, str],
+) -> set[str]:
+    """Derive predicted letters from per-option statuses."""
+
+    if _is_uascce_question(normalized_question):
+        return {letter for letter, status in statuses.items() if status == STATUS_FALSE}
+    return {letter for letter, status in statuses.items() if status == STATUS_TRUE}
+
+
+def _benchmark_rejection_reason(item: dict[str, Any], response: str) -> str | None:
+    """Return structured rejection reason when response is invalid for benchmark policy."""
+
+    if not response.strip():
+        return REJECTION_EMPTY_RESPONSE
+    if _FORBIDDEN_REASONING_RE.search(response):
+        return REJECTION_FORBIDDEN_REASONING
+
+    predicted = _extract_option_letters(response)
+    if not predicted:
+        return REJECTION_MISSING_ANSWER_LETTERS
+
+    normalized_question = _normalize_romanian_text(item["intrebare"])
+    if _is_sequence_question(normalized_question) or _is_mapping_question(normalized_question):
+        derived_key = KEY_ORDER if _is_sequence_question(normalized_question) else KEY_ASSOCIATIONS
+        derived_value = _extract_named_line(response, derived_key)
+        variant = _extract_named_line(response, KEY_VARIANT).upper().strip(" .")
+        if len(variant) != 1 or variant not in _CHOICE_LETTERS:
+            return REJECTION_MISSING_OR_INVALID_VARIANT
+        matched_letter = _match_derived_value_to_option(item, derived_value)
+        if matched_letter is not None and matched_letter != variant:
+            return REJECTION_DERIVED_VALUE_VARIANT_MISMATCH
+        if predicted != {variant}:
+            return REJECTION_ANSWER_VARIANT_MISMATCH
+        return None
+
+    if _is_scfce_question(normalized_question):
+        fragment = _extract_named_line(response, KEY_FRAGMENT_ISSUE).upper().strip(" .")
+        if len(fragment) != 1 or fragment not in _CHOICE_LETTERS:
+            return REJECTION_MISSING_OR_INVALID_FRAGMENT
+        if predicted != {fragment}:
+            return REJECTION_ANSWER_FRAGMENT_MISMATCH
+        return None
+
+    statuses = _extract_option_statuses(response)
     if not statuses:
         return None
 
     if _benchmark_requires_single_answer(item):
         if len(predicted) != 1:
-            return "single_answer_count_mismatch"
+            return REJECTION_SINGLE_ANSWER_COUNT_MISMATCH
         chosen = next(iter(predicted))
-        if statuses.get(chosen) not in {"ADEVARAT", "FALS"}:
-            return "single_answer_status_mismatch"
+        if statuses.get(chosen) not in {STATUS_TRUE, STATUS_FALSE}:
+            return REJECTION_SINGLE_ANSWER_STATUS_MISMATCH
         return None
 
-    if re.search(r"\bu\.?a\.?s\.?c\.?c\.?e\.?\b", normalized_question):
-        derived = {letter for letter, status in statuses.items() if status == "FALS"}
-    else:
-        derived = {letter for letter, status in statuses.items() if status == "ADEVARAT"}
+    derived = _derive_answers_from_statuses(
+        normalized_question=normalized_question,
+        statuses=statuses,
+    )
     if len(derived) == len(_CHOICE_LETTERS):
-        return "all_options_selected"
+        return REJECTION_ALL_OPTIONS_SELECTED
     if not derived:
-        return "no_derived_answers"
+        return REJECTION_NO_DERIVED_ANSWERS
     if derived != predicted:
-        return "status_answer_mismatch"
+        return REJECTION_STATUS_ANSWER_MISMATCH
     return None
 
 
 def _extract_named_line(response: str, key: str) -> str:
+    """Extract named key line (KEY: value) from structured model output."""
+
     pattern = re.compile(rf"^\s*{re.escape(key)}\s*:\s*(.+)$", flags=re.IGNORECASE | re.MULTILINE)
     match = pattern.search(response)
     if not match:
@@ -718,15 +854,17 @@ def _extract_named_line(response: str, key: str) -> str:
 
 
 def _structured_response_is_consistent(item: dict[str, Any], response: str) -> bool:
+    """Check whether structured response fields align with final answer letters."""
+
     predicted = _extract_option_letters(response)
     if not predicted:
         return False
 
     normalized_question = _normalize_romanian_text(item["intrebare"])
-    if "care este lantul temporal corect" in normalized_question or "care sunt asocierile corecte" in normalized_question:
-        derived_key = "ORDINE" if "care este lantul temporal corect" in normalized_question else "ASOCIERI"
+    if _is_sequence_question(normalized_question) or _is_mapping_question(normalized_question):
+        derived_key = KEY_ORDER if _is_sequence_question(normalized_question) else KEY_ASSOCIATIONS
         derived_value = _extract_named_line(response, derived_key)
-        variant = _extract_named_line(response, "VARIANTA").upper().strip(" .")
+        variant = _extract_named_line(response, KEY_VARIANT).upper().strip(" .")
         if len(variant) != 1 or variant not in _CHOICE_LETTERS:
             return False
         matched_letter = _match_derived_value_to_option(item, derived_value)
@@ -734,17 +872,13 @@ def _structured_response_is_consistent(item: dict[str, Any], response: str) -> b
             return False
         return predicted == {variant}
 
-    if "s.c.f.c.e." in normalized_question or "s c f c e" in normalized_question:
-        fragment = _extract_named_line(response, "FRAGMENT_PROBLEMA").upper().strip(" .")
+    if _is_scfce_question(normalized_question):
+        fragment = _extract_named_line(response, KEY_FRAGMENT_ISSUE).upper().strip(" .")
         if len(fragment) != 1 or fragment not in _CHOICE_LETTERS:
             return False
         return predicted == {fragment}
 
-    statuses: dict[str, str] = {}
-    for letter in _CHOICE_LETTERS:
-        status = _extract_named_line(response, f"STATUT_{letter}").upper().strip(" .")
-        if status:
-            statuses[letter] = status
+    statuses = _extract_option_statuses(response)
     if not statuses:
         return True
 
@@ -752,18 +886,20 @@ def _structured_response_is_consistent(item: dict[str, Any], response: str) -> b
         if len(predicted) != 1:
             return False
         chosen = next(iter(predicted))
-        return statuses.get(chosen) in {"ADEVARAT", "FALS"} or not statuses
+        return statuses.get(chosen) in {STATUS_TRUE, STATUS_FALSE} or not statuses
 
-    if re.search(r"\bu\.?a\.?s\.?c\.?c\.?e\.?\b", normalized_question):
-        derived = {letter for letter, status in statuses.items() if status == "FALS"}
-    else:
-        derived = {letter for letter, status in statuses.items() if status == "ADEVARAT"}
+    derived = _derive_answers_from_statuses(
+        normalized_question=normalized_question,
+        statuses=statuses,
+    )
     if len(derived) == len(_CHOICE_LETTERS):
         return False
     return bool(derived) and derived == predicted
 
 
 def _score_prediction(predicted: set[str], gold: set[str]) -> dict[str, float | int | bool]:
+    """Compute per-item set metrics for benchmark answers."""
+
     true_positive = len(predicted & gold)
     false_positive = len(predicted - gold)
     false_negative = len(gold - predicted)
@@ -782,6 +918,8 @@ def _score_prediction(predicted: set[str], gold: set[str]) -> dict[str, float | 
 
 
 def _benchmark_guardrail_allow_all(_query: str) -> GuardrailResult:
+    """Bypass guardrail during benchmark unless explicitly enabled."""
+
     return GuardrailResult(
         is_emergency=False,
         is_unsafe=False,
@@ -793,6 +931,8 @@ def _benchmark_guardrail_allow_all(_query: str) -> GuardrailResult:
 
 
 def _serialize_retrieved_chunks(hits: list[RetrievalHit]) -> list[dict[str, Any]]:
+    """Serialize retrieval hits for benchmark report payload rows."""
+
     rows: list[dict[str, Any]] = []
     for hit in hits:
         rows.append(
@@ -814,12 +954,14 @@ def run_retrieval_benchmark(
     *,
     benchmark_json_path: str = DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
     answer_key_path: str = DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH,
-    top_k: int = 3,
-    language: str = "ro",
+    top_k: int = DEFAULT_BENCHMARK_TOP_K,
+    language: str = DEFAULT_BENCHMARK_LANGUAGE,
     limit: int | None = None,
     use_guardrail: bool = False,
     ask_fn: Callable[[str], str] | None = None,
 ) -> dict[str, Any]:
+    """Run end-to-end retrieval benchmark and return aggregate/row metrics."""
+
     items = load_retrieval_benchmark_items(benchmark_json_path)
     answer_key = load_retrieval_answer_key(answer_key_path)
     benchmark_ask_fn: Callable[
@@ -836,7 +978,7 @@ def run_retrieval_benchmark(
             if not guardrail.is_valid:
                 return guardrail.message or "", [], "guardrail_blocked"
 
-            candidate_k = max(top_k * 3, top_k + 4)
+            candidate_k = max(top_k * RETRIEVAL_POOL_MULTIPLIER, top_k + RETRIEVAL_POOL_EXTRA)
             pooled_hits: list[RetrievalHit] = []
             for retrieval_query in _build_option_queries(item):
                 retrieval_result = retrieve_top_similar(
@@ -849,7 +991,7 @@ def run_retrieval_benchmark(
             reranked_hits = _rerank_benchmark_hits(item, pooled_hits, top_k=top_k)
             context_block = _build_benchmark_context_block(item, reranked_hits)
 
-            max_attempts = max(EVAL_CONFIG.max_retries + 1, 1)
+            max_attempts = max(EVAL_CONFIG.max_retries + 1, MIN_RESPONSE_ATTEMPTS)
             previous_response = ""
             last_rejection_reason: str | None = None
             for attempt in range(max_attempts):
@@ -859,8 +1001,8 @@ def run_retrieval_benchmark(
                         prompt
                         if attempt == 0
                         else (
-                            f"{prompt}\n\nRevizuire obligatorie: raspunsul anterior nu a fost suficient de "
-                            f"bine sustinut de context sau de strict. Raspuns anterior: {previous_response}"
+                            f"{prompt}\n\n"
+                            f"{REVIEW_RETRY_MESSAGE.format(previous_response=previous_response)}"
                         )
                     ),
                     context_block=context_block,
@@ -975,6 +1117,8 @@ def run_retrieval_benchmark(
 
 
 def run_evaluation_smoke() -> EvaluatorResult:
+    """Run a deterministic evaluator smoke-check."""
+
     return evaluate_response(
         query="Care sunt simptomele gripei?",
         response="Gripa include febra, frisoane, tuse si dureri musculare.",

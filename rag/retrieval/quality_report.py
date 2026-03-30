@@ -8,30 +8,38 @@ from agent.evaluation.benchmark import (
     load_retrieval_benchmark_queries,
 )
 from config.settings import SETTINGS
+from models.contracts import PdfStructuredChunk
 from rag.chunking.load_documents import load_pdf_chunks
 from rag.retrieval.retriever import retrieve_top_similar
 
 DEFAULT_PROBE_DATASET_JSON_PATH = DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH
+SHORT_CHUNK_LT_20 = 20
+SHORT_CHUNK_LT_40 = 40
+DEFAULT_KEYWORD_LIMIT = 5
+DEFAULT_TOP_K = 3
+
+
+def _empty_chunk_metrics() -> dict[str, Any]:
+    """Return the empty-state metrics payload for chunk analysis."""
+
+    return {
+        "count": 0,
+        "avg_chars": 0,
+        "short_lt_20_ratio": 0.0,
+        "short_lt_40_ratio": 0.0,
+    }
 
 
 def _chunk_metrics(chunks: list[str]) -> dict[str, Any]:
+    """Compute aggregate chunk-length metrics for a document."""
+
     if not chunks:
-        return {
-            "count": 0,
-            "avg_chars": 0,
-            "short_lt_20_ratio": 0.0,
-            "short_lt_40_ratio": 0.0,
-        }
+        return _empty_chunk_metrics()
     lengths = [len(chunk.strip()) for chunk in chunks if chunk.strip()]
     if not lengths:
-        return {
-            "count": 0,
-            "avg_chars": 0,
-            "short_lt_20_ratio": 0.0,
-            "short_lt_40_ratio": 0.0,
-        }
-    short_20 = sum(1 for value in lengths if value < 20)
-    short_40 = sum(1 for value in lengths if value < 40)
+        return _empty_chunk_metrics()
+    short_20 = sum(1 for value in lengths if value < SHORT_CHUNK_LT_20)
+    short_40 = sum(1 for value in lengths if value < SHORT_CHUNK_LT_40)
     return {
         "count": len(lengths),
         "avg_chars": round(mean(lengths), 2),
@@ -42,6 +50,8 @@ def _chunk_metrics(chunks: list[str]) -> dict[str, Any]:
 
 
 def _retrieval_probe(query: str, top_k: int) -> dict[str, Any]:
+    """Run one retrieval probe and normalize the report row."""
+
     try:
         result = retrieve_top_similar(query, top_k=top_k)
     except Exception as exc:
@@ -73,6 +83,8 @@ def _chunk_keyword_probe(
     *,
     limit: int,
 ) -> list[dict[str, Any]]:
+    """Find the top chunk matches for a keyword probe."""
+
     needle = keyword.strip().lower()
     if not needle:
         return []
@@ -106,9 +118,11 @@ def build_quality_report(
     probe_queries: list[str] | None = None,
     probe_dataset_json_path: str = DEFAULT_PROBE_DATASET_JSON_PATH,
     keyword_queries: list[str] | None = None,
-    keyword_limit: int = 5,
-    top_k: int = 3,
+    keyword_limit: int = DEFAULT_KEYWORD_LIMIT,
+    top_k: int = DEFAULT_TOP_K,
 ) -> dict[str, Any]:
+    """Build a retrieval-quality report for configured PDFs and probe queries."""
+
     report: dict[str, Any] = {
         "chunking": {
             "strategy": chunking_strategy,
