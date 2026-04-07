@@ -78,7 +78,9 @@ class Orchestrator:
                 context_lines=[],
             )
 
-        query_en = self._safe_translate_to_english(request.query)
+        query_en = request.query
+        if SETTINGS.translation_enabled:
+            query_en = self._safe_translate_to_english(request.query)
         retrieval_filters = self._build_retrieval_filters(request.filters)
         retrieval_result = self._deps.retrieve(query_en, request.top_k, retrieval_filters)
         logger.info(
@@ -108,7 +110,7 @@ class Orchestrator:
             )
         context_lines = retrieval_result.context_lines(with_score=True)
 
-        if request.language.lower().startswith("ro"):
+        if SETTINGS.translation_enabled and request.language.lower().startswith("ro"):
             context_lines = self._safe_translate_to_romanian(context_lines)
 
         base_request = LLMRequest(

@@ -33,7 +33,7 @@ services:
       dockerfile: Dockerfile
     image: medical-chatbot:local
     container_name: medical-chatbot-api
-    command: ["python", "-m", "api.app"]
+    command: ["flask", "--app", "api.app:create_app", "run", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     env_file:
       - .env
     environment:
@@ -50,9 +50,11 @@ services:
       API_MAX_QUERY_CHARS: ${API_MAX_QUERY_CHARS:-2000}
       API_MAX_MESSAGES: ${API_MAX_MESSAGES:-32}
       API_MAX_TOP_K: ${API_MAX_TOP_K:-10}
+      FLASK_ENV: development
     ports:
       - "8000:8000"
     volumes:
+      - .:/app
       - ./data/dataset:/app/data/dataset:ro
       - hf_cache:/root/.cache/huggingface
     depends_on:
@@ -77,7 +79,7 @@ services:
     image: ghcr.io/open-webui/open-webui:main
     container_name: medical-chatbot-openwebui
     ports:
-      - "3000:8080"
+      - "3001:8080"
     environment:
       OPENAI_API_BASE_URL: http://api:8000/v1
       OPENAI_API_KEY: ${API_KEY:-}

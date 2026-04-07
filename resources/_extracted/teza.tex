@@ -492,7 +492,7 @@ Pentru a evidenția diferențele dintre principalele tipuri de sisteme de inteli
 
 \section{Limbajul de programare și organizarea aplicației}
 
-Python reprezintă în prezent unul dintre cele mai utilizate limbaje de programare în domeniul inteligenței artificiale și al procesării limbajului natural, datorită ecosistemului extins de biblioteci specializate și simplității sintaxei care facilitează prototiparea rapidă \cite{python310}. Implementarea prezentului proiect utilizează Python 3.10, versiune care aduce îmbunătățiri semnificative la nivel de performanță și introduce noua sintaxă de potrivire structurală a datelor (\textit{structural pattern matching}), relevantă pentru gestionarea tipurilor contractuale ale sistemului.
+Python reprezintă în prezent unul dintre cele mai utilizate limbaje de programare în domeniul inteligenței artificiale și al procesării limbajului natural, datorită ecosistemului extins de biblioteci specializate și simplității sintaxei care facilitează prototiparea rapidă \cite{python310}. Implementarea prezentului proiect utilizează Python 3.11.7, versiune care aduce îmbunătățiri semnificative la nivel de performanță față de ramura 3.10 — în special reducerea timpilor de execuție și mesaje de eroare mai detaliate — și introduce noua sintaxă de potrivire structurală a datelor (\textit{structural pattern matching}), relevantă pentru gestionarea tipurilor contractuale ale sistemului.
 
 \subsection{Justificarea alegerii Python}
 
@@ -518,7 +518,7 @@ Flask este un micro-framework web pentru Python, proiectat pentru a oferi fundam
 
 Interfața API este structurată în două categorii de endpoint-uri. Prima categorie cuprinde endpoint-uri interne dedicate fluxului aplicației, care includ operații de ingestie a documentelor, interogare conversațională și evaluare a calității răspunsului. A doua categorie cuprinde endpoint-uri compatibile cu formatul OpenAI Chat Completions API \cite{openai_api}, care permit utilizarea sistemului ca backend pentru orice client ce implementează protocolul OpenAI, fără modificări suplimentare la nivelul clientului.
 
-Această compatibilitate bidirecțională este esențială pentru integrarea cu OpenWebUI, un front-end open-source pentru interfețe conversaționale. Prin expunerea unui endpoint \texttt{/v1/chat/completions} conform specificației OpenAI, chatbot-ul medical poate fi accesat direct din OpenWebUI fără a necesita adaptări specifice de protocol.
+Această compatibilitate bidirecțională este esențială pentru integrarea cu OpenWebUI, un proiect open-source independent care oferă o interfață grafică pentru sisteme conversaționale compatibile cu API-ul OpenAI. OpenWebUI nu reprezintă un frontend dezvoltat în cadrul acestei lucrări, ci un serviciu extern utilizat ca strat de prezentare. Prin expunerea endpoint-ului \texttt{/v1/chat/completions} conform specificației OpenAI, backend-ul chatbot-ului poate fi conectat la OpenWebUI fără modificări suplimentare, acesta din urmă tratând serviciul ca pe orice alt furnizor compatibil cu protocolul OpenAI.
 
 \subsection{Securitatea interfaței}
 
@@ -652,7 +652,7 @@ Imaginea Docker a proiectului este definită printr-un fișier \texttt{Dockerfil
 
 Aplicația este compusă din mai multe servicii independente care trebuie să funcționeze coordonat pentru a oferi funcționalitate completă. Docker Compose permite definirea și gestionarea acestor servicii printr-un fișier YAML unic, simplificând semnificativ procesul de pornire, oprire și configurare a întregii stive aplicative \cite{docker_compose_doc}.
 
-Topologia Docker Compose a proiectului include serviciile principale: \texttt{app} — aplicația CLI principală, responsabilă pentru logica de orchestrare, ingestie și evaluare; \texttt{api} — serviciul Flask care expune interfața REST; \texttt{qdrant} — baza de date vectorială, rulată ca serviciu persistent cu stocare montată pe sistemul gazdă; \texttt{openwebui} — front-end-ul grafic pentru interacțiunea conversațională. Opțional, serviciul \texttt{ollama} pentru inferența locală a modelelor LLM open-source poate fi activat prin profilul \texttt{local-llm}, fără a afecta configurația implicită.
+Topologia Docker Compose a proiectului include serviciile principale: \texttt{app} — aplicația CLI principală, responsabilă pentru logica de orchestrare, ingestie și evaluare; \texttt{api} — serviciul Flask care expune interfața REST; \texttt{qdrant} — baza de date vectorială, rulată ca serviciu persistent cu stocare montată pe sistemul gazdă; \texttt{openwebui} — serviciul open-source extern care asigură interfața grafică pentru interacțiunea conversațională, conectat la API-ul intern prin protocolul OpenAI Chat Completions. Opțional, serviciul \texttt{ollama} pentru inferența locală a modelelor LLM open-source poate fi activat prin profilul \texttt{local-llm}, fără a afecta configurația implicită.
 
 \subsection{Reproductibilitatea mediului de execuție}
 

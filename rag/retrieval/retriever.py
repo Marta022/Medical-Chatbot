@@ -126,7 +126,7 @@ def _keyword_fallback_hits(
     points, _ = client.scroll(
         collection_name=COLLECTION,
         with_payload=True,
-        query_filter=payload_filter,
+        scroll_filter=payload_filter,
         limit=max(top_k, SETTINGS.keyword_fallback_candidate_limit),
     )
 

@@ -152,6 +152,10 @@ def create_app(
         logger.warning("API runtime error: %s", exc)
         return jsonify(_error_payload(str(exc))), 503
 
+    @app.errorhandler(404)
+    def _handle_not_found(exc: Exception) -> tuple[Any, int]:
+        return jsonify(_error_payload("not_found")), 404
+
     @app.errorhandler(Exception)
     def _handle_unexpected_error(exc: Exception) -> tuple[Any, int]:
         logger.exception("Unhandled API error: %s", exc)
@@ -237,6 +241,53 @@ def create_app(
                 ],
             }
         )
+
+    @app.get("/v1/models/<model_id>")
+    def openai_model_detail(model_id: str) -> Any:
+        now = int(time.time())
+        return jsonify(
+            {
+                "id": model_id,
+                "object": OPENAI_OBJECT_MODEL,
+                "created": now,
+                "owned_by": "medical-chatbot",
+            }
+        )
+
+    @app.get("/v1/api/tags")
+    def ollama_tags() -> Any:
+        """Ollama-compatible model listing endpoint consumed by OpenWebUI."""
+        now = int(time.time())
+        model_id = _model_id()
+        return jsonify(
+            {
+                "models": [
+                    {
+                        "name": model_id,
+                        "model": model_id,
+                        "modified_at": now,
+                        "size": 0,
+                        "digest": "",
+                        "details": {"family": "medical-chatbot"},
+                    }
+                ]
+            }
+        )
+
+    @app.get("/v1/api/ps")
+    def ollama_ps() -> Any:
+        """Ollama-compatible running-models endpoint consumed by OpenWebUI."""
+        return jsonify({"models": []})
+
+    @app.get("/v1/api/version")
+    def ollama_version() -> Any:
+        """Ollama-compatible version endpoint consumed by OpenWebUI."""
+        return jsonify({"version": "0.1.0"})
+
+    @app.post("/v1/api/chat")
+    def ollama_chat() -> Any:
+        """Ollama-compatible chat endpoint — delegates to the OpenAI-compatible handler."""
+        return openai_chat_completions()
 
     @app.post("/v1/chat/completions")
     def openai_chat_completions() -> Any:
