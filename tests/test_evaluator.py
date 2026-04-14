@@ -11,6 +11,15 @@ from config.eval_config import EVAL_CONFIG
 
 
 class TestEvaluator(unittest.TestCase):
+    def test_evaluation_smoke_sample_passes(self) -> None:
+        result = evaluate_response(
+            query="Care sunt simptomele gripei?",
+            response="Gripa include febra, frisoane, tuse si dureri musculare.",
+            context_lines=["Simptome frecvente: febra, tuse, dureri musculare."],
+        )
+        self.assertTrue(result.passed)
+        self.assertGreaterEqual(result.score, EVAL_CONFIG.pass_score)
+
     def test_empty_response_fails(self) -> None:
         result = evaluate_response("intrebare", "")
         self.assertFalse(result.passed)

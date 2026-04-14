@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import hashlib
 import logging
 import os
-from math import sqrt
 from typing import Any
 
 from openai import OpenAI
@@ -18,14 +16,8 @@ ALLOW_MODEL_DOWNLOAD_ENV = "ALLOW_MODEL_DOWNLOAD"
 OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
 OPENAI_EMBEDDING_MODEL_ENV = "OPENAI_EMBEDDING_MODEL"
 DEFAULT_OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
-FALLBACK_DIM = 384
-HASH_ENCODING = "utf-8"
-HASH_COUNTER_BYTES = 4
-HASH_COUNTER_ENDIANNESS = "little"
 ALLOW_DOWNLOAD_TRUTHY_VALUES = {"1", "true", "yes", "on"}
-FALLBACK_BACKEND_ERROR = "Using fallback embeddings backend"
 _model: Any | None = None
-_use_fallback = False
 _openai_client: OpenAI | None = None
 
 _OPENAI_EMBEDDING_DIMS = {
@@ -77,11 +69,9 @@ def _embed_with_openai(texts: list[str]) -> list[list[float]]:
 
 
 def _get_model() -> Any:
-    """Load and cache the sentence-transformers backend or trigger fallback mode."""
+    """Load and cache the sentence-transformers backend."""
 
-    global _model, _use_fallback
-    if _use_fallback:
-        raise RuntimeError(FALLBACK_BACKEND_ERROR)
+    global _model
 
     if _model is None:
         sentence_transformer_cls = _sentence_transformer_cls()
@@ -94,15 +84,11 @@ def _get_model() -> Any:
                 logger.info("Loading embedding model '%s' with downloads enabled after cache miss.", MODEL_NAME)
                 _model = sentence_transformer_cls(MODEL_NAME)
             else:
-                _use_fallback = True
-                logger.warning(
-                    "Embedding model '%s' not found in local cache. Falling back to "
-                    "deterministic hash embeddings. Set ALLOW_MODEL_DOWNLOAD=true "
-                    "to enable online model download. Loader error: %s",
-                    MODEL_NAME,
-                    exc,
+                raise RuntimeError(
+                    "Embedding model not available in local cache and downloads are disabled. "
+                    "Set ALLOW_MODEL_DOWNLOAD=true or provide local model artifacts. "
+                    f"Loader error: {exc}"
                 )
-                raise RuntimeError(FALLBACK_BACKEND_ERROR)
     return _model
 
 
@@ -111,44 +97,13 @@ def vector_size() -> int:
 
     if _embedding_provider() == OPENAI_EMBEDDING_PROVIDER:
         return _OPENAI_EMBEDDING_DIMS.get(_openai_embedding_model(), 1536)
-    try:
-        return _get_model().get_sentence_embedding_dimension()
-    except RuntimeError:
-        return FALLBACK_DIM
+    return _get_model().get_sentence_embedding_dimension()
 
 
 def using_fallback_embeddings() -> bool:
-    """Return whether deterministic hash embeddings are currently active."""
+    """Backward-compatible helper: deterministic fallback mode is disabled."""
 
-    return _embedding_provider() != OPENAI_EMBEDDING_PROVIDER and _use_fallback
-
-
-def _hash_embedding(text: str, dim: int = FALLBACK_DIM) -> list[float]:
-    """Create a deterministic normalized embedding from input text."""
-
-    values: list[float] = []
-    seed = text.encode(HASH_ENCODING)
-    counter = 0
-    while len(values) < dim:
-        digest = hashlib.sha256(
-            seed + counter.to_bytes(HASH_COUNTER_BYTES, HASH_COUNTER_ENDIANNESS)
-        ).digest()
-        for byte in digest:
-            values.append((byte / 255.0) - 0.5)
-            if len(values) == dim:
-                break
-        counter += 1
-
-    norm = sqrt(sum(value * value for value in values))
-    if norm == 0:
-        return values
-    return [value / norm for value in values]
-
-
-def _embed_fallback(texts: list[str]) -> list[list[float]]:
-    """Embed a batch of texts with deterministic fallback hashing."""
-
-    return [_hash_embedding(text) for text in texts]
+    return False
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
@@ -156,11 +111,8 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
 
     if _embedding_provider() == OPENAI_EMBEDDING_PROVIDER:
         return _embed_with_openai(texts)
-    try:
-        vectors = _get_model().encode(texts, convert_to_tensor=False, normalize_embeddings=True)
-        return vectors.tolist()
-    except RuntimeError:
-        return _embed_fallback(texts)
+    vectors = _get_model().encode(texts, convert_to_tensor=False, normalize_embeddings=True)
+    return vectors.tolist()
 
 
 def embed_query(text: str) -> list[float]:
@@ -169,8 +121,5 @@ def embed_query(text: str) -> list[float]:
     if _embedding_provider() == OPENAI_EMBEDDING_PROVIDER:
         vectors = _embed_with_openai([text])
         return vectors[0] if vectors else []
-    try:
-        vector = _get_model().encode([text], convert_to_tensor=False, normalize_embeddings=True)[0]
-        return vector.tolist()
-    except RuntimeError:
-        return _hash_embedding(text)
+    vector = _get_model().encode([text], convert_to_tensor=False, normalize_embeddings=True)[0]
+    return vector.tolist()

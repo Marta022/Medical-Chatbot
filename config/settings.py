@@ -14,7 +14,7 @@ from config.common import env_bool, env_float, env_int
 load_dotenv()
 
 SUPPORTED_LLM_PROVIDERS = {"openai", "ollama", "qwen3.5"}
-SUPPORTED_CHUNKING_STRATEGIES = {"section", "sentence", "window", "semantic"}
+SUPPORTED_CHUNKING_STRATEGIES = {"section", "semantic"}
 SUPPORTED_GRAPH_BACKENDS = {"kuzu"}
 SUPPORTED_RETRIEVAL_MODES = {"vector", "hybrid"}
 DEFAULT_QDRANT_URL = "http://localhost:6333"
@@ -86,7 +86,6 @@ class AppSettings:
     semantic_chunk_max_chars: int = DEFAULT_SEMANTIC_CHUNK_MAX_CHARS
     semantic_use_llamaindex: bool = True
     allow_semantic_chunk_fallback: bool = False
-    allow_fallback_embeddings: bool = False
     entity_min_confidence: float = DEFAULT_ENTITY_MIN_CONFIDENCE
     chunk_min_chars: int = DEFAULT_CHUNK_MIN_CHARS
     chunk_min_words: int = DEFAULT_CHUNK_MIN_WORDS
@@ -148,7 +147,6 @@ def load_settings() -> AppSettings:
         ),
         semantic_use_llamaindex=env_bool("SEMANTIC_USE_LLAMAINDEX", True),
         allow_semantic_chunk_fallback=env_bool("ALLOW_SEMANTIC_CHUNK_FALLBACK", False),
-        allow_fallback_embeddings=env_bool("ALLOW_FALLBACK_EMBEDDINGS", False),
         entity_min_confidence=env_float("ENTITY_MIN_CONFIDENCE", DEFAULT_ENTITY_MIN_CONFIDENCE),
         chunk_min_chars=env_int("CHUNK_MIN_CHARS", DEFAULT_CHUNK_MIN_CHARS),
         chunk_min_words=env_int("CHUNK_MIN_WORDS", DEFAULT_CHUNK_MIN_WORDS),
@@ -223,12 +221,6 @@ def validate_startup(
                 "Semantic chunking requires llama-index-core in runtime when "
                 "SEMANTIC_USE_LLAMAINDEX=true. Install dependency before ingest."
             )
-    if command in {CHAT_COMMAND, INGEST_COMMAND} and not current.allow_fallback_embeddings:
-        if _using_fallback_embeddings():
-            errors.append(
-                "Embedding backend is running in deterministic fallback mode. "
-                "Provide cached model artifacts or set ALLOW_FALLBACK_EMBEDDINGS=true."
-            )
     if not 0 <= current.entity_min_confidence <= 1:
         errors.append("ENTITY_MIN_CONFIDENCE must be between 0 and 1.")
     if current.chunk_min_chars <= 0:
@@ -288,18 +280,6 @@ def _llamaindex_semantic_available() -> bool:
     """Return whether the semantic chunking dependency is installed."""
 
     return find_spec("llama_index.core.node_parser") is not None
-
-
-def _using_fallback_embeddings() -> bool:
-    """Probe whether retrieval is currently forced into fallback embeddings mode."""
-
-    try:
-        from rag.retrieval.embeddings import embed_query, using_fallback_embeddings
-
-        embed_query("startup-check")
-        return using_fallback_embeddings()
-    except Exception:
-        return True
 
 
 def ensure_startup_valid(

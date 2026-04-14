@@ -149,27 +149,6 @@ class TestOrchestrator(unittest.TestCase):
         self.assertEqual(llm_called["count"], 0)
         self.assertIsNone(result.evaluator)
 
-    def test_fallback_embeddings_keep_strict_min_score_gate(self) -> None:
-        llm_called = {"count": 0}
-
-        deps = OrchestratorDependencies(
-            guardrail=lambda _query: GuardrailResult(is_valid=True),
-            retrieve=lambda _query, _top_k, _filters: RetrievalResult(
-                hits=[RetrievalHit(title="t1", text="t1 body", score=0.05, source="unit")]
-            ),
-            llm_call=lambda request: self._counted_llm_response(llm_called, request),
-            evaluator=lambda _q, _r, _c: EvaluatorResult(passed=True, score=1.0, reasons=[]),
-            translate_to_english=lambda text: text,
-            translate_to_romanian=lambda items: items,
-        )
-
-        with patch("agent.orchestrator.orchestrator.using_fallback_embeddings", return_value=True):
-            result = Orchestrator(deps=deps).run(QueryRequest(query="test", top_k=1))
-
-        self.assertEqual(llm_called["count"], 0)
-        self.assertIsNotNone(result.response)
-        self.assertIn("Nu am suficiente informatii relevante", result.response)
-
     def test_retry_appends_guidance_to_user_message(self) -> None:
         messages: list[str] = []
         eval_calls = {"count": 0}

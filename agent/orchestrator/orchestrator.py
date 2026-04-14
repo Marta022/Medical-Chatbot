@@ -28,12 +28,9 @@ from models import (
     QueryRequest,
     RetrievalResult,
 )
-from rag.retrieval.embeddings import using_fallback_embeddings
 from rag.retrieval.retriever import retrieve_top_similar
 
 logger = logging.getLogger(__name__)
-FALLBACK_EMBEDDING_MIN_SCORE_FACTOR = 0.5
-FALLBACK_EMBEDDING_MIN_SCORE_FLOOR = 0.05
 RETRY_GUIDANCE_PREFIX = "Revise your answer to address: "
 
 
@@ -92,11 +89,6 @@ class Orchestrator:
             },
         )
         min_score = SETTINGS.retrieval_min_score
-        if using_fallback_embeddings():
-            min_score = max(
-                min_score * FALLBACK_EMBEDDING_MIN_SCORE_FACTOR,
-                FALLBACK_EMBEDDING_MIN_SCORE_FLOOR,
-            )
         if not retrieval_result.hits or retrieval_result.max_score() < min_score:
             return OrchestratorResponse(
                 response=LOW_CONFIDENCE_MESSAGE,

@@ -8,10 +8,9 @@ from pathlib import Path
 from statistics import mean
 from typing import Any, Callable
 
-from agent.evaluation.evaluator import evaluate_response
 from config.eval_config import EVAL_CONFIG
 from config.settings import SETTINGS
-from models import EvaluatorResult, GuardrailResult, LLMRequest, RetrievalHit
+from models import GuardrailResult, LLMRequest, RetrievalHit
 
 
 DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH = "data/dataset/primele_10_grile_pag2_curatate.json"
@@ -31,12 +30,10 @@ KEY_VARIANT = "VARIANTA"
 KEY_FRAGMENT_ISSUE = "FRAGMENT_PROBLEMA"
 QUESTION_PHRASE_SEQUENCE = "care este lantul temporal corect"
 QUESTION_PHRASE_MAPPING = "care sunt asocierile corecte"
-QUESTION_PHRASE_FDD_CHAIN = "inlantuirea temporala cauzala corecta"
 QUESTION_PHRASE_SCFCE_DOTTED = "s.c.f.c.e."
 QUESTION_PHRASE_SCFCE_SPACED = "s c f c e"
 STATUS_TRUE = "ADEVARAT"
 STATUS_FALSE = "FALS"
-STATUS_INSUFFICIENT = "INSUFICIENT"
 REJECTION_EMPTY_RESPONSE = "empty_response"
 REJECTION_FORBIDDEN_REASONING = "forbidden_reasoning"
 REJECTION_MISSING_ANSWER_LETTERS = "missing_answer_letters"
@@ -315,20 +312,6 @@ def _match_derived_value_to_option(
     return None
 
 
-def _build_benchmark_retrieval_query(item: dict[str, Any]) -> str:
-    """Build retrieval query, appending options for single-answer item types."""
-
-    choices = item["choices"]
-    parts = [item["intrebare"]]
-    if _benchmark_requires_single_answer(item):
-        parts.extend(
-            f"{letter} {choices[letter]}"
-            for letter in _CHOICE_LETTERS
-            if choices.get(letter, "").strip()
-        )
-    return "\n".join(parts)
-
-
 def _build_option_queries(item: dict[str, Any]) -> list[str]:
     """Build query pool containing base question and per-option probes."""
 
@@ -353,20 +336,17 @@ def _benchmark_hit_relevance(item: dict[str, Any], hit: RetrievalHit) -> float:
 
     overlap = len(question_tokens.intersection(hit_tokens)) / max(len(question_tokens), 1)
     option_bonus = 0.0
+    compact_hit = _compact_pattern(hit_text)
     for value in item["choices"].values():
+        compact_option = _compact_pattern(value)
+        if compact_option and compact_option in compact_hit:
+            option_bonus = max(option_bonus, 1.0)
+
         option_tokens = _tokenize(value)
         if not option_tokens:
-            compact_option = _compact_pattern(value)
-            compact_hit = _compact_pattern(hit_text)
-            if compact_option and compact_option in compact_hit:
-                option_bonus = max(option_bonus, 1.0)
             continue
         option_overlap = len(option_tokens.intersection(hit_tokens)) / max(len(option_tokens), 1)
         option_bonus = max(option_bonus, option_overlap)
-        compact_option = _compact_pattern(value)
-        compact_hit = _compact_pattern(hit_text)
-        if compact_option and compact_option in compact_hit:
-            option_bonus = max(option_bonus, 1.0)
     if _benchmark_requires_single_answer(item) and _choice_pattern_implies_single_answer(item["choices"]):
         return (hit.score * 0.45) + (overlap * 0.2) + (option_bonus * 0.35)
     return (hit.score * 0.65) + (overlap * 0.2) + (option_bonus * 0.15)
@@ -726,14 +706,6 @@ def _build_single_answer_repair_prompt(
     )
 
 
-def _response_violates_benchmark_rules(response: str) -> bool:
-    """Check whether model response violates benchmark constraints."""
-
-    if not response.strip():
-        return True
-    return bool(_FORBIDDEN_REASONING_RE.search(response))
-
-
 def _is_sequence_question(normalized_question: str) -> bool:
     """Return whether question requests a temporal-order answer."""
 
@@ -797,8 +769,10 @@ def _benchmark_rejection_reason(item: dict[str, Any], response: str) -> str | No
         return REJECTION_MISSING_ANSWER_LETTERS
 
     normalized_question = _normalize_romanian_text(item["intrebare"])
-    if _is_sequence_question(normalized_question) or _is_mapping_question(normalized_question):
-        derived_key = KEY_ORDER if _is_sequence_question(normalized_question) else KEY_ASSOCIATIONS
+    is_sequence = _is_sequence_question(normalized_question)
+    is_mapping = _is_mapping_question(normalized_question)
+    if is_sequence or is_mapping:
+        derived_key = KEY_ORDER if is_sequence else KEY_ASSOCIATIONS
         derived_value = _extract_named_line(response, derived_key)
         variant = _extract_named_line(response, KEY_VARIANT).upper().strip(" .")
         if len(variant) != 1 or variant not in _CHOICE_LETTERS:
@@ -851,50 +825,6 @@ def _extract_named_line(response: str, key: str) -> str:
     if not match:
         return ""
     return match.group(1).strip()
-
-
-def _structured_response_is_consistent(item: dict[str, Any], response: str) -> bool:
-    """Check whether structured response fields align with final answer letters."""
-
-    predicted = _extract_option_letters(response)
-    if not predicted:
-        return False
-
-    normalized_question = _normalize_romanian_text(item["intrebare"])
-    if _is_sequence_question(normalized_question) or _is_mapping_question(normalized_question):
-        derived_key = KEY_ORDER if _is_sequence_question(normalized_question) else KEY_ASSOCIATIONS
-        derived_value = _extract_named_line(response, derived_key)
-        variant = _extract_named_line(response, KEY_VARIANT).upper().strip(" .")
-        if len(variant) != 1 or variant not in _CHOICE_LETTERS:
-            return False
-        matched_letter = _match_derived_value_to_option(item, derived_value)
-        if matched_letter is not None and matched_letter != variant:
-            return False
-        return predicted == {variant}
-
-    if _is_scfce_question(normalized_question):
-        fragment = _extract_named_line(response, KEY_FRAGMENT_ISSUE).upper().strip(" .")
-        if len(fragment) != 1 or fragment not in _CHOICE_LETTERS:
-            return False
-        return predicted == {fragment}
-
-    statuses = _extract_option_statuses(response)
-    if not statuses:
-        return True
-
-    if _benchmark_requires_single_answer(item):
-        if len(predicted) != 1:
-            return False
-        chosen = next(iter(predicted))
-        return statuses.get(chosen) in {STATUS_TRUE, STATUS_FALSE} or not statuses
-
-    derived = _derive_answers_from_statuses(
-        normalized_question=normalized_question,
-        statuses=statuses,
-    )
-    if len(derived) == len(_CHOICE_LETTERS):
-        return False
-    return bool(derived) and derived == predicted
 
 
 def _score_prediction(predicted: set[str], gold: set[str]) -> dict[str, float | int | bool]:
@@ -1114,13 +1044,3 @@ def run_retrieval_benchmark(
         },
         "rows": rows,
     }
-
-
-def run_evaluation_smoke() -> EvaluatorResult:
-    """Run a deterministic evaluator smoke-check."""
-
-    return evaluate_response(
-        query="Care sunt simptomele gripei?",
-        response="Gripa include febra, frisoane, tuse si dureri musculare.",
-        context_lines=["Simptome frecvente: febra, tuse, dureri musculare."],
-    )

@@ -11,13 +11,11 @@ from agent.evaluation.benchmark import (
     _extract_option_letters,
     _build_grila_prompt,
     _build_benchmark_context_block,
-    _build_benchmark_retrieval_query,
     _build_option_queries,
+    _benchmark_rejection_reason,
     _benchmark_requires_single_answer,
-    _response_violates_benchmark_rules,
     _rerank_benchmark_hits,
     _requires_single_answer,
-    _structured_response_is_consistent,
     load_retrieval_answer_key,
     load_retrieval_benchmark_items,
     run_retrieval_benchmark,
@@ -124,22 +122,6 @@ class TestBenchmark(unittest.TestCase):
             )
         )
 
-    def test_build_benchmark_retrieval_query_includes_options_for_single_answer_items(self) -> None:
-        item = {
-            "id": 529,
-            "intrebare": "R.I. Care sunt asocierile corecte?",
-            "choices": {
-                "A": "a-1, b-2, c-3",
-                "B": "a-1, b-3, c-2",
-                "C": "a-2, b-1, c-3",
-                "D": "a-3, b-1, c-2",
-                "E": "a-3, b-2, c-1",
-            },
-        }
-        query = _build_benchmark_retrieval_query(item)
-        self.assertIn("Care sunt asocierile corecte?", query)
-        self.assertIn("A a-1, b-2, c-3", query)
-
     def test_build_option_queries_emits_question_and_each_option(self) -> None:
         item = {
             "id": 1,
@@ -195,10 +177,7 @@ class TestBenchmark(unittest.TestCase):
         self.assertIn("source_file=doc.md", context)
         self.assertNotIn("Most similar chunks:", context)
 
-    def test_response_violates_benchmark_rules_for_general_knowledge_phrase(self) -> None:
-        self.assertTrue(_response_violates_benchmark_rules("RASPUNS: A\nbazat pe cunostinte generale"))
-
-    def test_structured_response_requires_variant_to_match_answer(self) -> None:
+    def test_benchmark_rejection_reason_forbidden_reasoning(self) -> None:
         item = {
             "id": 523,
             "intrebare": "F.d.u. Care este lantul temporal corect?",
@@ -210,14 +189,29 @@ class TestBenchmark(unittest.TestCase):
                 "E": "e-c-a-b-d",
             },
         }
-        self.assertFalse(
-            _structured_response_is_consistent(
-                item,
-                "ORDINE: e-c-a-b-d\nVARIANTA: E\nRASPUNS: C",
-            )
+        self.assertEqual(
+            _benchmark_rejection_reason(item, "RASPUNS: A\nbazat pe cunostinte generale"),
+            "forbidden_reasoning",
         )
 
-    def test_structured_response_requires_sequence_variant_to_match_option_text(self) -> None:
+    def test_benchmark_rejection_reason_requires_variant_to_match_answer(self) -> None:
+        item = {
+            "id": 523,
+            "intrebare": "F.d.u. Care este lantul temporal corect?",
+            "choices": {
+                "A": "a-c-d-b-e",
+                "B": "b-e-d-c-a",
+                "C": "c-e-a-d-b",
+                "D": "d-b-e-a-c",
+                "E": "e-c-a-b-d",
+            },
+        }
+        self.assertEqual(
+            _benchmark_rejection_reason(item, "ORDINE: e-c-a-b-d\nVARIANTA: E\nRASPUNS: C"),
+            "answer_variant_mismatch",
+        )
+
+    def test_benchmark_rejection_reason_requires_sequence_variant_to_match_option_text(self) -> None:
         item = {
             "id": 524,
             "intrebare": "F.d.u. Care este lantul temporal corect?",
@@ -229,14 +223,12 @@ class TestBenchmark(unittest.TestCase):
                 "E": "e-a-c-d-b",
             },
         }
-        self.assertFalse(
-            _structured_response_is_consistent(
-                item,
-                "ORDINE: c-a-e-b-d\nVARIANTA: A\nRASPUNS: A",
-            )
+        self.assertEqual(
+            _benchmark_rejection_reason(item, "ORDINE: c-a-e-b-d\nVARIANTA: A\nRASPUNS: A"),
+            "derived_value_variant_mismatch",
         )
 
-    def test_structured_response_requires_mapping_variant_to_match_option_text(self) -> None:
+    def test_benchmark_rejection_reason_requires_mapping_variant_to_match_option_text(self) -> None:
         item = {
             "id": 529,
             "intrebare": "R.I. Care sunt asocierile corecte?",
@@ -248,14 +240,12 @@ class TestBenchmark(unittest.TestCase):
                 "E": "a-3, b-2, c-1",
             },
         }
-        self.assertFalse(
-            _structured_response_is_consistent(
-                item,
-                "ASOCIERI: a-2, b-1, c-3\nVARIANTA: A\nRASPUNS: A",
-            )
+        self.assertEqual(
+            _benchmark_rejection_reason(item, "ASOCIERI: a-2, b-1, c-3\nVARIANTA: A\nRASPUNS: A"),
+            "derived_value_variant_mismatch",
         )
 
-    def test_structured_response_requires_multi_answer_statuses_to_match(self) -> None:
+    def test_benchmark_rejection_reason_accepts_multi_answer_statuses_that_match(self) -> None:
         item = {
             "id": 521,
             "intrebare": "u.a.s.c.c.e. Q",
@@ -265,9 +255,9 @@ class TestBenchmark(unittest.TestCase):
             "STATUT_A: ADEVARAT\nSTATUT_B: FALS\nSTATUT_C: ADEVARAT\n"
             "STATUT_D: FALS\nSTATUT_E: FALS\nRASPUNS: B, D, E"
         )
-        self.assertTrue(_structured_response_is_consistent(item, response))
+        self.assertIsNone(_benchmark_rejection_reason(item, response))
 
-    def test_structured_response_rejects_all_true_multi_answer(self) -> None:
+    def test_benchmark_rejection_reason_rejects_all_true_multi_answer(self) -> None:
         item = {
             "id": 526,
             "intrebare": "R.I. Febra si frisonul",
@@ -277,7 +267,7 @@ class TestBenchmark(unittest.TestCase):
             "STATUT_A: ADEVARAT\nSTATUT_B: ADEVARAT\nSTATUT_C: ADEVARAT\n"
             "STATUT_D: ADEVARAT\nSTATUT_E: ADEVARAT\nRASPUNS: A,B,C,D,E"
         )
-        self.assertFalse(_structured_response_is_consistent(item, response))
+        self.assertEqual(_benchmark_rejection_reason(item, response), "all_options_selected")
 
     def test_extract_option_letters_falls_back_to_leading_letter_for_hyphenated_option_text(self) -> None:
         self.assertEqual(_extract_option_letters("RASPUNS: e-c-a-b-d"), {"E"})

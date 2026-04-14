@@ -119,25 +119,11 @@ class TestConfigAndPrompts(unittest.TestCase):
         errors = validate_startup(command="eval", settings=settings)
         self.assertTrue(any("GITNEXUS_BASE_URL is required" in item for item in errors))
 
-    def test_validate_startup_rejects_fallback_embeddings_for_chat_by_default(self) -> None:
-        os.environ.pop("OPENAI_API_KEY", None)
-        settings = AppSettings()
-        with patch("config.settings._using_fallback_embeddings", return_value=True):
-            errors = validate_startup(command="chat", settings=settings)
-        self.assertTrue(any("deterministic fallback mode" in item for item in errors))
-
-    def test_validate_startup_allows_fallback_embeddings_when_enabled(self) -> None:
-        settings = AppSettings(allow_fallback_embeddings=True)
-        with patch("config.settings._using_fallback_embeddings", return_value=True):
-            errors = validate_startup(command="ingest", settings=settings)
-        self.assertFalse(any("deterministic fallback mode" in item for item in errors))
-
     def test_validate_startup_requires_llamaindex_for_semantic_chunking_when_strict(self) -> None:
         settings = AppSettings(
             chunking_strategy="semantic",
             semantic_use_llamaindex=True,
             allow_semantic_chunk_fallback=False,
-            allow_fallback_embeddings=True,
         )
         with patch("config.settings._llamaindex_semantic_available", return_value=False):
             errors = validate_startup(command="ingest", settings=settings)
@@ -147,7 +133,6 @@ class TestConfigAndPrompts(unittest.TestCase):
         settings = AppSettings(
             chunking_strategy="semantic",
             semantic_use_llamaindex=False,
-            allow_fallback_embeddings=True,
         )
         errors = validate_startup(command="ingest", settings=settings)
         self.assertTrue(any("Semantic chunking is strict" in item for item in errors))
@@ -157,7 +142,6 @@ class TestConfigAndPrompts(unittest.TestCase):
             chunking_strategy="semantic",
             semantic_use_llamaindex=True,
             allow_semantic_chunk_fallback=True,
-            allow_fallback_embeddings=True,
         )
         with patch("config.settings._llamaindex_semantic_available", return_value=False):
             errors = validate_startup(command="ingest", settings=settings)

@@ -13,11 +13,8 @@ from rag.chunking.load_documents import (
     _postprocess_markdown_cleanup,
     _split_text_for_llm_cleanup,
     _strip_markdown_code_fences,
-    _build_lines_from_positioned_fragments,
-    _group_structured_chunks_for_semantic,
     _merge_page_lines,
     _chunk_id_for,
-    _decode_pdf_literal,
     extract_pdf_pages,
     extract_pdf_to_markdown,
     iter_pdf_pages_with_pymupdf,
@@ -289,29 +286,10 @@ class TestPdfStructure(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "PyMuPDF"):
                     extract_pdf_pages(str(pdf_path))
 
-    def test_build_lines_from_positioned_fragments_reorders_two_columns(self) -> None:
-        fragments = [
-            (50.0, 700.0, "L1"),
-            (50.0, 690.0, "L2"),
-            (320.0, 700.0, "R1"),
-            (320.0, 690.0, "R2"),
-        ] * 3
-        lines = _build_lines_from_positioned_fragments(fragments)
-        self.assertGreaterEqual(len(lines), 4)
-        self.assertTrue(lines[0].startswith("L1"))
-        self.assertTrue(any(line.startswith("R1") for line in lines[-2:]))
-
     def test_merge_page_lines_joins_hyphenated_wrap(self) -> None:
         merged = _merge_page_lines(["emboliza-", "rea colesterolica.", "Titlu"])
         self.assertEqual(merged[0], "embolizarea colesterolica.")
         self.assertIn("Titlu", merged)
-
-    def test_decode_pdf_literal_handles_escapes(self) -> None:
-        value = r"Capitolul\0401\040\(Introducere\)\nLinie"
-        decoded = _decode_pdf_literal(value)
-        self.assertIn("Capitolul 1", decoded)
-        self.assertIn("(Introducere)", decoded)
-        self.assertIn("\n", decoded)
 
     def test_chunk_id_is_deterministic(self) -> None:
         first = _chunk_id_for("a.pdf", 2, "cap", "sec", 1, "sample text")
@@ -410,33 +388,6 @@ class TestPdfStructure(unittest.TestCase):
         self.assertTrue(all(chunk.page == 1 for chunk in semantic_chunks))
         self.assertTrue(all(chunk.source_file == "DORIN-CURS_SEM2_searchable.pdf" for chunk in semantic_chunks))
         self.assertTrue(all(chunk.chunk_id for chunk in semantic_chunks))
-
-    def test_group_structured_chunks_for_semantic_merges_page_chapter_fragments(self) -> None:
-        base_chunks = [
-            PdfStructuredChunk(
-                source_file="DORIN-CURS_SEM2_searchable.pdf",
-                page=315,
-                chapter="CAPITOLUL 9",
-                section="GPLM, GSFS, GPM;",
-                chunk_id="a1",
-                text="de colesterol,",
-                is_list=False,
-            ),
-            PdfStructuredChunk(
-                source_file="DORIN-CURS_SEM2_searchable.pdf",
-                page=315,
-                chapter="CAPITOLUL 9",
-                section="Boala",
-                chunk_id="a2",
-                text="emboliile cu colesterol provenite din placile ateromatoase",
-                is_list=False,
-            ),
-        ]
-        grouped = _group_structured_chunks_for_semantic(base_chunks, group_target_chars=500)
-        self.assertEqual(len(grouped), 1)
-        self.assertIn("de colesterol,", grouped[0].text)
-        self.assertIn("emboliile cu colesterol", grouped[0].text)
-        self.assertEqual(grouped[0].section, "multiple")
 
     def test_load_pdf_chunks_semantic_requires_llamaindex_toggle(self) -> None:
         pages = ["CAPITOLUL 1\n1.1 Sectiune\nText."]

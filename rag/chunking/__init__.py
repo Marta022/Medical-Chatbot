@@ -11,9 +11,6 @@ from rag.chunking.strategies import (
     chunk_text,
     section_chunks,
     semantic_chunks,
-    sentence_chunks,
-    split_sentences,
-    window_chunks,
 )
 
 __all__ = [
@@ -25,7 +22,4 @@ __all__ = [
     "chunk_text",
     "section_chunks",
     "semantic_chunks",
-    "sentence_chunks",
-    "split_sentences",
-    "window_chunks",
 ]

@@ -6,8 +6,6 @@ Purpose:
 
 Available strategies:
 - `section`: structure-aware grouping from markdown-like lines.
-- `sentence`: fixed number of sentences per chunk.
-- `window`: overlapping sentence windows.
 - `semantic`: strict LlamaIndex semantic splitter path.
 
 `chunk_text(...)` is the strategy router for raw text.
@@ -23,59 +21,11 @@ import re
 from models.contracts import PdfStructuredChunk
 from rag.chunking.common import clean_line, is_bullet_item, is_markdown_heading, is_numbered_item
 
-_SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
-DEFAULT_MAX_SENTENCES = 3
-DEFAULT_WINDOW_SIZE = 3
-DEFAULT_WINDOW_STRIDE = 2
 DEFAULT_STRATEGY = "section"
 DEFAULT_SEMANTIC_MAX_CHARS = 700
 SEMANTIC_SPLITTER_BUFFER_SIZE = 1
 SEMANTIC_BREAKPOINT_PERCENTILE = 95
 CHUNK_ID_ENCODING = "utf-8"
-
-
-def split_sentences(text: str) -> list[str]:
-    """Split text into sentence-like units."""
-
-    cleaned = text.strip()
-    if not cleaned:
-        return []
-    parts = _SENTENCE_SPLIT.split(cleaned)
-    return [part.strip() for part in parts if part.strip()]
-
-
-def sentence_chunks(text: str, max_sentences: int = DEFAULT_MAX_SENTENCES) -> list[str]:
-    """Build fixed-size sentence chunks."""
-
-    sentences = split_sentences(text)
-    if not sentences:
-        return []
-    chunks: list[str] = []
-    for idx in range(0, len(sentences), max_sentences):
-        chunk = " ".join(sentences[idx : idx + max_sentences])
-        chunks.append(chunk)
-    return chunks
-
-
-def window_chunks(
-    text: str,
-    window_size: int = DEFAULT_WINDOW_SIZE,
-    stride: int = DEFAULT_WINDOW_STRIDE,
-) -> list[str]:
-    """Build overlapping sentence windows."""
-
-    sentences = split_sentences(text)
-    if not sentences:
-        return []
-    chunks: list[str] = []
-    for idx in range(0, len(sentences), stride):
-        window = sentences[idx : idx + window_size]
-        if not window:
-            continue
-        chunks.append(" ".join(window))
-        if idx + window_size >= len(sentences):
-            break
-    return chunks
 
 
 def section_chunks(text: str) -> list[str]:
@@ -214,10 +164,6 @@ def chunk_text(
     """Dispatch one of the supported raw-text chunking strategies."""
 
     normalized = (strategy or DEFAULT_STRATEGY).strip().lower()
-    if normalized == "sentence":
-        return sentence_chunks(text)
-    if normalized == "window":
-        return window_chunks(text)
     if normalized == "section":
         return section_chunks(text)
     if normalized == "semantic":

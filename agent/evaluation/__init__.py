@@ -5,13 +5,11 @@ from agent.evaluation.benchmark import (
 	load_retrieval_benchmark_items,
 	load_retrieval_benchmark_queries,
 	run_retrieval_benchmark,
-	run_evaluation_smoke,
 )
 from agent.evaluation.evaluator import evaluate_response
 
 __all__ = [
 	"evaluate_response",
-	"run_evaluation_smoke",
 	"run_retrieval_benchmark",
 	"load_retrieval_benchmark_queries",
 	"load_retrieval_benchmark_items",

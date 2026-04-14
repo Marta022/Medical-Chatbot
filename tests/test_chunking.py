@@ -13,20 +13,10 @@ from rag.chunking.strategies import (
     chunk_text,
     section_chunks,
     semantic_chunks,
-    sentence_chunks,
-    split_sentences,
-    window_chunks,
 )
 
 
 class TestChunking(unittest.TestCase):
-    def test_sentence_and_window_chunks(self) -> None:
-        text = "A. B? C! D. E."
-        sentences = split_sentences(text)
-        self.assertEqual(len(sentences), 5)
-        self.assertEqual(sentence_chunks(text, max_sentences=2)[0], "A. B?")
-        self.assertTrue(window_chunks(text, window_size=2, stride=1))
-
     def test_section_chunks(self) -> None:
         text = "Line1\n\nLine2\nLine3"
         chunks = section_chunks(text)
