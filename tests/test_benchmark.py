@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from agent.evaluation.benchmark import (
+from agent.benchmarking.benchmark import (
     BENCHMARK_SYSTEM_PROMPT,
     _extract_option_letters,
     _build_grila_prompt,

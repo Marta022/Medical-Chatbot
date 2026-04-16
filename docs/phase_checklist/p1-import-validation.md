@@ -12,9 +12,9 @@ Validate that migrated package layout resolves imports correctly and that runtim
 1. Import smoke for migrated modules:
    - `python -c "import run; import agent.orchestrator.chat_loop; import agent.guardrail.rules_engine; import knowledge.qdrant.client; import rag.retrieval.retriever; import models.contracts; print('import-smoke-ok')"`
 2. Compile validation:
-   - `python -m compileall agent knowledge rag models config run.py app.py`
+   - `python -m compileall agent knowledge rag models config run.py`
 3. Stale-import scan for canonical modules:
-   - `rg "from (agents|guardrails|evaluation|ingestion|llm_hub|vector_db|translation|rag\\.retriever)" -n agent knowledge rag models run.py app.py`
+   - `rg "from (agents|guardrails|evaluation|ingestion|llm_hub|vector_db|translation|rag\\.retriever)" -n agent knowledge rag models run.py`
 4. Dataset path checks:
    - `data/dataset/disease_database.json` exists
    - `data/dataset/dataset_sheet1.csv` exists

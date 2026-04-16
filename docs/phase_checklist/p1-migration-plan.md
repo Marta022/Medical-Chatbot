@@ -72,7 +72,7 @@ code/
 
 Notes:
 - `models/` and `api/` are included because they are required by already-approved backlog scope (`E1.4`, `E4.4`).
-- Existing top-level runtime files (`app.py`) remain temporarily until `E1.2` CLI migration is complete.
+- Legacy top-level runtime shims were removed after CLI migration; `run.py` is the single entrypoint.
 
 ## 5. File Migration Map (Old -> New)
 

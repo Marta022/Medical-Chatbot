@@ -10,10 +10,10 @@ Task ID: `T4.3.3`
 - [ ] Required datasets exist at:
 - `data/dataset/disease_database.json`
 - `data/dataset/dataset_sheet1.csv`
-- [ ] Qdrant collection is available and ingest path succeeds (`python main.py ingest`).
+- [ ] Qdrant collection is available and ingest path succeeds (`python run.py ingest`).
 - [ ] CLI commands are verified:
-- `python main.py --help`
-- `python main.py eval`
+- `python run.py --help`
+- `python run.py eval`
 - [ ] Guardrail behavior is verified with at least one emergency and one unsafe prompt.
 - [ ] Retrieval behavior is verified with at least one known in-domain medical query.
 - [ ] Evaluator retry/fallback path is validated through test evidence in tracker logs.
@@ -22,7 +22,7 @@ Task ID: `T4.3.3`
 - `python -m coverage report --fail-under=80`
 - [ ] Docker image smoke checks pass:
 - `docker build --no-cache -t medical-chatbot:test .`
-- `docker run --rm medical-chatbot:test python main.py --help`
+- `docker run --rm medical-chatbot:test python run.py --help`
 - [ ] Compose topology checks pass:
 - `docker compose up -d`
 - `docker compose ps`
@@ -36,7 +36,7 @@ Task ID: `T4.3.3`
 - [ ] Run a safe informational prompt and show grounded response.
 - [ ] Run an emergency prompt and show guardrail escalation behavior.
 - [ ] Show retrieval context logging from chat flow.
-- [ ] Run `python main.py eval` and show evaluator output structure.
+- [ ] Run `python run.py eval` and show evaluator output structure.
 - [ ] If presenting OpenWebUI, start it and show service reachability (`http://localhost:3000`).
 - [ ] Stop demo services cleanly (`docker compose down`).
 

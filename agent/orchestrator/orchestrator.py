@@ -32,6 +32,7 @@ from rag.retrieval.retriever import retrieve_top_similar
 
 logger = logging.getLogger(__name__)
 RETRY_GUIDANCE_PREFIX = "Revise your answer to address: "
+ADAPTIVE_RETRY_HEADER = "Retry instruction from evaluator:"
 
 
 @dataclass(frozen=True)
@@ -117,7 +118,7 @@ class Orchestrator:
         attempt = 0
 
         for attempt in range(max_attempts):
-            provider = self._select_provider(attempt)
+            provider = self._select_provider(attempt, last_eval)
             attempt_request = self._apply_retry_guidance(base_request, last_eval)
             attempt_request.provider = provider
             last_response = self._deps.llm_call(attempt_request)
@@ -168,10 +169,15 @@ class Orchestrator:
     ) -> LLMRequest:
         """Copy the base request and append evaluator guidance for retry attempts."""
 
-        if not last_eval or last_eval.passed or not last_eval.reasons:
+        if not last_eval or last_eval.passed:
+            return clone_llm_request(base_request)
+        if not last_eval.adaptive_prompt and not last_eval.reasons:
             return clone_llm_request(base_request)
 
-        guidance = RETRY_GUIDANCE_PREFIX + ", ".join(last_eval.reasons) + "."
+        if last_eval.adaptive_prompt:
+            guidance = f"{ADAPTIVE_RETRY_HEADER}\n{last_eval.adaptive_prompt}"
+        else:
+            guidance = RETRY_GUIDANCE_PREFIX + ", ".join(last_eval.reasons) + "."
         revised_message = f"{base_request.user_message}\n\n{guidance}"
         return clone_llm_request(base_request, user_message=revised_message)
 
@@ -188,6 +194,9 @@ class Orchestrator:
                 "score": result.score,
                 "reasons": result.reasons,
                 "retry_recommended": result.retry_recommended,
+                "failure_types": result.failure_types,
+                "retry_strategy": result.retry_strategy,
+                "judge_used": result.judge_used,
             },
         )
 
@@ -211,10 +220,13 @@ class Orchestrator:
             logger.warning("Romanian translation failed; using original context: %s", exc)
             return items
 
-    def _select_provider(self, attempt: int) -> str:
+    def _select_provider(self, attempt: int, last_eval: EvaluatorResult | None) -> str:
         """Pick the provider for the current attempt using configured fallback order."""
 
         primary = SETTINGS.llm_provider
+        if attempt == 0 or not last_eval or last_eval.retry_strategy != "switch_llm":
+            return primary
+
         fallback_order = [primary]
         for candidate in getattr(self._eval_config, "provider_fallback_order", []):
             if candidate not in fallback_order:

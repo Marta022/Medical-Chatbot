@@ -114,11 +114,6 @@ class TestConfigAndPrompts(unittest.TestCase):
         self.assertTrue(any("KEYWORD_FALLBACK_MIN_SCORE must be >= 0." in item for item in errors))
         self.assertTrue(any("KEYWORD_FALLBACK_CANDIDATE_LIMIT must be greater than 0." in item for item in errors))
 
-    def test_validate_startup_requires_gitnexus_url_when_enabled(self) -> None:
-        settings = AppSettings(gitnexus_enabled=True, gitnexus_base_url="")
-        errors = validate_startup(command="eval", settings=settings)
-        self.assertTrue(any("GITNEXUS_BASE_URL is required" in item for item in errors))
-
     def test_validate_startup_requires_llamaindex_for_semantic_chunking_when_strict(self) -> None:
         settings = AppSettings(
             chunking_strategy="semantic",

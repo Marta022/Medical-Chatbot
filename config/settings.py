@@ -247,9 +247,6 @@ def validate_startup(
         errors.append("HYBRID_VECTOR_WEIGHT must be >= 0.")
     if current.hybrid_graph_weight < 0:
         errors.append("HYBRID_GRAPH_WEIGHT must be >= 0.")
-    if current.gitnexus_enabled and not current.gitnexus_base_url:
-        errors.append("GITNEXUS_BASE_URL is required when GITNEXUS_ENABLED=true.")
-
     prompt_path = Path(current.llm_txt_path)
     if not prompt_path.exists():
         errors.append(f"Prompt file not found at '{current.llm_txt_path}'.")

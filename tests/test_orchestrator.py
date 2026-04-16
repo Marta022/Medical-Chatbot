@@ -100,6 +100,7 @@ class TestOrchestrator(unittest.TestCase):
                     score=0.4,
                     reasons=["too_short"],
                     retry_recommended=True,
+                    retry_strategy="switch_llm",
                 )
             return EvaluatorResult(passed=True, score=0.9, reasons=[])
 
@@ -191,6 +192,51 @@ class TestOrchestrator(unittest.TestCase):
 
         self.assertEqual(len(messages), 2)
         self.assertIn("Revise your answer to address: needs_more_context.", messages[1])
+
+    def test_retry_uses_adaptive_prompt_when_available(self) -> None:
+        messages: list[str] = []
+        eval_calls = {"count": 0}
+
+        def guardrail(_query: str) -> GuardrailResult:
+            return GuardrailResult(is_valid=True)
+
+        def retrieve(_query: str, _top_k: int, _filters: dict[str, str] | None) -> RetrievalResult:
+            return RetrievalResult(
+                hits=[RetrievalHit(title="t1", text="t1 body", score=0.9, source="unit")]
+            )
+
+        def llm_call(request: LLMRequest) -> LLMResponse:
+            messages.append(request.user_message)
+            return LLMResponse(content="ok", provider=request.provider or "openai", model="unit")
+
+        def evaluator(_q: str, _r: str, _c: list[str] | None) -> EvaluatorResult:
+            eval_calls["count"] += 1
+            if eval_calls["count"] == 1:
+                return EvaluatorResult(
+                    passed=False,
+                    score=0.4,
+                    reasons=["too_short"],
+                    retry_recommended=True,
+                    adaptive_prompt="Use context and answer in 3 sentences.",
+                )
+            return EvaluatorResult(passed=True, score=0.9, reasons=[])
+
+        deps = OrchestratorDependencies(
+            guardrail=guardrail,
+            retrieve=retrieve,
+            llm_call=llm_call,
+            evaluator=evaluator,
+            translate_to_english=lambda text: text,
+            translate_to_romanian=lambda items: items,
+        )
+
+        eval_config = EvalConfig(max_retries=1, provider_fallback_order=("openai", "ollama"))
+        orchestrator = Orchestrator(deps=deps, eval_config=eval_config)
+        orchestrator.run(QueryRequest(query="test", top_k=1))
+
+        self.assertEqual(len(messages), 2)
+        self.assertIn("Retry instruction from evaluator:", messages[1])
+        self.assertIn("Use context and answer in 3 sentences.", messages[1])
 
     def test_hybrid_mode_injects_graph_policy_filters(self) -> None:
         captured_filters: list[dict[str, str] | None] = []

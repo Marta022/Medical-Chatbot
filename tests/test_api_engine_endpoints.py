@@ -157,7 +157,7 @@ class TestApiEngineEndpoints(unittest.TestCase):
 
         with patch(
             "api.app.build_gitnexus_payload_safe",
-            return_value={"status": "ok", "nodes": [], "edges": [], "viewer_url": "http://x/graph"},
+            return_value={"status": "ok", "nodes": [], "edges": []},
         ):
             response = client.get("/graph/nexus?query=mi&limit=5")
 

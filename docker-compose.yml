@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     image: medical-chatbot:local
     container_name: medical-chatbot-app
-    command: ["python", "main.py", "chat"]
+    command: ["python", "run.py", "chat"]
     env_file:
       - .env
     environment:

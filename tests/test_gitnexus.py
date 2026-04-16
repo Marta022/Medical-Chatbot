@@ -35,7 +35,7 @@ class TestGitNexus(unittest.TestCase):
         self.assertEqual(len(payload["nodes"]), 2)
         self.assertEqual(len(payload["edges"]), 1)
         self.assertIn("source://doc.pdf", payload["edges"][0]["source_link"])
-        self.assertIn("/graph?query=mi", payload["viewer_url"])
+        self.assertNotIn("viewer_url", payload)
 
     def test_build_gitnexus_payload_safe_returns_disabled_when_off(self) -> None:
         with patch("knowledge.graph.gitnexus.SETTINGS", SimpleNamespace(gitnexus_enabled=False)):

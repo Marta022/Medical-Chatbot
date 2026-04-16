@@ -5,7 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agent.evaluation.benchmark import load_retrieval_benchmark_queries
+from agent.benchmarking.benchmark import load_retrieval_benchmark_queries
+from agent.evaluation.failure_taxonomy import FailureType
 from agent.evaluation.evaluator import evaluate_response
 from config.eval_config import EVAL_CONFIG
 
@@ -24,23 +25,37 @@ class TestEvaluator(unittest.TestCase):
         result = evaluate_response("intrebare", "")
         self.assertFalse(result.passed)
         self.assertEqual(result.score, 0.0)
-        self.assertIn("empty_response", result.reasons)
+        self.assertIn(FailureType.EMPTY.value, result.reasons)
+        self.assertIn(FailureType.EMPTY, result.failure_types)
         self.assertTrue(result.retry_recommended)
+        self.assertIsNotNone(result.adaptive_prompt)
 
-    def test_short_response_penalized_but_passes(self) -> None:
+    def test_short_response_fails_with_adaptive_prompt(self) -> None:
         result = evaluate_response("intrebare", "scurt ok")
-        self.assertIn("response_too_short", result.reasons)
-        self.assertGreaterEqual(result.score, EVAL_CONFIG.pass_score)
-        self.assertTrue(result.passed)
-        self.assertFalse(result.retry_recommended)
+        self.assertIn(FailureType.TOO_SHORT.value, result.reasons)
+        self.assertIn(FailureType.TOO_SHORT, result.failure_types)
+        self.assertLess(result.score, EVAL_CONFIG.pass_score)
+        self.assertFalse(result.passed)
+        self.assertTrue(result.retry_recommended)
+        self.assertEqual(result.retry_strategy, "adjust_prompt")
+        self.assertIsNotNone(result.adaptive_prompt)
 
     def test_context_unknown_penalty(self) -> None:
         response = "I don't know based on the available data."
         result = evaluate_response("intrebare", response, context_lines=["ctx"])
-        self.assertIn("context_available_but_unknown_answer", result.reasons)
-        self.assertGreaterEqual(result.score, EVAL_CONFIG.pass_score)
-        self.assertTrue(result.passed)
-        self.assertFalse(result.retry_recommended)
+        self.assertIn(FailureType.REFUSED_WITH_CONTEXT.value, result.reasons)
+        self.assertIn(FailureType.REFUSED_WITH_CONTEXT, result.failure_types)
+        self.assertFalse(result.passed)
+        self.assertTrue(result.retry_recommended)
+
+    def test_unsafe_advice_uses_switch_llm_strategy(self) -> None:
+        result = evaluate_response(
+            "Cat ibuprofen iau?",
+            "Ia 400 mg la 8 ore.",
+            context_lines=[],
+        )
+        self.assertIn(FailureType.UNSAFE_ADVICE, result.failure_types)
+        self.assertEqual(result.retry_strategy, "switch_llm")
 
     def test_load_retrieval_benchmark_queries_reads_intrebare_entries(self) -> None:
         with tempfile.NamedTemporaryFile(

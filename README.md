@@ -19,13 +19,7 @@ flowchart TD
 
 ## Project Entrypoint
 
-Unified CLI (canonical entrypoint is `main.py`, `run.py` is a thin alias):
-
-```bash
-python main.py --help
-```
-
-Legacy alias:
+Unified CLI (single entrypoint):
 
 ```bash
 python run.py --help
@@ -64,13 +58,13 @@ RETRIEVAL_MIN_SCORE=0.2
 ### Chat
 
 ```bash
-python main.py chat --top-k 3
+python run.py chat --top-k 3
 ```
 
 Graph-hybrid chat mode:
 
 ```bash
-python main.py chat --retrieval-mode hybrid --graph-depth 2 --vector-weight 1.0 --graph-weight 0.7
+python run.py chat --retrieval-mode hybrid --graph-depth 2 --vector-weight 1.0 --graph-weight 0.7
 ```
 
 Exit commands in chat loop: `exit`, `quit`, `:q`.
@@ -78,32 +72,47 @@ Exit commands in chat loop: `exit`, `quit`, `:q`.
 ### Ingest
 
 ```bash
-python main.py ingest
+python run.py ingest
 ```
 
 Enable graph ingestion (Kuzu) from PDF chunks:
 
 ```bash
-python main.py ingest --graph-ingest --relation-min-confidence 0.7
+python run.py ingest --graph-ingest --relation-min-confidence 0.7
 ```
 
 Custom dataset paths:
 
 ```bash
-python main.py ingest --json-path data/dataset/disease_database.json --csv-path data/dataset/dataset_sheet1.csv
+python run.py ingest --json-path data/dataset/disease_database.json --csv-path data/dataset/dataset_sheet1.csv
 ```
 
 Direct markdown ingest (for example cleaned `document.md`):
 
 ```bash
-python main.py ingest --markdown-path output/document.md --pdf-only
+python run.py ingest --markdown-path output/document.md --pdf-only
 ```
 
-### Eval Smoke
+### Evaluation & Benchmark
+
+Quick evaluator smoke check (no benchmark file):
 
 ```bash
-python main.py eval
+python run.py eval
 ```
+
+Full retrieval benchmark against the grile dataset (writes metrics to an output file):
+
+```bash
+python run.py eval \
+    --benchmark \
+    --benchmark-output output/output_v20_40o.txt
+```
+
+Useful optional flags:
+- `--benchmark-top-k` – override retriever top_k during benchmark (default: `DEFAULT_TOP_K`).
+- `--benchmark-limit` – limit number of benchmark items (0 = toate).
+- `--benchmark-use-guardrail` – when `true`, păstrează guardrail-ul activ și în benchmark (implicit este dezactivat pentru scoruri mai clare).
 
 ## Docker Usage
 
@@ -181,6 +190,24 @@ GITNEXUS_ENABLED=false
 GITNEXUS_BASE_URL=http://localhost:8088
 ```
 
+Key feature flags (true/false) and what they do:
+- `GRAPH_INGEST_ENABLED` (default: `true`) – dacă este `true`, după ingest se construiește și graful Kuzu din chunk-uri și relații (Graph-RAG activ).
+- `GUARDRAIL_LLM_ENABLED` (default: `true`) – activează verificările LLM-based în guardrail înainte să întoarcă răspunsul către utilizator.
+- `RETRIEVAL_RERANK_ENABLED` (default: `true`) – dacă este `true`, aplică un reranker peste hit-urile inițiale din Qdrant.
+- `KEYWORD_FALLBACK_ENABLED` (default: `true`) – permite fallback pe căutare keyword dacă scorul vectorial este prea mic.
+- `SEMANTIC_USE_LLAMAINDEX` (default: `true`) – folosește parser-ul semantic llama-index pentru chunking când `CHUNKING_STRATEGY=semantic`.
+- `ALLOW_SEMANTIC_CHUNK_FALLBACK` (default: `false`) – dacă este `true`, permite fallback pe chunking simplu atunci când semantic chunking eșuează.
+- `TRANSLATION_ENABLED` (default: `true`) – permite normalizarea / traducerea întrebărilor (de ex. RO → EN) înainte de retrieval.
+- `GITNEXUS_ENABLED` (default: `false`) – când este `true`, `/graph/nexus` se conectează la GitNexus la `GITNEXUS_BASE_URL` și întoarce noduri, muchii și `source_link` pentru navigare în sursa de cunoștințe.
+
+API-specific flags:
+- `API_ENABLED` (default: `true`) – dacă este `false`, API-ul HTTP nu pornește.
+- `API_REQUIRE_KEY` (default: `false`) – dacă este `true`, toate rutele protejate cer header `Authorization: Bearer <API_KEY>`.
+
+Evaluator flags:
+- `EVAL_PASS_SCORE` (default: `0.7`) – pragul minim de acceptare pentru evaluator (sub acest scor, se consideră că răspunsul a eșuat).
+- `EVAL_MAX_RETRIES` (default: `2`) – câte reîncercări poate face evaluatorul (inclusiv cu fallback între provideri).
+
 API control hooks:
 - `POST /chat` and `POST /v1/chat/completions` accept `retrieval_mode`, `graph_depth`, `vector_weight`, `graph_weight`.
 - `GET /graph/nexus?query=<text>&limit=<n>` returns graph nodes/edges with `source_link` fields for source chunk navigation.
@@ -197,7 +224,7 @@ Phase-1 validation commands used during migration:
 
 ```bash
 python -c "import run; import agent.orchestrator.chat_loop; import agent.guardrail.rules_engine; import knowledge.qdrant.client; import rag.retrieval.retriever; import models.contracts; print('import-smoke-ok')"
-python -m compileall agent knowledge rag models config run.py app.py
+python -m compileall agent knowledge rag models config run.py
 python -m unittest tests.test_models tests.test_cli tests.test_config_prompts tests.test_phase1_structure -v
 ```
 

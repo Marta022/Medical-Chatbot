@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from agent.evaluation.benchmark import run_evaluation_smoke
+from agent.benchmarking.benchmark import run_evaluation_smoke
 from agent.orchestrator.orchestrator import Orchestrator
 from knowledge.qdrant.ingest import ingest
 from models.serde import serialize_to_json_compatible

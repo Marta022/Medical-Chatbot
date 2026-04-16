@@ -40,18 +40,24 @@ class GuardrailResult:
     is_emergency: bool = False
     is_unsafe: bool = False
     is_valid: bool = True
+    category: str = "SAFE"
     message: str | None = None
     reason_code: str = "SAFE"
     confidence: float = 1.0
+    matched_keywords: list[str] = field(default_factory=list)
+    used_llm: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "is_emergency": self.is_emergency,
             "is_unsafe": self.is_unsafe,
             "is_valid": self.is_valid,
+            "category": self.category,
             "message": self.message,
             "reason_code": self.reason_code,
             "confidence": self.confidence,
+            "matched_keywords": self.matched_keywords,
+            "used_llm": self.used_llm,
         }
 
     @classmethod
@@ -60,9 +66,12 @@ class GuardrailResult:
             is_emergency=bool(value.get("is_emergency", False)),
             is_unsafe=bool(value.get("is_unsafe", False)),
             is_valid=bool(value.get("is_valid", True)),
+            category=str(value.get("category", "SAFE")),
             message=value.get("message"),
             reason_code=str(value.get("reason_code", "SAFE")),
             confidence=float(value.get("confidence", 1.0)),
+            matched_keywords=[str(item) for item in value.get("matched_keywords", [])],
+            used_llm=bool(value.get("used_llm", False)),
         )
 
 
@@ -184,6 +193,10 @@ class EvaluatorResult:
     score: float
     reasons: list[str] = field(default_factory=list)
     retry_recommended: bool = False
+    failure_types: list[str] = field(default_factory=list)
+    adaptive_prompt: str | None = None
+    retry_strategy: str = "adjust_prompt"
+    judge_used: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -191,6 +204,12 @@ class EvaluatorResult:
             "score": self.score,
             "reasons": self.reasons,
             "retry_recommended": self.retry_recommended,
+            "failure_types": [
+                item.value if hasattr(item, "value") else str(item) for item in self.failure_types
+            ],
+            "adaptive_prompt": self.adaptive_prompt,
+            "retry_strategy": self.retry_strategy,
+            "judge_used": self.judge_used,
         }
 
 

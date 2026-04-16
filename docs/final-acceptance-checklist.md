@@ -14,7 +14,7 @@ Source PRD: `docs/prd.md` (v1.1)
 | FR-04 | User-facing output in Romanian | Partially Met | Chat loop prints Romanian context and safety messages; full benchmark validation remains tied to final E4.3 test |
 | FR-05 | Generated response is evaluated for quality/safety | Met | `agent/evaluation/evaluator.py`; evaluator invocation in orchestrator |
 | FR-06 | Retry and/or provider fallback on evaluation failure | Met | Retry guidance and fallback selection in `agent/orchestrator/orchestrator.py`; `tests/test_orchestrator.py` |
-| FR-07 | CLI commands for chat/ingest/eval | Met | `main.py`, `run.py`, CLI help smoke in tracker step 054 |
+| FR-07 | CLI commands for chat/ingest/eval | Met | `run.py`, CLI help smoke in tracker step 054 |
 | FR-08 | Qdrant lifecycle and retrieval/ingest support | Met | `knowledge/qdrant/*`, ingestion and compose connectivity/persistence evidence (steps 050, 052) |
 | FR-09 | REST engine endpoints | Not Met (planned) | Scheduled in `E4.4` (`T4.4.1`-`T4.4.TEST`) |
 | FR-10 | OpenAI-compatible endpoints for OpenWebUI | Not Met (planned) | Scheduled in `E4.4` (`T4.4.3`, `T4.4.5`, `T4.4.TEST`) |

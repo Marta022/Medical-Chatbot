@@ -22,4 +22,4 @@ COPY --chown=appuser:appuser . /app
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD python -c "import config.settings; print('ok')" || exit 1
 
-CMD ["python", "main.py", "chat"]
+CMD ["python", "run.py", "chat"]

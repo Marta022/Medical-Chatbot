@@ -72,4 +72,12 @@ def evaluator_result_from_dict(value: dict[str, Any]) -> EvaluatorResult:
         score=float(value.get("score", 0.0)),
         reasons=[str(item) for item in value.get("reasons", [])],
         retry_recommended=bool(value.get("retry_recommended", False)),
+        failure_types=[str(item) for item in value.get("failure_types", [])],
+        adaptive_prompt=(
+            str(value.get("adaptive_prompt"))
+            if value.get("adaptive_prompt") is not None
+            else None
+        ),
+        retry_strategy=str(value.get("retry_strategy", "adjust_prompt")),
+        judge_used=bool(value.get("judge_used", False)),
     )

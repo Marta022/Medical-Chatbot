@@ -3,7 +3,7 @@ from __future__ import annotations
 from statistics import mean
 from typing import Any
 
-from agent.evaluation.benchmark import (
+from agent.benchmarking.benchmark import (
     DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
     load_retrieval_benchmark_queries,
 )

@@ -15,11 +15,13 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
+import re
 from dataclasses import replace
 from pathlib import Path
 
-from agent.evaluation.benchmark import run_evaluation_smoke
-from agent.evaluation.benchmark import (
+from agent.benchmarking.benchmark import run_evaluation_smoke
+from agent.benchmarking.benchmark import (
     DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH,
     DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
     run_retrieval_benchmark,
@@ -39,6 +41,79 @@ from rag.retrieval.quality_report import build_quality_report
 from models.serde import serialize_to_json_compatible
 
 logger = logging.getLogger(__name__)
+
+
+def _env_markdown_paths() -> list[str]:
+    """Return markdown paths configured via INGEST_MARKDOWN_PATHS env var.
+
+    The value is a semicolon- or comma-separated list of paths.
+    """
+
+    raw = os.getenv("INGEST_MARKDOWN_PATHS", "").strip()
+    if not raw:
+        return []
+    # Support both ';' and ',' as separators.
+    for separator in (";", ","):
+        raw = raw.replace(separator, " ")
+    return [part for part in (item.strip() for item in raw.split()) if part]
+
+
+def _default_markdown_paths() -> list[str]:
+    """Resolve default markdown corpus paths for ingest.
+
+    Preference order:
+    1) Explicit INGEST_MARKDOWN_PATHS environment variable.
+    2) Auto-discovered markdown files in the dataset directory.
+    """
+
+    env_paths = _env_markdown_paths()
+    if env_paths:
+        return env_paths
+    return discover_markdown_paths()
+
+
+def _safe_model_suffix() -> str:
+    """Return a filesystem-safe suffix for the current primary LLM model."""
+
+    if SETTINGS.llm_provider == "openai":
+        raw = SETTINGS.openai_model
+    elif SETTINGS.llm_provider == "ollama":
+        raw = SETTINGS.ollama_model
+    else:
+        raw = SETTINGS.qwen_model
+    cleaned = re.sub(r"[^0-9A-Za-z_-]+", "", raw or "").strip("_-")
+    return cleaned
+
+
+def _next_benchmark_output_path() -> str:
+    """Compute next benchmark output path as output_v<N>_<model>.txt.
+
+    Scans existing files in the output directory and increments N.
+    """
+
+    output_dir = Path("output")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    max_index = 0
+    pattern = re.compile(r"^output_v(\d+)")
+    for path in output_dir.glob("output_v*.txt"):
+        match = pattern.match(path.name)
+        if not match:
+            continue
+        try:
+            value = int(match.group(1))
+        except ValueError:
+            continue
+        if value > max_index:
+            max_index = value
+
+    next_index = max_index + 1
+    suffix = _safe_model_suffix()
+    if suffix:
+        filename = f"output_v{next_index}_{suffix}.txt"
+    else:
+        filename = f"output_v{next_index}.txt"
+    return str(output_dir / filename)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -209,8 +284,8 @@ def _build_parser() -> argparse.ArgumentParser:
     eval_parser.add_argument(
         "--benchmark",
         action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Run benchmark validation against grile dataset and answer key",
+        default=True,
+        help="Run benchmark validation against grile dataset and answer key (default: true)",
     )
     eval_parser.add_argument(
         "--benchmark-json-path",
@@ -242,8 +317,11 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     eval_parser.add_argument(
         "--benchmark-output",
-        default="output/benchmark_latest.txt",
-        help="File path where benchmark logs and metrics are saved (default: output/benchmark_latest.txt)",
+        default="",
+        help=(
+            "File path where benchmark logs and metrics are saved. "
+            "If omitted, a path like output/output_v<N>_<model>.txt is used."
+        ),
     )
     return parser
 
@@ -272,7 +350,7 @@ def main() -> None:
             semantic_use_llamaindex=args.semantic_use_llamaindex,
         )
         ensure_startup_valid(command=args.command, settings=ingest_settings)
-        default_markdown_paths = discover_markdown_paths()
+        default_markdown_paths = _default_markdown_paths()
         corpus_paths: list[str]
         if args.skip_pdf_ingest:
             corpus_paths = []
@@ -322,10 +400,12 @@ def main() -> None:
     if args.command == "eval":
         ensure_startup_valid(command=args.command)
         benchmark_output_path: Path | None = None
-        if args.benchmark and args.benchmark_output:
-            benchmark_output_path = Path(args.benchmark_output)
-            benchmark_output_path.parent.mkdir(parents=True, exist_ok=True)
         if args.benchmark:
+            if args.benchmark_output:
+                benchmark_output_path = Path(args.benchmark_output)
+            else:
+                benchmark_output_path = Path(_next_benchmark_output_path())
+            benchmark_output_path.parent.mkdir(parents=True, exist_ok=True)
             result = run_retrieval_benchmark(
                 benchmark_json_path=args.benchmark_json_path,
                 answer_key_path=args.answer_key_path,

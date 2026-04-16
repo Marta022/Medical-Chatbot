@@ -86,11 +86,8 @@ def build_gitnexus_payload(
             }
         )
 
-    base = SETTINGS.gitnexus_base_url.rstrip("/")
-    viewer_url = f"{base}/graph?query={query}" if base else ""
     return {
         "query": query,
-        "viewer_url": viewer_url,
         "nodes": list(nodes.values()),
         "edges": edges,
     }
@@ -106,7 +103,6 @@ def build_gitnexus_payload_safe(
     if not SETTINGS.gitnexus_enabled:
         return {
             "query": query,
-            "viewer_url": None,
             "nodes": [],
             "edges": [],
             "status": STATUS_DISABLED,
@@ -117,7 +113,6 @@ def build_gitnexus_payload_safe(
         logger.exception("gitnexus_payload_build_failed", extra={"error": str(exc)})
         return {
             "query": query,
-            "viewer_url": None,
             "nodes": [],
             "edges": [],
             "status": STATUS_UNAVAILABLE,

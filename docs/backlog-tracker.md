@@ -1,6 +1,6 @@
 # Backlog Tracker
 
-Last updated: 2026-03-28  
+Last updated: 2026-04-16  
 Tracking scope: tasks defined in `docs/backlog.md`
 
 ## Tracking Rules
@@ -401,6 +401,7 @@ Use this section for current work only (max 10 items at a time).
 | 111 | 2026-03-28 | Applied deep refactor to `agent/evaluation/benchmark.py` | Added module/function docstrings, consolidated magic literals into constants, extracted repeated question-type/status parsing into helpers, and kept benchmark scoring/rejection behavior unchanged; validated with `python -m unittest tests.test_benchmark tests.test_evaluator -v` (35 tests OK) | Maintenance refactor sweep complete |
 | 112 | 2026-03-28 | Deduplicated shared text normalization and graph row mapping helpers | Added shared normalization helper (`models/text_normalization.py`) used by guardrail/entities; added shared graph result mapper (`knowledge/graph/common.py`) used by retriever/GitNexus; validated with `python -m unittest tests.test_guardrail tests.test_entities tests.test_retriever tests.test_retrieval_filters tests.test_gitnexus -v` (19 tests OK) | Maintenance refactor sweep complete |
 | 113 | 2026-03-28 | Synchronized runtime imports with dependency manifest | Updated `requirements.txt` to include direct runtime imports (`httpx`, `ollama`, `PyMuPDF`) and removed duplicate `python-dotenv` entry | Dependency manifest aligned with current code imports |
+| 114 | 2026-04-16 | Upgraded evaluator with failure taxonomy and adaptive retry strategy while keeping benchmark module separate | Added evaluator modules (`failure_taxonomy`, `heuristics`, `adaptive_prompt`, `llm_judge`), expanded `EvaluatorResult` + `EvalConfig`, wired orchestrator retry flow to use `adaptive_prompt` and `retry_strategy` (`switch_llm` vs `adjust_prompt`), and fixed API eval dependency import to keep benchmark wiring functional (`api/dependencies.py` now imports `agent.benchmarking.benchmark`); validated with `python -m unittest tests.test_evaluator tests.test_orchestrator tests.test_models -v` (24 tests OK) and `python -m unittest tests.test_api_engine_endpoints tests.test_api_openai_adapter tests.test_api_config_controls -v` (15 tests OK) | Optional next step: tune penalty weights/thresholds with real query logs or benchmark-style probes |
 
 ## Known Risks and Blockers
 

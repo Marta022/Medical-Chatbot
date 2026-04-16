@@ -53,7 +53,7 @@ The project needs a medically oriented chatbot that uses retrieval-augmented gen
 ## 5.1 Implementation Snapshot (2026-02-25)
 
 Implemented:
-- Unified CLI entrypoint (`main.py` / `run.py`) with `chat`, `ingest`, `eval`
+- Unified CLI entrypoint (`run.py`) with `chat`, `ingest`, `eval`
 - Orchestrator with guardrails, retrieval, evaluator retry guidance, and provider fallback
 - Typed contracts across runtime (`models/*`)
 - Containerization and compose topology (`Dockerfile`, `docker-compose.yml`, optional `local-llm` profile)
