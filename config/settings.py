@@ -51,7 +51,6 @@ DEFAULT_HYBRID_VECTOR_WEIGHT = 1.0
 DEFAULT_HYBRID_GRAPH_WEIGHT = 0.9
 DEFAULT_GITNEXUS_BASE_URL = "http://localhost:8088"
 DEFAULT_SYSTEM_PROMPT = "You are an AI medical assistant. Use only provided context."
-DEFAULT_TRANSLATION_ENABLED = True
 INGEST_COMMAND = "ingest"
 CHAT_COMMAND = "chat"
 EXTRACT_MARKDOWN_COMMAND = "extract-markdown"
@@ -101,7 +100,6 @@ class AppSettings:
     hybrid_graph_weight: float = DEFAULT_HYBRID_GRAPH_WEIGHT
     gitnexus_enabled: bool = False
     gitnexus_base_url: str = DEFAULT_GITNEXUS_BASE_URL
-    translation_enabled: bool = DEFAULT_TRANSLATION_ENABLED
 
 
 def load_settings() -> AppSettings:
@@ -165,7 +163,6 @@ def load_settings() -> AppSettings:
         hybrid_graph_weight=env_float("HYBRID_GRAPH_WEIGHT", DEFAULT_HYBRID_GRAPH_WEIGHT),
         gitnexus_enabled=env_bool("GITNEXUS_ENABLED", False),
         gitnexus_base_url=os.getenv("GITNEXUS_BASE_URL", DEFAULT_GITNEXUS_BASE_URL).strip(),
-        translation_enabled=env_bool("TRANSLATION_ENABLED", DEFAULT_TRANSLATION_ENABLED),
     )
 
 

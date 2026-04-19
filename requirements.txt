@@ -22,8 +22,5 @@ llama-index-core==0.11.23
 llama-index-embeddings-openai>=0.2.0,<0.3.0
 kuzu>=0.6.0
 
-# Translation
-deep-translator==1.11.4
-
 # Testing
 coverage==7.5.4

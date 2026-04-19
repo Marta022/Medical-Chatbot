@@ -1,4 +1,4 @@
-
+﻿
 \documentclass[12pt, a4paper, oneside, romanian]{teza-upb}
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
@@ -51,7 +51,7 @@
 
 \author{Miron Marta-Florentina}
 
-\title{Chatbot medical}
+\title{Sistem de tip chatbot medical folosind tehnici RAG și LLM}
 
 
 \facultatea{Facultatea de Electronică, Telecomunicații și Tehnologia Informației}
@@ -63,7 +63,7 @@
 \program{Electronică Aplicată}
 \titlulobtinut{Inginer}
 %\titlulobtinut{Master}
-\director{Prof. Dr. Ing. Bogdan-Emanuel Ionescu} 
+\director{Prof. dr. ing. Bogdan-Emanuel Ionescu\\Drd. Lucian Gruia, Ciklum} 
 
 \submissionmonth{Iunie} 
 \submissionyear{2026} 
@@ -399,9 +399,9 @@ Prin utilizarea documentelor externe ca sursă de context, arhitectura RAG permi
 
 \subsection{Măsurarea similarității}
 
-Atât interogarea utilizatorului, cât și fragmentele de text extrase din documente sunt transformate în reprezentări numerice, denumite embeddings. Acestea sunt reprezentate într-un spațiu vectorial, în care se evaluează gradul de similaritate semantică dintre interogare și fiecare fragment de text.
+Atât interogarea utilizatorului, cât și fragmentele de text extrase din documente sunt transformate în reprezentări numerice, denumite embeddings. Acestea sunt proiectate într-un spațiu vectorial, în care se evaluează gradul de similaritate semantică dintre interogare și fiecare fragment de text.
 
-Similaritatea sau distanța dintre aceste reprezentări poate fi calculată utilizând diferite măsuri, alegerea acestora reprezentând un hiperparametru al sistemului. Cele mai utilizate metode includ similaritatea cosinus, produsul scalar sau distanța euclidiană.
+Similaritatea sau distanța dintre aceste reprezentări poate fi calculată utilizând diferite măsuri, alegerea acestora reprezentând un hiperparametru al sistemului. Cele mai utilizate metode includ similaritatea cosinus, produsul scalar, distanța euclidiană și distanța Manhattan.
 
 \begin{figure}[H]
     \centering
@@ -411,13 +411,13 @@ Similaritatea sau distanța dintre aceste reprezentări poate fi calculată util
 \end{figure}
 
 \begin{itemize}
-    \item\textbf{Similaritatea cosinus} este una dintre cele mai utilizate măsuri pentru compararea reprezentărilor vectoriale. Aceasta este definită ca raportul dintre produsul scalar al celor doi vectori și produsul normelor acestora:
+    \item\textbf{Similaritatea cosinus} este una dintre cele mai răspândite metrici pentru compararea reprezentărilor vectoriale. Aceasta este definită ca raportul dintre produsul scalar al celor doi vectori și produsul normelor acestora:
 
 \begin{equation}
 \text{sim}_{cos}(P, Q) = \frac{P \cdot Q}{\|P\| \|Q\|}
 \end{equation}
 
-Din punct de vedere geometric, această măsură reprezintă cosinusul unghiului dintre cei doi vectori în spațiul vectorial. Valorile apropiate de 1 indică o similaritate semantică ridicată, în timp ce valorile apropiate de 0 sau negative indică o similaritate redusă. 
+Din punct de vedere geometric, această măsură reprezintă cosinusul unghiului dintre cei doi vectori în spațiul vectorial. Valorile apropiate de 1 indică o similaritate semantică ridicată, în timp ce valorile apropiate de 0 indică o similaritate redusă. În cazul vectorilor care nu sunt normalizați, valorile pot fi și negative, indicând o orientare opusă în spațiu. 
 
 În unele cazuri, se utilizează și distanța cosinus, definită ca:
 
@@ -425,30 +425,30 @@ Din punct de vedere geometric, această măsură reprezintă cosinusul unghiului
 d_{cos}(P, Q) = 1 - \text{sim}_{cos}(P, Q)
 \end{equation} 
 
-    \item\textbf{Distanța euclidiană} reprezintă una dintre cele mai utilizate măsuri de distanță în spațiul vectorial, fiind aplicabilă în special pentru date numerice. Aceasta derivă din teorema lui Pitagora și cuantifică distanța directă dintre două puncte în spațiul vectorial.
+    \item\textbf{Distanța euclidiană} este una dintre cele mai cunoscute metrici de distanță în spațiul vectorial, aplicabilă în special datelor numerice. Derivată din teorema lui Pitagora, aceasta cuantifică distanța directă dintre două puncte în spațiul vectorial.
 
 \begin{equation}
 d_{L_2}(P, Q) = \sqrt{\sum_{i=1}^{d} (P_i - Q_i)^2}
 \end{equation}
 
-Această măsură reflectă distanța geometrică dintre doi vectori, valori mai mici indicând o similaritate mai mare între aceștia.
+Valorile obținute reflectă distanța geometrică dintre doi vectori — cu cât aceasta este mai mică, cu atât similaritatea dintre reprezentări este mai ridicată.
 
 
-\item\textbf{Distanța Manhattan}, cunoscută și sub denumirea de distanță L1 sau City Block Distance, reprezintă o măsură de distanță utilizată în spațiile vectoriale, în special pentru date numerice. Aceasta nu se bazează pe teorema lui Pitagora, ci pe suma diferențelor absolute dintre componentele vectorilor.
+\item\textbf{Distanța Manhattan}, cunoscută și sub denumirea de distanță L1 sau City Block Distance, cuantifică diferența dintre doi vectori prin suma diferențelor absolute ale componentelor, fără a recurge la teorema lui Pitagora.
 
 \begin{equation}
 d_{L_1}(P, Q) = \sum_{i=1}^{d} |P_i - Q_i|
 \end{equation}
 
-Din punct de vedere geometric, această măsură reflectă distanța parcursă între două puncte atunci când deplasarea se face doar pe direcții ortogonale, similar deplasării într-o rețea urbană. Valorile mai mici indică o similaritate mai mare între vectori.
+Geometric, metrica surprinde traseul parcurs între două puncte când deplasarea este restricționată la direcții ortogonale, analogie cu navigația pe o rețea urbană. Valorile mai mici indică o similaritate mai mare între vectori.
 
-\item\textbf{Produsul scalar} reprezintă o măsură de similaritate între doi vectori, calculată ca suma produselor componentelor corespunzătoare:
+\item\textbf{Produsul scalar} exprimă similaritatea dintre doi vectori ca sumă a produselor componentelor corespunzătoare:
 
 \begin{equation}
 P \cdot Q = \sum_{i=1}^{d} P_i Q_i
 \end{equation}
 
-Această măsură este utilizată frecvent în mecanismele de regăsire bazate pe embedding-uri, deoarece permite evaluarea rapidă a similarității dintre vectori. Totuși, spre deosebire de similaritatea cosinus, produsul scalar este influențat de magnitudinea vectorilor. \cite{levy2024similarity}
+Această operație este frecvent aplicată în mecanismele de regăsire bazate pe embedding-uri datorită eficienței sale computaționale. Spre deosebire de similaritatea cosinus, rezultatul depinde și de magnitudinea vectorilor, nu doar de direcția lor. \cite{levy2024similarity}
 \end{itemize}
     \subsection{Avantaje și limitări ale RAG}
   
@@ -492,7 +492,7 @@ Pentru a evidenția diferențele dintre principalele tipuri de sisteme de inteli
 
 \section{Limbajul de programare și organizarea aplicației}
 
-Python reprezintă în prezent unul dintre cele mai utilizate limbaje de programare în domeniul inteligenței artificiale și al procesării limbajului natural, datorită ecosistemului extins de biblioteci specializate și simplității sintaxei care facilitează prototiparea rapidă \cite{python310}. Implementarea prezentului proiect utilizează Python 3.11.7, versiune care aduce îmbunătățiri semnificative la nivel de performanță față de ramura 3.10 — în special reducerea timpilor de execuție și mesaje de eroare mai detaliate — și introduce noua sintaxă de potrivire structurală a datelor (\textit{structural pattern matching}), relevantă pentru gestionarea tipurilor contractuale ale sistemului.
+Python reprezintă în prezent unul dintre cele mai utilizate limbaje de programare în domeniul inteligenței artificiale și al procesării limbajului natural, datorită ecosistemului extins de biblioteci specializate și simplității sintaxei care facilitează prototiparea rapidă \cite{python310}. Implementarea prezentului proiect utilizează Python 3.10, versiune care aduce îmbunătățiri semnificative la nivel de performanță și introduce noua sintaxă de potrivire structurală a datelor (\textit{structural pattern matching}), relevantă pentru gestionarea tipurilor contractuale ale sistemului.
 
 \subsection{Justificarea alegerii Python}
 
@@ -500,87 +500,63 @@ Alegerea Python ca limbaj principal de implementare este motivată de mai mulți
 
 Ecosistemul Python pentru inteligența artificială include, de asemenea, instrumente standardizate pentru gestionarea mediilor virtuale și a dependențelor, ceea ce simplifică reproducerea exactă a configurației software și reduce riscul incompatibilităților între versiunile bibliotecilor.
 
-\subsection{Arhitectura modulară a aplicației}
+\subsection{Pydantic}
 
-Organizarea internă a proiectului respectă principiul separării responsabilităților (\textit{separation of concerns}), fiecare pachet Python corespunzând unui domeniu funcțional distinct. Modulul \texttt{agent} conține orchestratorul principal, mecanismele de protecție, evaluatorul și logica de interacțiune conversațională. Modulul \texttt{rag} gestionează segmentarea documentelor, generarea embedding-urilor și interogarea bazei vectoriale. Modulul \texttt{knowledge} cuprinde clientul bazei de date vectoriale, extractorul de entități și componenta de graf de cunoștințe. Modulul \texttt{api} expune interfața REST a aplicației, iar \texttt{config} centralizează configurația și definițiile de prompturi.
+Pydantic este o bibliotecă Python pentru validarea datelor și definirea modelelor prin adnotări de tip, utilizând sistemul de tipuri al Python 3 ca sursă de adevăr pentru structura datelor \cite{pydantic_doc}. Spre deosebire de clasele de date standard, modelele Pydantic validează automat tipurile și valorile câmpurilor la momentul instanțierii, generând erori clare și structurate în cazul datelor neconforme.
 
-Această structură permite testarea independentă a fiecărui modul, reîncărcarea configurației fără modificarea codului aplicativ și înlocuirea sau extinderea componentelor individuale fără impact asupra restului sistemului. Contractele de date dintre module sunt definite explicit în pachetul \texttt{models}, prin utilizarea modelelor \texttt{Pydantic}, ceea ce garantează consistența tipurilor pe întregul flux de execuție și facilitează detectarea timpurie a erorilor de integrare.
+Pydantic este utilizat pe scară largă în ecosistemul Python pentru construirea de API-uri și servicii de date, datorită integrării sale native cu framework-uri precum FastAPI și a capacității de a serializa și deserializa automat date JSON. Validarea declarativă prin tipuri reduce volumul de cod boilerplate necesar și centralizează regulile de validare la nivelul definiției modelului, nu dispersat în logica aplicativă.
 
 \section{Interfața API}
 
 \subsection{Framework-ul Flask}
 
-Flask este un micro-framework web pentru Python, proiectat pentru a oferi fundamente simple și extensibile pentru construirea aplicațiilor web și a interfețelor REST \cite{flask_doc}. Spre deosebire de framework-urile de tip \textit{full-stack}, Flask nu impune o structură de proiect predefinită, oferind flexibilitate în organizarea codului și permițând integrarea selectivă a extensiilor necesare. Această filosofie de design îl face potrivit pentru aplicații cu arhitectură bine definită, în care stratul web nu reprezintă decât interfața de acces la o logică aplicativă separată.
+Interfețele de tip REST (\textit{Representational State Transfer}) reprezintă un stil arhitectural pentru servicii web, definit prin principii precum statelessness (fiecare cerere conține toate informațiile necesare procesării sale), interfață uniformă bazată pe resurse identificate prin URI-uri și utilizarea metodelor HTTP standard (GET, POST, PUT, DELETE) cu semantică bine definită. Această abordare decuplează clientul de server și permite scalabilitate independentă a celor două straturi \cite{flask_doc}.
+
+Flask este un micro-framework web pentru Python, proiectat pentru a oferi fundamente simple și extensibile pentru construirea aplicațiilor web și a interfețelor REST \cite{flask_doc}. Spre deosebire de framework-urile de tip \textit{full-stack} — precum Django — Flask nu impune o structură de proiect predefinită și nu include componente ORM sau de autentificare implicite, oferind flexibilitate în organizarea codului și permițând integrarea selectivă a extensiilor necesare. Această filosofie de design îl face potrivit pentru aplicații cu arhitectură bine definită, în care stratul web nu reprezintă decât interfața de acces la o logică aplicativă separată.
 
 În cadrul proiectului, Flask este utilizat pentru a expune funcționalitățile chatbot-ului ca serviciu HTTP. Această abordare permite decuplarea stratului de prezentare de logica de orchestrare, facilitând integrarea cu diverse interfețe de utilizator fără a modifica nucleul aplicației.
-
-\subsection{Structura endpoint-urilor}
-
-Interfața API este structurată în două categorii de endpoint-uri. Prima categorie cuprinde endpoint-uri interne dedicate fluxului aplicației, care includ operații de ingestie a documentelor, interogare conversațională și evaluare a calității răspunsului. A doua categorie cuprinde endpoint-uri compatibile cu formatul OpenAI Chat Completions API \cite{openai_api}, care permit utilizarea sistemului ca backend pentru orice client ce implementează protocolul OpenAI, fără modificări suplimentare la nivelul clientului.
-
-Această compatibilitate bidirecțională este esențială pentru integrarea cu OpenWebUI, un proiect open-source independent care oferă o interfață grafică pentru sisteme conversaționale compatibile cu API-ul OpenAI. OpenWebUI nu reprezintă un frontend dezvoltat în cadrul acestei lucrări, ci un serviciu extern utilizat ca strat de prezentare. Prin expunerea endpoint-ului \texttt{/v1/chat/completions} conform specificației OpenAI, backend-ul chatbot-ului poate fi conectat la OpenWebUI fără modificări suplimentare, acesta din urmă tratând serviciul ca pe orice alt furnizor compatibil cu protocolul OpenAI.
-
-\subsection{Securitatea interfaței}
-
-Accesul la interfața API este protejat printr-un mecanism de autentificare bazat pe chei API (\textit{API key authentication}). Fiecare cerere trebuie să includă în header-ul HTTP un token de autorizare valid, verificat de un nivel de middleware înainte ca solicitarea să fie transmisă logicii aplicative. Această abordare reprezintă o practică standard de securitate pentru serviciile RESTful, protejând accesul la resurse sensibile și prevenind utilizarea neautorizată a serviciului \cite{flask_doc}.
-
-Middleware-ul de autentificare este parametrizat prin variabile de mediu, ceea ce permite activarea sau dezactivarea sa în funcție de contextul de deployment: dezactivat în mediul de dezvoltare locală și activ în orice configurație expusă extern.
 
 \section{Tehnologiile RAG: vectori, chunking și căutare semantică}
 
 \subsection{Baza de date vectorială Qdrant}
 
-Qdrant este o bază de date vectorială de înaltă performanță, proiectată pentru stocarea și regăsirea eficientă a reprezentărilor numerice de înaltă dimensionalitate \cite{qdrant_doc}. Spre deosebire de bazele de date relaționale tradiționale, Qdrant este optimizată pentru interogări de tip \textit{nearest neighbor}, permițând identificarea rapidă a vectorilor cei mai similari dintr-o colecție de dimensiuni mari.
+Căutarea exactă a celui mai apropiat vecin (\textit{exact nearest neighbor}) într-o colecție de milioane de vectori de înaltă dimensionalitate este computațional intractabilă la scară, necesitând compararea interogării cu fiecare vector stocat. Bazele de date vectoriale rezolvă această problemă prin algoritmi de căutare aproximativă a vecinilor (\textit{Approximate Nearest Neighbor}, ANN), care reduc dramatic numărul de comparații necesare cu un cost controlabil de precizie.
 
-Arhitectura internă a Qdrant se bazează pe algoritmul \textit{Hierarchical Navigable Small World} (HNSW), care permite căutarea aproximativă a vecinilor cei mai apropiați cu complexitate sub-liniară, adecvată pentru scenarii de producție în care timpul de răspuns este critic. Fiecare document stocat în Qdrant este asociat cu un vector de embedding și un set de metadate structurate, care includ informații despre sursa documentului, pagina și secțiunea de origine, necesare pentru procesul de citare al răspunsurilor.
+Qdrant este o bază de date vectorială de înaltă performanță, proiectată pentru stocarea și regăsirea eficientă a reprezentărilor numerice de înaltă dimensionalitate \cite{qdrant_doc}. Arhitectura sa internă se bazează pe algoritmul \textit{Hierarchical Navigable Small World} (HNSW) \cite{malkov2018hnsw}, care construiește un graf navigabil pe mai multe niveluri de granularitate: nivelurile superioare conțin noduri rare și arce lungi pentru navigare rapidă, iar nivelurile inferioare conțin noduri dense și arce scurte pentru rafinarea precisă a rezultatelor. Această structură ierarhică permite căutarea cu complexitate logaritmică față de dimensiunea colecției, adecvată scenariilor de producție în care timpul de răspuns este critic.
 
-În implementarea curentă, Qdrant rulează ca un serviciu Docker independent, accesibil prin intermediul unui client Python oficial. Colecția principală stochează embedding-urile documentelor medicale ingerate, iar interogările utilizatorilor sunt transformate în vectori și comparate cu colecția prin similaritate cosinus, returnând fragmentele cu cel mai ridicat scor de relevanță semantică.
+Fiecare punct stocat în Qdrant este asociat cu un vector de embedding și un set de metadate structurate (\textit{payload}), care includ informații despre sursa documentului, pagina și secțiunea de origine — necesare pentru procesul de citare al răspunsurilor. Qdrant suportă filtrarea combinată vector+metadate, permițând restrângerea căutării la subseturi de documente pe baza câmpurilor din payload fără a sacrifica eficiența indexului vectorial.
 
 \subsection{Generarea embedding-urilor}
 
-Transformarea textului în reprezentări vectoriale este realizată prin modelele de embedding ale OpenAI, care produc vectori denși de dimensiune fixă ce captează semantica textului în spațiul vectorial multidimensional \cite{mikolov2013word2vec}. Această reprezentare permite compararea semantică a interogărilor cu fragmentele de document fără a fi necesară o potrivire lexicală exactă, modelul detectând similaritățile conceptuale chiar și în absența termenilor comuni.
+Embedding-urile reprezintă proiecții ale textului în spații vectoriale de înaltă dimensionalitate, în care distanța dintre vectori reflectă gradul de similaritate semantică dintre textele corespunzătoare. Spre deosebire de reprezentările simbolice clasice — precum bag-of-words sau TF-IDF — embedding-urile dense captează relații semantice și de co-ocurență la nivel de spațiu continuu, permițând compararea conceptuală a textelor chiar și în absența termenilor comuni \cite{mikolov2013word2vec}.
 
-Procesul de generare a embedding-urilor se desfășoară în două faze distincte. În faza de ingestie, vectorii sunt calculați pentru fiecare fragment de document și stocați în Qdrant alături de metadatele corespunzătoare. În faza de interogare, vectorul interogării utilizatorului este calculat la momentul cererii și comparat cu vectorii stocați, identificând fragmentele cel mai relevante pentru construcția contextului.
+Primele modele de embedding operau la nivel de cuvânt (Word2Vec, GloVe), asignând fiecărui cuvânt un vector fix, independent de context. Odată cu apariția arhitecturii Transformer și a modelelor preantrenate de tip BERT \cite{devlin2018bert}, a devenit posibilă generarea de reprezentări contextuale, în care vectorul unui cuvânt variază în funcție de propoziția din care face parte. Extinderea naturală a acestei abordări la nivel de propoziție sau paragraf a condus la modelele de tip Sentence-BERT (SBERT) \cite{reimers2019sbert}, care antrenează rețele siameze bazate pe BERT pentru a produce embedding-uri de propoziție direct comparabile prin similaritate cosinus.
 
-\subsection{Strategii de segmentare a documentelor}
+\textbf{Backend open-source: sentence-transformers.} Furnizorul implicit de embedding-uri al proiectului este biblioteca \texttt{sentence-transformers} \cite{sentence_transformers_doc}, care expune o interfață Python unificată pentru o colecție extinsă de modele preantrenate. Modelul utilizat este \texttt{paraphrase-multilingual-mpnet-base-v2}, un model multilingv bazat pe arhitectura MPNet, antrenat pe date paralele din peste 50 de limbi, inclusiv română \cite{reimers2019sbert}. Modelul produce vectori de dimensiune 768, cu normalizare L2 aplicată la generare, asigurând compatibilitatea directă cu similaritatea cosinus pentru compararea fragmentelor. Avantajul principal al acestui backend este că poate rula complet local, fără a transmite date externe și fără costuri de utilizare per apel.
 
-Calitatea procesului de regăsire depinde în mod direct de modul în care documentele sunt segmentate în fragmente înainte de indexare. Fragmentele prea lungi pot introduce zgomot semantic și pot depăși limita de tokeni acceptată de modelele LLM, în timp ce fragmentele prea scurte pot lipsi de context suficient pentru a genera răspunsuri coerente \cite{lewis2020retrieval}.
+\textbf{Backend cloud: OpenAI Embeddings.} Ca alternativă configurabilă, proiectul integrează API-ul de embedding al OpenAI \cite{openai_embeddings}, suportând modelele \texttt{text-embedding-3-small} (1536 dimensiuni), \texttt{text-embedding-3-large} (3072 dimensiuni) și \texttt{text-embedding-ada-002} (1536 dimensiuni). Modelele din seria \texttt{text-embedding-3} au fost antrenate cu o funcție de pierdere de tip Matryoshka Representation Learning, care permite reducerea dimensionalității fără pierderi semnificative de calitate. Alegerea între cele două backend-uri se face prin variabila de mediu \texttt{EMBEDDING\_PROVIDER}, fără a necesita modificări ale logicii de regăsire.
 
-Proiectul implementează două strategii complementare de segmentare. Prima strategie este euristică, bazată pe delimitatori structurali ai textului: titluri de secțiuni, paragrafe și marcatori de listă. Această abordare este deterministă și eficientă computațional, dar poate produce fragmente neomogene din punct de vedere semantic în documentele cu structură complexă.
+Procesul de generare a embedding-urilor se desfășoară în două faze distincte. În \textbf{faza de ingestie}, vectorii sunt calculați pentru fiecare fragment de document și stocați în Qdrant alături de metadatele corespunzătoare. În \textbf{faza de interogare}, vectorul interogării utilizatorului este calculat la momentul cererii, folosind același backend activ, și comparat cu vectorii stocați, identificând fragmentele cel mai relevante pentru construcția contextului.
 
-A doua strategie utilizează segmentarea semantică prin intermediul bibliotecii LlamaIndex (\texttt{llama-index-core}) \cite{llamaindex_doc}. LlamaIndex analizează coeziunea semantică a propozițiilor și paragrafelor consecutive, grupând unitățile tematice similare în același fragment. Această abordare produce fragmente cu o coerență semantică mai ridicată, cu prețul unui cost computațional crescut. Sistemul include un mecanism de fallback controlat: dacă dependențele necesare pentru segmentarea semantică nu sunt disponibile, procesul de ingestie revine automat la strategia euristică, menținând funcționalitatea completă a pipeline-ului.
+\subsection{LlamaIndex}
 
-\subsection{Regăsirea hibridă a contextului}
+LlamaIndex (cunoscut anterior ca GPT Index) este un framework Python specializat pentru construirea aplicațiilor bazate pe LLM care necesită integrarea datelor externe \cite{llamaindex_doc}. Framework-ul oferă abstracții de nivel înalt pentru ingestia, transformarea, indexarea și interogarea documentelor, acoperind întregul ciclu de viață al unui pipeline RAG: încărcare din surse heterogene, segmentare, generare de embedding-uri, stocare în baze de date vectoriale și construcție de interogări compuse.
 
-Pe lângă regăsirea vectorială pură, sistemul suportă un mod de regăsire hibrid, care combină similaritatea vectorială cu o componentă de căutare lexicală. Această combinație permite identificarea documentelor relevante atât prin similitudine semantică, cât și prin potrivire exactă a termenilor tehnici, deosebit de importantă în domenii cu terminologie specifică, precum medicina, unde termenii de specialitate nu au sinonime comune în limbajul natural.
-
-Parametrii de regăsire, inclusiv numărul maxim de fragmente returnate și scorul minim de relevanță, sunt configurabili prin variabile de mediu, permițând ajustarea comportamentului sistemului fără modificarea codului sursă.
+Strategia de segmentare reprezintă una dintre deciziile cu cel mai mare impact asupra calității regăsirii. Abordările tradiționale — segmentare la număr fix de tokeni sau la delimitatori structurali — pot produce fragmente care taie unități semantice coerente sau agregă paragrafe tematice distincte. Modulul de segmentare semantică al LlamaIndex (\textit{SemanticSplitterNodeParser}) adresează această problemă prin calculul similarității embedding-urilor propozițiilor consecutive și introducerea de granițe de fragment acolo unde similaritatea scade sub un prag adaptiv. Rezultatul este o segmentare care respectă coerența tematică a textului, producând fragmente mai adecvate pentru construcția contextului în aplicații RAG \cite{llamaindex_doc}.
 
 \section{Modele lingvistice și rutare multi-provider}
 
-\subsection{Arhitectura multi-provider}
-
-Proiectul implementează un strat de abstractizare pentru accesul la modelele lingvistice, care permite utilizarea transparentă a mai multor furnizori LLM printr-o interfață comună. Această arhitectură reduce dependența față de un singur furnizor de servicii și permite mecanisme de fallback automat în scenariile de degradare a serviciului sau de calitate insuficientă a răspunsului generat.
-
-Stratul de rutare este implementat în modulul \texttt{llm/llm\_router.py} și expune o interfață unificată pentru generarea completărilor de text, indiferent de furnizorul selectat. Selecția furnizorului activ este configurabilă prin variabile de mediu, cu un furnizor principal definit și o ierarhie de alternative activate în caz de eșec.
-
 \subsection{Furnizorii de servicii cloud: OpenAI și Anthropic}
 
-OpenAI reprezintă furnizorul principal al sistemului, oferind acces la modele din familia GPT prin intermediul unui API REST cu autentificare prin chei \cite{openai_api}. Modelele GPT sunt caracterizate printr-o capacitate ridicată de urmărire a instrucțiunilor complexe, generare de text coerent în limba română și suport pentru prompturi structurate pe roluri, ceea ce le face potrivite pentru domeniul medical informațional unde precizia și tonul răspunsului sunt esențiale.
+OpenAI reprezintă furnizorul principal al sistemului, oferind acces la modele din familia GPT prin intermediul unui API REST cu autentificare prin chei \cite{openai_api}. Seria GPT-4 — în special modelele \texttt{gpt-4o} și \texttt{gpt-4o-mini} — combină capacitate de raționament complex cu timp de răspuns redus și costuri operaționale moderate. Modelele GPT sunt caracterizate printr-o capacitate ridicată de urmărire a instrucțiunilor complexe, generare de text coerent în limba română și suport pentru prompturi structurate pe roluri (system, user, assistant), ceea ce le face potrivite pentru domeniul medical informațional unde precizia și tonul răspunsului sunt esențiale \cite{openai_api}.
 
-Anthropic Claude reprezintă al doilea furnizor cloud integrat \cite{anthropic_claude}. Modelele Claude sunt proiectate cu un accent explicit pe siguranță și comportament conservator în situații ambigue, caracteristici relevante pentru un chatbot medical. Integrarea se realizează prin SDK-ul oficial Python (\texttt{anthropic}), care expune o interfață similară cu cea a OpenAI, simplificând implementarea stratului de abstractizare comun.
+Anthropic Claude reprezintă al doilea furnizor cloud integrat \cite{anthropic_claude}. Modelele din seria Claude 3 — Haiku, Sonnet și Opus — sunt antrenate cu o metodologie de tip Constitutional AI, care introduce un set explicit de principii etice în procesul de antrenare prin reinforcement learning din feedback AI (RLAIF). Aceasta le conferă un comportament mai conservator și mai consistent în situații ambigue sau cu potențial de risc, caracteristici deosebit de relevante pentru un chatbot medical. Integrarea se realizează prin SDK-ul oficial Python (\texttt{anthropic}), care expune o interfață similară cu cea a OpenAI, simplificând implementarea stratului de abstractizare comun.
 
 \subsection{Inferența locală cu Ollama}
 
-Pentru scenariile care necesită funcționare fără conexiune la internet sau care nu permit transmiterea datelor către servicii externe din considerente de confidențialitate, proiectul integrează Ollama ca furnizor de inferență locală \cite{ollama_doc}. Ollama permite rularea modelelor open-source — din familiile LLaMA, Gemma sau Qwen — direct pe hardware-ul local, fără a necesita abonament la servicii cloud sau transmiterea datelor utilizatorilor prin rețea.
+Pentru scenariile care necesită funcționare fără conexiune la internet sau care nu permit transmiterea datelor către servicii externe din considerente de confidențialitate, proiectul integrează Ollama ca furnizor de inferență locală \cite{ollama_doc}. Rularea locală a modelelor lingvistice de mari dimensiuni este posibilă prin tehnici de cuantizare — reprezentarea parametrilor în formate de precizie redusă (INT4, INT8) față de float16 sau float32 standard — care reduc semnificativ cerințele de memorie și putere de calcul cu pierderi minime de calitate. Formatele precum GGUF (utilizat de llama.cpp) permit distribuirea modelelor cuantizate și rularea lor eficientă inclusiv pe hardware de consum.
 
-Integrarea cu Ollama se realizează prin intermediul unui endpoint REST compatibil cu formatul OpenAI, ceea ce permite utilizarea aceluiași strat de abstractizare fără modificări ale logicii de orchestrare. Această compatibilitate de protocol elimină necesitatea unor adaptoare separate pe furnizor și simplifică adăugarea de noi modele locale în configurație.
-
-\subsection{Mecanismele de fallback și evaluare dinamică}
-
-Un element central al arhitecturii multi-provider este integrarea strânsă dintre stratul de rutare și evaluatorul de răspuns. Atunci când evaluatorul detectează un răspuns de calitate insuficientă — prin criterii precum lipsa fundamentării pe contextul recuperat, prezența afirmațiilor contradictorii sau nerespectarea instrucțiunilor de siguranță — modulul de \textit{reasoning} poate relua generarea cu un prompt ajustat sau poate comuta pe un furnizor alternativ din ierarhia configurată.
-
-Această strategie de reluare controlată (\textit{retry with fallback}) crește robustețea sistemului în scenariile în care un model are dificultăți cu un anumit tip de interogare medicală, fără a expune utilizatorul final la răspunsuri nesigure sau incomplete.
+Ollama abstractizează gestionarea modelelor locale — descărcare, versionare, rulare — și expune o interfață REST compatibilă cu formatul OpenAI Chat Completions. Proiectul utilizează modele din familiile LLaMA, Gemma și Qwen, disponibile în variante cuantizate de diferite dimensiuni. Compatibilitatea de protocol cu OpenAI elimină necesitatea unor adaptoare separate pe furnizor și simplifică adăugarea de noi modele locale în configurație fără a modifica logica de orchestrare.
 
 \section{Componenta de graf de cunoștințe}
 
@@ -594,19 +570,7 @@ Grafurile de cunoștințe oferă o reprezentare structurată a entităților și
 
 Kuzu este o bază de date grafică de tip embedded, optimizată pentru interogări analitice pe grafuri de dimensiuni medii și mari \cite{kuzu_doc}. Spre deosebire de bazele de date grafice de tip client-server — precum Neo4j — Kuzu rulează în același proces cu aplicația Python, eliminând latența de rețea și simplificând semnificativ arhitectura de deployment. Această caracteristică îl face deosebit de potrivit pentru aplicații care necesită integrare strânsă între procesarea grafului și logica aplicativă.
 
-Kuzu implementează modelul de date Property Graph și suportă un subset al limbajului de interogare Cypher, familiar din ecosistemul Neo4j. Schema grafului definită în cadrul proiectului include noduri pentru entitățile medicale (afecțiuni, simptome, tratamente, medicamente, structuri anatomice) și muchii tipizate pentru relațiile semantice dintre acestea, de tipul \textit{are\_simptom}, \textit{are\_tratament} sau \textit{interacționează\_cu}.
-
-\subsection{Extracția entităților și construirea grafului}
-
-Popularea grafului de cunoștințe se realizează prin extracția automată a entităților din documentele medicale ingerate. Un modul specializat (\texttt{knowledge/entities/extractor.py}) utilizează un model LLM pentru identificarea entităților medicale și a relațiilor dintre acestea din textul sursă, structurând rezultatele conform schemei predefinite a grafului.
-
-Această abordare permite construirea incrementală a grafului pe măsura ingestiei de noi documente, fără a necesita o bază de cunoștințe predefinită. Entitățile extrase sunt normalizate și deduplicate, iar noile înregistrări sunt fuzionate cu nodurile existente atunci când sunt detectate corespondențe, prevenind fragmentarea reprezentării aceluiași concept în mai multe noduri distincte.
-
-\subsection{Regăsirea hibrida vector-graf}
-
-În modul hibrid de regăsire, contextul furnizat modelului LLM este construit prin combinarea rezultatelor vectoriale cu informațiile obținute din traversarea grafului de cunoștințe. Pentru o interogare dată, sistemul identifică mai întâi fragmentele de text relevante prin similaritate vectorială, extrage entitățile medicale menționate în interogare, interogează graful pentru relațiile asociate acestor entități și concatenează toate informațiile recuperate într-un context unificat.
-
-Această abordare poate crește semnificativ relevanța răspunsului în cazul întrebărilor cu dependențe semantice complexe, permițând modelului să beneficieze atât de flexibilitatea regăsirii vectoriale, cât și de structura explicită a relațiilor codificate în graf.
+Kuzu implementează modelul de date Property Graph, în care atât nodurile cât și muchiile pot deține proprietăți arbitrare, și suportă limbajul de interogare Cypher — standard de facto în ecosistemul grafurilor de proprietăți, familiar din Neo4j. Optimizările interne ale Kuzu vizează interogări analitice de tip OLAP pe grafuri, cu suport pentru join-uri eficiente pe muchii și traversal multi-hop, spre deosebire de sistemele OLTP orientate pe actualizări frecvente \cite{kuzu_doc}.
 
 \section{Procesarea datelor și utilitare}
 
@@ -614,37 +578,25 @@ Această abordare poate crește semnificativ relevanța răspunsului în cazul �
 
 Documentele medicale utilizate ca sursă de cunoștințe sunt disponibile predominant în format PDF, un format opac din perspectiva prelucrării automate a textului. Extracția fidelă a conținutului textual reprezintă primul pas critic al pipeline-ului de ingestie, cu impact direct asupra calității informațiilor indexate.
 
-PyMuPDF (denumit și \texttt{fitz}) este o bibliotecă Python de înaltă performanță pentru procesarea documentelor PDF, care oferă acces la conținutul textual, metadatele documentului și structura de pagini a fișierelor \cite{pymupdf_doc}. Spre deosebire de alte soluții de extracție PDF, PyMuPDF menține informații despre poziția, dimensiunea și stilul textului pe pagină, permițând reconstruirea parțială a structurii logice a documentului după extracție.
-
-\subsection{Pipeline-ul de extracție asistată de LLM}
-
-O abordare naivă de extracție PDF — în care întregul document este procesat ca un singur bloc de text — s-a dovedit insuficientă în contextul documentelor medicale utilizate. Documentele de tip curs sau ghid clinic prezintă frecvent artefacte de extracție semnificative: text reordonat față de fluxul logic al paginii, coloane detectate incorect, antete și subsoluri intercalate în corp, formule sau tabele transformate în șiruri de caractere fără semnificație. Aceste defecte sunt greu de detectat și corectat printr-o singură trecere automată, fără un pas de validare a calității extracției.
-
-Pentru a rezolva aceste limitări, a fost proiectat un pipeline de extracție în trei etape, ilustrat conceptual în figura de mai jos. În \textbf{prima etapă}, PyMuPDF parcurge documentul pagină cu pagină, extragând independent conținutul textual al fiecărei pagini sub formă de bloc brut. Procesarea individuală a paginilor permite izolarea artefactelor la nivelul paginii de origine și simplifică etapele ulterioare de corecție.
-
-În \textbf{a doua etapă}, textul brut al fiecărei pagini este transmis unui model LLM cu un prompt specializat, care are rolul de a verifica și corecta extracția. Modelul identifică și elimină elementele parazite — antete, subsoluri, numere de pagină, caractere de silabisire — reconstruiește ordinea logică a propoziților fragmentate și normalizează formatarea, producând o versiune curată și coerentă a textului paginii respective. Această abordare exploatează capacitatea modelelor lingvistice de mari dimensiuni de a înțelege contextul și de a reconstrui semnificația textului parțial degradat, un rol în care regulile heuristice rigide se dovedesc insuficiente \cite{llm_review_2024}.
-
-În \textbf{a treia etapă}, paginile verificate și corectate sunt concatenate secvențial, obținând un document Markdown structurat care poate fi procesat ulterior de strategia de segmentare corespunzătoare. Concatenarea se realizează cu delimitatori explicite între pagini, menținând trasabilitatea fiecărui fragment față de pagina sursă, informație necesară pentru procesul de citare al răspunsurilor.
-
-Această strategie în trei etape a produs o calitate semnificativ superioară a textului indexat față de extracția directă, cu reducerea vizibilă a fragmentelor incoerente stocate în baza vectorială și, implicit, a răspunsurilor generate pe baza unui context degradat.
+PyMuPDF (denumit și \texttt{fitz}) este o bibliotecă Python de înaltă performanță pentru procesarea documentelor PDF, construită pe motorul MuPDF \cite{pymupdf_doc}. Spre deosebire de alte soluții de extracție — precum \texttt{pdfminer} sau \texttt{pypdf} — PyMuPDF menține informații geometrice complete despre fiecare bloc de text: poziția, dimensiunea fontului și alinierea, permițând reconstruirea parțială a structurii logice a documentului pe baza proprietăților vizuale ale elementelor extrase.
 
 \subsection{Procesarea datelor tabelare cu pandas}
 
-Sursele de date ale sistemului includ fișiere în format CSV și JSON care conțin informații structurate despre afecțiuni, simptome, tratamente și relații clinice. Biblioteca pandas oferă structuri de date de tip \texttt{DataFrame} optimizate pentru manipularea și analiza eficientă a datelor tabelare în Python \cite{pandas_doc}.
+pandas este o bibliotecă Python de referință pentru analiza și manipularea datelor structurate, construită pe NumPy și optimizată pentru operații vectorizate pe seturi de date tabelare \cite{pandas_doc}. Structura centrală a bibliotecii — \texttt{DataFrame} — oferă o reprezentare bidimensională etichetată, cu suport nativ pentru indexare, filtrare, agregare, join-uri și transformări pe coloane, operații care în absența sa ar necesita bucle explicite sau instrumente specializate.
 
-În cadrul proiectului, pandas este utilizat pentru încărcarea și preprocesarea seturilor de date structurate, normalizarea câmpurilor de text, filtrarea înregistrărilor invalide sau incomplete și conversia în formatul necesar pentru indexare. Flexibilitatea pandas în gestionarea formatelor de date heterogene permite integrarea simplă a noi surse de date structurate fără modificarea logicii aplicative principale.
+pandas suportă citirea și scrierea unui spectru larg de formate de date: CSV, JSON, Excel, Parquet, SQL — printr-o interfață uniformă — ceea ce simplifică integrarea surselor heterogene fără adaptoare specifice per format. Operațiile de preprocesare a textului, normalizare și filtrare pot fi exprimate declarativ prin operații pe serii, menținând codul concis și ușor de auditat \cite{pandas_doc}.
 
 \subsection{Gestionarea configurației și apelurile HTTP auxiliare}
 
-Configurarea aplicației este gestionată prin biblioteca \texttt{python-dotenv}, care permite definirea parametrilor de execuție prin fișiere \texttt{.env} și variabile de mediu. Această abordare separă configurația de cod și facilitează adaptarea aplicației pentru diferite medii de execuție (dezvoltare, testare, producție) fără modificarea fișierelor sursă, respectând principiul de design cunoscut ca \textit{twelve-factor app}.
+Principiul \textit{twelve-factor app} recomandă stocarea configurației exclusiv în variabile de mediu, separând-o complet de codul sursă pentru a permite deployment-ul aceleiași imagini în medii diferite (dezvoltare, testare, producție) fără modificări ale codului. Biblioteca \texttt{python-dotenv} implementează acest principiu prin încărcarea variabilelor dintr-un fișier \texttt{.env} în mediul de execuție al procesului, cu suport pentru suprascrierea valorilor din fișier cu variabile definite direct în sistem — comportamentul așteptat în mediile containerizate.
 
-Pentru apeluri HTTP auxiliare în fluxurile de date, proiectul utilizează biblioteca \texttt{httpx}, care oferă un client HTTP asincron și sincron cu suport pentru HTTP/2 și un API modern. \texttt{httpx} este utilizat în special pentru comunicarea cu serviciile externe și pentru testarea programatică a endpoint-urilor REST ale aplicației.
+\texttt{httpx} este un client HTTP modern pentru Python, compatibil cu API-ul bibliotecii standard \texttt{requests}, dar cu suport nativ pentru HTTP/2, conexiuni asincrone (\texttt{async}/\texttt{await}) și timeout-uri configurabile pe mai multe niveluri. Este utilizat în proiect atât pentru apeluri HTTP auxiliare în fluxurile de date, cât și pentru testarea programatică a endpoint-urilor REST ale aplicației, unde capacitatea de a efectua cereri sincrone și asincrone din același client simplifică suita de teste.
 
 \section{Containerizare și rulare}
 
 \subsection{Principiile containerizării cu Docker}
 
-Docker reprezintă platforma standard de facto pentru containerizarea aplicațiilor software, oferind un mecanism de ambalare a codului sursă împreună cu toate dependențele sale într-o imagine portabilă și reproductibilă \cite{docker_doc}. Containerele Docker sunt izolate la nivel de sistem de operare prin mecanisme de tip namespace și cgroup, garantând că aplicația se comportă identic indiferent de mediul gazdă și eliminând problemele clasice de incompatibilitate a dependențelor.
+Docker reprezintă una dintre cele mai utilizate platforme pentru containerizarea aplicațiilor software, oferind un mecanism de ambalare a aplicației împreună cu dependențele și configurațiile sale într-o imagine portabilă și reproductibilă \cite{docker_doc}. Containerele Docker folosesc mecanisme ale nucleului Linux, precum namespace-urile și cgroup-urile, pentru a oferi izolare la nivel de proces și control asupra resurselor. În practică, această abordare asigură un mediu de execuție mult mai consistent între dezvoltare, testare și producție și reduce problemele clasice de incompatibilitate a dependențelor, fără a implica însă izolarea completă specifică unei mașini virtuale.
 
 Imaginea Docker a proiectului este definită printr-un fișier \texttt{Dockerfile} multi-etapă, care separă etapa de instalare a dependențelor de imaginea finală de execuție. Această strategie reduce dimensiunea imaginii de producție prin excluderea instrumentelor de build din artefactul final, producând imagini mai mici și cu o suprafață de atac mai redusă din perspectiva securității.
 
@@ -652,7 +604,7 @@ Imaginea Docker a proiectului este definită printr-un fișier \texttt{Dockerfil
 
 Aplicația este compusă din mai multe servicii independente care trebuie să funcționeze coordonat pentru a oferi funcționalitate completă. Docker Compose permite definirea și gestionarea acestor servicii printr-un fișier YAML unic, simplificând semnificativ procesul de pornire, oprire și configurare a întregii stive aplicative \cite{docker_compose_doc}.
 
-Topologia Docker Compose a proiectului include serviciile principale: \texttt{app} — aplicația CLI principală, responsabilă pentru logica de orchestrare, ingestie și evaluare; \texttt{api} — serviciul Flask care expune interfața REST; \texttt{qdrant} — baza de date vectorială, rulată ca serviciu persistent cu stocare montată pe sistemul gazdă; \texttt{openwebui} — serviciul open-source extern care asigură interfața grafică pentru interacțiunea conversațională, conectat la API-ul intern prin protocolul OpenAI Chat Completions. Opțional, serviciul \texttt{ollama} pentru inferența locală a modelelor LLM open-source poate fi activat prin profilul \texttt{local-llm}, fără a afecta configurația implicită.
+Topologia Docker Compose a proiectului include serviciile principale: \texttt{app} — aplicația CLI principală, responsabilă pentru logica de orchestrare, ingestie și evaluare; \texttt{api} — serviciul Flask care expune interfața REST; \texttt{qdrant} — baza de date vectorială, rulată ca serviciu persistent cu stocare montată pe sistemul gazdă; \texttt{openwebui} — front-end-ul grafic pentru interacțiunea conversațională. Opțional, serviciul \texttt{ollama} pentru inferența locală a modelelor LLM open-source poate fi activat prin profilul \texttt{local-llm}, fără a afecta configurația implicită.
 
 \subsection{Reproductibilitatea mediului de execuție}
 
@@ -681,9 +633,13 @@ Acoperirea testelor (\textit{test coverage}) este monitorizată prin instrumentu
 Rapoartele de acoperire sunt generate periodic și urmărite ca metrică de calitate pe parcursul dezvoltării proiectului. Componentele cu acoperire redusă sunt identificate și prioritizate pentru completarea suitei de teste în iterațiile ulterioare, menținând un nivel ridicat de încredere în stabilitatea funcțională a sistemului pe măsura extinderii sale.
 
 \chapter{Arhitectura proiectului}
-\section{Fluxul operațional al agentului principal}
 
-Arhitectura implementată în cadrul proiectului urmează un flux secvențial de procesare, proiectat pentru a reduce riscul de răspunsuri incorecte în context medical:
+\section{Arhitectura de ansamblu}
+
+Sistemul implementat este organizat ca o arhitectură modulară de tip agentic, în care fiecare componentă are o responsabilitate bine delimitată și poate fi testată, înlocuită sau extinsă independent. Organizarea internă respectă principiul separării responsabilităților (\textit{separation of concerns}): modulul \texttt{agent} conține orchestratorul principal, mecanismele de protecție, evaluatorul și modulul de raționament; modulul \texttt{rag} gestionează segmentarea documentelor, generarea embedding-urilor și interogarea bazei vectoriale; modulul \texttt{knowledge} cuprinde extractorul de entități și componenta de graf de cunoștințe; modulul \texttt{api} expune interfața REST, iar \texttt{config} centralizează configurația și definițiile de prompturi. Contractele de date dintre module sunt definite explicit în pachetul \texttt{models} prin modele Pydantic, garantând consistența tipurilor pe întregul flux de execuție.
+
+Fluxul de procesare al unei interogări urmează o succesiune secvențială de etape, proiectată pentru a reduce riscul de răspunsuri incorecte în context medical:
+
 \begin{enumerate}
     \item aplicarea mecanismelor de protecție (\textit{guardrails}) asupra întrebării utilizatorului;
     \item delegarea către modulul de \textit{reasoning}, care decide dacă este necesară recuperarea de context din baza vectorială (RAG);
@@ -691,19 +647,153 @@ Arhitectura implementată în cadrul proiectului urmează un flux secvențial de
     \item construirea promptului final prin combinarea regulilor din fișierul \texttt{llm.txt}, a contextului recuperat și a întrebării utilizatorului;
     \item trimiterea promptului către LLM Hub și generarea răspunsului;
     \item evaluarea răspunsului cu un evaluator dedicat;
-    \item reluarea procesului, cu prompt ajustat sau cu schimbarea furnizorului LLM, dacă evaluarea nu este satisfăcătoare;
+    \item reluarea procesului, în modulul de \textit{reasoning}, cu prompt ajustat sau cu schimbarea furnizorului LLM, dacă evaluarea nu este satisfăcătoare;
     \item returnarea către utilizator doar a răspunsului validat.
 \end{enumerate}
 
-\section{Componentele sistemului}
-Sistemul este organizat modular, astfel încât fiecare etapă critică să poată fi testată și îmbunătățită independent:
+\section{Interfața API a sistemului}
+
+\subsection{Structura endpoint-urilor}
+
+Interfața API este structurată în două categorii de endpoint-uri. Prima categorie cuprinde endpoint-uri interne dedicate fluxului aplicației, care includ operații de ingestie a documentelor, interogare conversațională și evaluare a calității răspunsului. A doua categorie cuprinde endpoint-uri compatibile cu formatul OpenAI Chat Completions API \cite{openai_api}, care permit utilizarea sistemului ca backend pentru orice client ce implementează protocolul OpenAI, fără modificări suplimentare la nivelul clientului. În această categorie sunt incluse endpoint-uri standard pentru interoperabilitate și operare, precum \texttt{/v1/chat/completions}, \texttt{/v1/models} și \texttt{/health}; pentru componenta de graf este expus și endpoint-ul \texttt{/graph/nexus}.
+
+Această compatibilitate bidirecțională este esențială pentru integrarea cu OpenWebUI, un front-end open-source pentru interfețe conversaționale. Prin expunerea unui endpoint \texttt{/v1/chat/completions} conform specificației OpenAI, chatbot-ul medical poate fi accesat direct din OpenWebUI fără a necesita adaptări specifice de protocol.
+
+\subsection{Securitatea interfaței}
+
+Accesul la interfața API este protejat printr-un mecanism de autentificare bazat pe chei API (\textit{API key authentication}). Fiecare cerere trebuie să includă în header-ul HTTP un token de autorizare valid, verificat de un nivel de middleware înainte ca solicitarea să fie transmisă logicii aplicative. Această abordare reprezintă o practică standard de securitate pentru serviciile RESTful, protejând accesul la resurse sensibile și prevenind utilizarea neautorizată a serviciului \cite{flask_doc}.
+
+Middleware-ul de autentificare este parametrizat prin variabile de mediu, ceea ce permite activarea sau dezactivarea sa în funcție de contextul de deployment: dezactivat în mediul de dezvoltare locală și activ în orice configurație expusă extern.
+
+\section{Modulul de protecție (Guardrails)}
+
+Modulul de protecție reprezintă prima componentă prin care trece orice interogare a utilizatorului și are rolul de a determina dacă aceasta poate fi procesată în continuare de sistem. Decizia se bazează pe o strategie în două niveluri: o verificare deterministă bazată pe șabloane de cuvinte-cheie, urmată, la nevoie, de o clasificare semantică realizată de un model LLM.
+
+\subsection{Motivația și rolul modulului}
+
+Într-un sistem de tip chatbot medical, riscurile asociate unui răspuns neadecvat sunt semnificativ mai ridicate decât în aplicații de uz general. Un utilizator poate descrie o urgență medicală reală, poate solicita doze precise de medicamente sau poate formula întrebări cu intenții vătămătoare. Fără un mecanism explicit de filtrare, sistemul ar putea genera răspunsuri care, deși corecte din perspectivă lingvistică, pot constitui sfaturi periculoase sau pot întârzia accesul la îngrijire medicală de urgență.
+
+Modulul de protecție adresează aceste riscuri prin clasificarea fiecărei interogări într-una din categoriile definite și prin blocarea sau redirecționarea celor care nu pot fi procesate în siguranță de sistemul de generare.
+
+\subsection{Categoriile de clasificare}
+
+Sistemul definește șase categorii de clasificare, fiecare asociată cu o politică de răspuns distinctă:
+
 \begin{itemize}
-    \item modulul de protecție (\textit{guardrails}) pentru filtrarea interogărilor și gestionarea cerințelor sensibile;
-    \item modulul de regăsire contextuală (bază vectorială + indexare semantică);
-    \item orchestratorul agentic pentru controlul fluxului (guardrails, delegare către reasoning, returnarea răspunsului validat);
-    \item modulul de \textit{reasoning} pentru decizie RAG on/off, construcție de prompt, retry și selecția furnizorului LLM;
-    \item evaluatorul de răspuns pentru validare automată și controlul calității.
+    \item \textbf{EMERGENCY} — interogarea conține indicatori ai unei urgențe medicale imediate (ex. durere în piept, dificultăți de respirație, accident vascular cerebral). Sistemul blochează procesarea ulterioară și returnează un mesaj care îndeamnă utilizatorul să contacteze serviciile de urgență (numărul 112).
+    \item \textbf{UNSAFE} — interogarea conține conținut explicit dăunător. Sunt definite două sub-variante: critica, care acoperă intenții de autoagresiune, violență sau sinteză de substanțe interzise, și soft, care vizează solicitări de doze exacte, prescripții sau scheme personalizate de tratament fără consultarea unui medic. Ambele variante blochează răspunsul, dar furnizează mesaje diferite adaptate situației.
+    \item \textbf{AMBIGUOUS} — interogarea este ambiguă sau nu poate fi clasificată cu suficientă certitudine. Sistemul returnează un mesaj de redirecționare către un medic.
+    \item \textbf{INFO\_ONLY} — interogarea are caracter informațional pur (definiții, simptome generale, cauze, prevenție) și nu conține indicatori personali sau de urgență. Este considerată validă și este transmisă mai departe în pipeline.
+    \item \textbf{PERSONAL\_MEDICAL} — interogarea conține markeri la persoana întâi (ex. „am durere", „mă simt"), sugerând o situație personală, nu educațională. Este considerată validă, dar semnalată orchestratorului pentru o tratare diferențiată.
+    \item \textbf{SAFE} — interogarea nu a declanșat niciun șablon specific și este considerată benignă. Este transmisă mai departe în pipeline.
 \end{itemize}
+
+Fiecărei categorii îi este asociat un scor de încredere care reflectă gradul de certitudine al deciziei. Politica de acordare a scorurilor este: 1,00 pentru respingerea interogărilor vide, 0,95 pentru potriviri deterministe cu risc ridicat (urgențe și conținut periculos critic), 0,92 pentru potriviri soft nesigure, 0,90 pentru clasificări deterministe benigne, 0,80 pentru decizii luate pe baza LLM și 0,60 pentru situațiile în care LLM-ul nu este disponibil.
+
+\subsection{Strategia deterministă de clasificare}
+
+Prima fază a modulului utilizează potriviri de șabloane de cuvinte-cheie organizate ierarhic în grupuri tematice. Interogarea este normalizată înainte de aplicarea șabloanelor — prin conversia la litere mici și eliminarea diacriticelor — pentru a reduce variabilitatea lingvistică și a îmbunătăți rata de detecție.
+
+Verificările se aplică în ordine strict ierarhică, ceea ce garantează că riscurile cu impact mai mare sunt evaluate primele:
+
+\begin{enumerate}
+    \item \textbf{Interogare vidă}: o interogare goală sau formată exclusiv din spații este respinsă imediat, cu un scor de încredere de 1,00.
+    \item \textbf{Șabloane de urgență}: grupuri de expresii acoperind urgențe cardiovasculare, respiratorii, neurologice, traumatisme hemoragice și supradoze sau intoxicații. Dacă se detectează o potrivire și contextul nu este pur educațional, interogarea este clasificată \textbf{EMERGENCY} cu scor 0,95.
+    \item \textbf{Șabloane critice nesigure}: expresii cu intenții de autoagresiune, violență sau sinteză de substanțe periculoase. La detectare, interogarea este clasificată \textbf{UNSAFE} cu scor 0,95.
+    \item \textbf{Șabloane soft nesigure}: solicitări de doze exacte, prescripții sau scheme de tratament personalizate. La detectare, interogarea este clasificată \textbf{UNSAFE} cu scor 0,92.
+    \item \textbf{Markeri informativi și personali}: expresii cu caracter educațional sau cu referire la persoana întâi, pentru clasificarea în \textbf{INFO\_ONLY} sau \textbf{PERSONAL\_MEDICAL} cu scor 0,90.
+\end{enumerate}
+
+Un mecanism special previne false pozitive pentru categoria de urgență: o interogare care conține expresii de urgență, dar care prezintă și un cadru educațional evident (ex. „ce simptome are un infarct?"), fără markeri personali sau de urgență imediată, nu este clasificată ca EMERGENCY. Această detectare a contextului educațional se realizează prin verificarea simultană a prezenței unor semnale educaționale și a absenței markerilor la persoana întâi și a indicatorilor de urgență actuală.
+
+\subsection{Clasificarea asistată de LLM}
+
+Interogările care nu primesc o clasificare deterministă certă — în special cele cu caracter personal sau ambiguu — sunt trimise spre clasificare semantică unui model LLM. Modelul primește un prompt de sistem cu instrucțiuni stricte și trebuie să returneze exact una dintre etichetele predefinite: \texttt{EMERGENCY}, \texttt{UNSAFE}, \texttt{SAFE} sau \texttt{AMBIGUOUS}.
+
+Temperatura LLM este setată la zero pentru a elimina variabilitatea și a asigura reproductibilitatea deciziilor. Dacă răspunsul modelului nu corespunde exact uneia dintre etichete, se aplică o potrivire fuzzy: dacă denumirea unei categorii cu risc este conținută ca subșir în răspunsul brut, aceasta este selectată. Dacă nicio potrivire nu reușește, clasificatorul revine implicit la \texttt{SAFE}, evitând blocarea nejustificată a interogărilor benigne.
+
+În cazul în care modelul LLM nu este disponibil (eroare de rețea, depășirea timpului de răspuns etc.), modulul revine la un rezultat \textbf{SAFE} cu scor de încredere 0,60, asigurând disponibilitatea serviciului chiar și în absența clasificatorului semantic.
+
+\subsection{Structura rezultatului și trasabilitate}
+
+Indiferent de calea de clasificare urmată, modulul returnează un obiect \texttt{GuardrailResult} care include: categoria de clasificare, codul motivului deciziei, scorul de încredere, indicatorul de validitate al interogării, cuvintele-cheie care au declanșat decizia și un indicator boolean care arată dacă a fost utilizat LLM-ul. Această structură permite orchestratorului să ia decizii informate și oferă trasabilitate completă pentru auditarea comportamentului sistemului.
+
+Fiecare decizie este înregistrată în jurnalul de evenimente al aplicației cu nivel \texttt{INFO} pentru deciziile benigne sau \texttt{WARNING} pentru deciziile de blocare, facilitând monitorizarea și depanarea în producție.
+
+\section{Modulul RAG}
+
+Modulul RAG are rolul de a furniza modelului LLM context factual relevant extras din baza de cunoștințe a sistemului. Acesta acoperă întregul pipeline de la ingestia documentelor până la regăsirea fragmentelor la momentul interogării.
+
+\subsection{Pipeline-ul de extracție și preprocesare a documentelor}
+
+O abordare naivă de extracție PDF — în care întregul document este procesat ca un singur bloc de text — s-a dovedit insuficientă în contextul documentelor medicale utilizate. Documentele de tip curs sau ghid clinic prezintă frecvent artefacte de extracție semnificative: text reordonat față de fluxul logic al paginii, coloane detectate incorect, antete și subsoluri intercalate în corp, formule sau tabele transformate în șiruri de caractere fără semnificație.
+
+Pentru a rezolva aceste limitări, a fost proiectat un pipeline de extracție în trei etape. În \textbf{prima etapă}, PyMuPDF parcurge documentul pagină cu pagină, extragând independent conținutul textual al fiecărei pagini sub formă de bloc brut. Procesarea individuală a paginilor permite izolarea artefactelor la nivelul paginii de origine și simplifică etapele ulterioare de corecție.
+
+În \textbf{a doua etapă}, textul brut al fiecărei pagini este transmis unui model LLM cu un prompt specializat, care identifică și elimină elementele parazite — antete, subsoluri, numere de pagină, caractere de silabisire — reconstruiește ordinea logică a propozițiilor fragmentate și normalizează formatarea, producând o versiune curată și coerentă a textului. Această abordare exploatează capacitatea modelelor lingvistice de a înțelege contextul și de a reconstrui semnificația textului parțial degradat, un rol în care regulile heuristice rigide se dovedesc insuficiente \cite{llm_review_2024}.
+
+În \textbf{a treia etapă}, paginile verificate și corectate sunt concatenate secvențial, obținând un document Markdown structurat care poate fi procesat de strategia de segmentare. Concatenarea se realizează cu delimitatori expliciți între pagini, menținând trasabilitatea fiecărui fragment față de pagina sursă, informație necesară pentru procesul de citare al răspunsurilor. Fluxul este expus și ca utilitar de linie de comandă (\texttt{extract-markdown}) pentru procesarea individuală a documentelor.
+
+\subsection{Strategii de segmentare a documentelor}
+
+Calitatea procesului de regăsire depinde în mod direct de modul în care documentele sunt segmentate în fragmente înainte de indexare. Fragmentele prea lungi pot introduce zgomot semantic și pot depăși limita de tokeni acceptată de modelele LLM, în timp ce fragmentele prea scurte pot lipsi de context suficient pentru a genera răspunsuri coerente \cite{lewis2020retrieval}.
+
+Sistemul implementează două strategii complementare de segmentare. Prima strategie este euristică, bazată pe delimitatori structurali ai textului: titluri de secțiuni, paragrafe și marcatori de listă. Această abordare este deterministă și eficientă computațional, dar poate produce fragmente neomogene semantic în documentele cu structură complexă.
+
+A doua strategie utilizează segmentarea semantică prin intermediul LlamaIndex (\texttt{llama-index-core}), care analizează coeziunea tematică a propozițiilor și paragrafelor consecutive, grupând unitățile similare în același fragment. Această abordare produce fragmente cu coerență semantică mai ridicată, cu prețul unui cost computațional crescut. Sistemul include un mecanism de fallback: dacă dependențele necesare nu sunt disponibile, procesul revine automat la strategia euristică, menținând funcționalitatea completă a pipeline-ului.
+
+\subsection{Regăsirea hibridă a contextului}
+
+Pe lângă regăsirea vectorială pură, sistemul suportă un mod de regăsire hibrid, care combină similaritatea vectorială cu o componentă de căutare lexicală. Această combinație permite identificarea documentelor relevante atât prin similitudine semantică, cât și prin potrivire exactă a termenilor tehnici — deosebit de importantă în medicină, unde termenii de specialitate nu au sinonime comune. Peste rezultatele inițiale se poate aplica un pas de \textit{reranking}, iar în situațiile de scor vectorial redus este disponibil un mecanism de \textit{keyword fallback}.
+
+Parametrii de regăsire, inclusiv numărul maxim de fragmente returnate și scorul minim de relevanță, sunt configurabili prin variabile de mediu.
+
+\subsection{Extracția entităților și construirea grafului de cunoștințe}
+
+Popularea grafului de cunoștințe se realizează prin extracția automată a entităților din documentele medicale ingerate. Un modul specializat (\texttt{knowledge/entities/extractor.py}) utilizează o abordare deterministă, bazată pe reguli, pentru identificarea entităților medicale și filtrarea lor pe bază de prag de încredere, structurând rezultatele conform schemei predefinite a grafului.
+
+Entitățile extrase sunt normalizate și deduplicate, iar noile înregistrări sunt fuzionate cu nodurile existente atunci când sunt detectate corespondențe, prevenind fragmentarea reprezentării aceluiași concept în noduri distincte. Această abordare permite construirea incrementală a grafului pe măsura ingestiei de noi documente.
+
+\subsection{Regăsirea hibridă vector-graf}
+
+În modul hibrid, contextul furnizat modelului LLM este construit prin combinarea rezultatelor vectoriale cu informațiile obținute din traversarea grafului de cunoștințe. Pentru o interogare dată, sistemul identifică mai întâi fragmentele de text relevante prin similaritate vectorială, extrage entitățile medicale menționate în interogare, interogează graful pentru relațiile asociate acestor entități și concatenează toate informațiile recuperate într-un context unificat.
+
+Această abordare crește relevanța răspunsului în cazul întrebărilor cu dependențe semantice complexe, permițând modelului să beneficieze atât de flexibilitatea regăsirii vectoriale, cât și de structura explicită a relațiilor codificate în graf.
+
+\section{Modulul de raționament (Reasoning)}
+
+Modulul de raționament, implementat în clasa \texttt{ReasoningEngine} din \texttt{agent/reasoning/engine.py}, concentrează întreaga logică de decizie privind generarea răspunsului: activarea RAG, construcția promptului, evaluarea calității și strategia de reluare. Orchestratorul îi deleagă controlul complet după ce guardrail-ul validează interogarea, iar \texttt{ReasoningEngine} returnează un răspuns final validat sau un mesaj de încredere scăzută.
+
+\subsection{Preprocesarea interogării și decizia RAG}
+
+Prima etapă a motorului de raționament constă în evaluarea directă a interogării utilizatorului pentru regăsire contextuală. Interogarea este transmisă modulului RAG fără transformări lingvistice intermediare, iar motorul verifică dacă există fragmente relevante și dacă scorul maxim depășește pragul minim configurat (\texttt{retrieval\_min\_score}). Dacă nu, răspunsul este un mesaj de încredere scăzută returnat direct, fără a mai apela modelul LLM — evitând astfel generarea de răspunsuri nefondate în absența unui context relevant.
+
+\subsection{Construcția promptului și generarea răspunsului}
+
+Dacă regăsirea produce context relevant, fragmentele sunt asamblate într-un bloc de context structurat. Promptul final combină sistemul de instrucțiuni din \texttt{llm.txt}, blocul de context și interogarea originală a utilizatorului.
+
+Generarea se desfășoară într-o buclă cu un număr maxim de încercări configurat. La fiecare iterație, motorul selectează furnizorul LLM activ, trimite cererea și evaluează răspunsul primit. Dacă evaluatorul semnalează un răspuns valid sau nu recomandă reluarea, bucla se oprește. Altfel, se aplică una din două strategii de reluare, în funcție de tipul de eșec detectat de evaluator:
+
+\begin{itemize}
+    \item \textbf{Prompt ajustat} (\texttt{adjust\_prompt}) — mesajul utilizatorului este completat cu instrucțiuni corective derivate din motivele de eșec raportate de evaluator, ghidând modelul spre un răspuns mai precis în aceeași încercare;
+    \item \textbf{Schimbarea furnizorului} (\texttt{switch\_llm}) — dacă modelul curent are dificultăți cu tipul de interogare, motorul comută pe următorul furnizor din ierarhia de fallback configurată, menținând același prompt.
+\end{itemize}
+
+\subsection{Rutarea multi-provider}
+
+Selecția furnizorului pentru fiecare încercare este gestionată de metoda \texttt{\_select\_provider}. La prima încercare se folosește întotdeauna furnizorul primar configurat prin variabile de mediu. Pentru încercările ulterioare cu strategia \texttt{switch\_llm}, motorul parcurge în ordine lista \texttt{provider\_fallback\_order} din configurația evaluatorului. Dacă lista este epuizată, revine la furnizorul primar. Clienții concreți pentru OpenAI, Anthropic și modelele locale (Gemma, Qwen prin Ollama) sunt implementați în \texttt{agent/reasoning/providers/} și expuși printr-o interfață unificată în \texttt{llm/llm\_router.py}.
+
+\subsection{Finalizarea răspunsului}
+
+După ieșirea din buclă, răspunsul final este completat cu blocul fragmentelor recuperate și, în modul hibrid de regăsire, cu un bloc de citări structurate ce include sursa și pagina fiecărui fragment utilizat. Motorul returnează un obiect \texttt{ReasoningOutput} care include răspunsul, furnizorul și modelul folosit, numărul de reluări, rezultatul evaluatorului și rezultatul regăsirii — oferind orchestratorului trasabilitate completă asupra procesului de generare.
+
+\section{Modulul de evaluare}
+
+\textit{Această secțiune va fi completată cu descrierea detaliată a modulului de evaluare.}
+
+\section{Orchestratorul}
+
+\textit{Această secțiune va fi completată cu descrierea detaliată a orchestratorului.}
 
 \chapter{Interpretarea rezultatelor}
 \section{Metodologie de evaluare}

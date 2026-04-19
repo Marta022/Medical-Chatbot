@@ -6,18 +6,19 @@ graph TD
     CLI --> Orchestrator
 
     Orchestrator --> Guardrails
-    Orchestrator --> Translator
-    Orchestrator --> Retriever
+    Orchestrator --> Reasoning[Reasoning Engine]
+    Reasoning --> Retriever
     Retriever --> Qdrant[(Qdrant)]
-    Orchestrator --> LLMRouter
+    Reasoning --> LLMRouter
     LLMRouter --> Providers[Provider Clients]
-    Orchestrator --> Evaluator
+    Reasoning --> Evaluator
 
-    Evaluator -->|pass| CLI
-    Evaluator -->|retry/fallback| Orchestrator
+    Evaluator -->|pass/fail signal| Reasoning
+    Reasoning -->|final validated response| Orchestrator
+    Orchestrator --> CLI
 
     CLI --> User
 
-    OpenWebUI -. planned via E4.4 .-> API[REST/OpenAI-compatible API]
-    API -. planned .-> Orchestrator
+    OpenWebUI --> API[REST/OpenAI-compatible API]
+    API --> Orchestrator
 ```

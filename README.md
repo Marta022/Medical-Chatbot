@@ -1,4 +1,4 @@
-# Medical Chatbot
+﻿# Medical Chatbot
 
 Medical chatbot prototype with RAG retrieval, safety guardrails, LLM routing, and phased architecture migration.
 
@@ -9,12 +9,14 @@ flowchart TD
     User --> Query
     Query --> Orchestrator
     Orchestrator --> Guardrails
-    Orchestrator --> Retrieval
-    Orchestrator --> LLM
+    Orchestrator --> ReasoningEngine
+    ReasoningEngine --> Retrieval
     Retrieval --> Qdrant
-    Orchestrator --> Evaluator
-    Evaluator -->|pass| User
-    Evaluator -->|retry/fallback| Orchestrator
+    ReasoningEngine --> LLM
+    ReasoningEngine --> Evaluator
+    Evaluator -->|pass/fail| ReasoningEngine
+    ReasoningEngine --> Orchestrator
+    Orchestrator --> User
 ```
 
 ## Project Entrypoint
@@ -110,9 +112,9 @@ python run.py eval \
 ```
 
 Useful optional flags:
-- `--benchmark-top-k` – override retriever top_k during benchmark (default: `DEFAULT_TOP_K`).
-- `--benchmark-limit` – limit number of benchmark items (0 = toate).
-- `--benchmark-use-guardrail` – when `true`, păstrează guardrail-ul activ și în benchmark (implicit este dezactivat pentru scoruri mai clare).
+- `--benchmark-top-k` â€“ override retriever top_k during benchmark (default: `DEFAULT_TOP_K`).
+- `--benchmark-limit` â€“ limit number of benchmark items (0 = toate).
+- `--benchmark-use-guardrail` â€“ when `true`, pÄƒstreazÄƒ guardrail-ul activ È™i Ã®n benchmark (implicit este dezactivat pentru scoruri mai clare).
 
 ## Docker Usage
 
@@ -191,22 +193,21 @@ GITNEXUS_BASE_URL=http://localhost:8088
 ```
 
 Key feature flags (true/false) and what they do:
-- `GRAPH_INGEST_ENABLED` (default: `true`) – dacă este `true`, după ingest se construiește și graful Kuzu din chunk-uri și relații (Graph-RAG activ).
-- `GUARDRAIL_LLM_ENABLED` (default: `true`) – activează verificările LLM-based în guardrail înainte să întoarcă răspunsul către utilizator.
-- `RETRIEVAL_RERANK_ENABLED` (default: `true`) – dacă este `true`, aplică un reranker peste hit-urile inițiale din Qdrant.
-- `KEYWORD_FALLBACK_ENABLED` (default: `true`) – permite fallback pe căutare keyword dacă scorul vectorial este prea mic.
-- `SEMANTIC_USE_LLAMAINDEX` (default: `true`) – folosește parser-ul semantic llama-index pentru chunking când `CHUNKING_STRATEGY=semantic`.
-- `ALLOW_SEMANTIC_CHUNK_FALLBACK` (default: `false`) – dacă este `true`, permite fallback pe chunking simplu atunci când semantic chunking eșuează.
-- `TRANSLATION_ENABLED` (default: `true`) – permite normalizarea / traducerea întrebărilor (de ex. RO → EN) înainte de retrieval.
-- `GITNEXUS_ENABLED` (default: `false`) – când este `true`, `/graph/nexus` se conectează la GitNexus la `GITNEXUS_BASE_URL` și întoarce noduri, muchii și `source_link` pentru navigare în sursa de cunoștințe.
+- `GRAPH_INGEST_ENABLED` (default: `true`) â€“ dacÄƒ este `true`, dupÄƒ ingest se construieÈ™te È™i graful Kuzu din chunk-uri È™i relaÈ›ii (Graph-RAG activ).
+- `GUARDRAIL_LLM_ENABLED` (default: `true`) â€“ activeazÄƒ verificÄƒrile LLM-based Ã®n guardrail Ã®nainte sÄƒ Ã®ntoarcÄƒ rÄƒspunsul cÄƒtre utilizator.
+- `RETRIEVAL_RERANK_ENABLED` (default: `true`) â€“ dacÄƒ este `true`, aplicÄƒ un reranker peste hit-urile iniÈ›iale din Qdrant.
+- `KEYWORD_FALLBACK_ENABLED` (default: `true`) â€“ permite fallback pe cÄƒutare keyword dacÄƒ scorul vectorial este prea mic.
+- `SEMANTIC_USE_LLAMAINDEX` (default: `true`) â€“ foloseÈ™te parser-ul semantic llama-index pentru chunking cÃ¢nd `CHUNKING_STRATEGY=semantic`.
+- `ALLOW_SEMANTIC_CHUNK_FALLBACK` (default: `false`) â€“ dacÄƒ este `true`, permite fallback pe chunking simplu atunci cÃ¢nd semantic chunking eÈ™ueazÄƒ.
+- `GITNEXUS_ENABLED` (default: `false`) â€“ cÃ¢nd este `true`, `/graph/nexus` se conecteazÄƒ la GitNexus la `GITNEXUS_BASE_URL` È™i Ã®ntoarce noduri, muchii È™i `source_link` pentru navigare Ã®n sursa de cunoÈ™tinÈ›e.
 
 API-specific flags:
-- `API_ENABLED` (default: `true`) – dacă este `false`, API-ul HTTP nu pornește.
-- `API_REQUIRE_KEY` (default: `false`) – dacă este `true`, toate rutele protejate cer header `Authorization: Bearer <API_KEY>`.
+- `API_ENABLED` (default: `true`) â€“ dacÄƒ este `false`, API-ul HTTP nu porneÈ™te.
+- `API_REQUIRE_KEY` (default: `false`) â€“ dacÄƒ este `true`, toate rutele protejate cer header `Authorization: Bearer <API_KEY>`.
 
 Evaluator flags:
-- `EVAL_PASS_SCORE` (default: `0.7`) – pragul minim de acceptare pentru evaluator (sub acest scor, se consideră că răspunsul a eșuat).
-- `EVAL_MAX_RETRIES` (default: `2`) – câte reîncercări poate face evaluatorul (inclusiv cu fallback între provideri).
+- `EVAL_PASS_SCORE` (default: `0.7`) â€“ pragul minim de acceptare pentru evaluator (sub acest scor, se considerÄƒ cÄƒ rÄƒspunsul a eÈ™uat).
+- `EVAL_MAX_RETRIES` (default: `2`) â€“ cÃ¢te reÃ®ncercÄƒri poate face evaluatorul (inclusiv cu fallback Ã®ntre provideri).
 
 API control hooks:
 - `POST /chat` and `POST /v1/chat/completions` accept `retrieval_mode`, `graph_depth`, `vector_weight`, `graph_weight`.
@@ -246,4 +247,5 @@ Canonical dataset location:
 - Import validation: `docs/p1-import-validation.md`
 - Model inventory: `docs/p1-model-inventory.md`
 - Model guidelines: `docs/p1-model-guidelines.md`
+
 

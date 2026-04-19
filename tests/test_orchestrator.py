@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import unittest
 from unittest.mock import patch
@@ -27,8 +27,6 @@ class TestOrchestrator(unittest.TestCase):
             retrieve=lambda _q, _k, _f: RetrievalResult(),
             llm_call=lambda _r: LLMResponse(content="nope", provider="openai"),
             evaluator=lambda _q, _r, _c: EvaluatorResult(passed=True, score=1.0),
-            translate_to_english=lambda text: text,
-            translate_to_romanian=lambda items: items,
         )
 
         orchestrator = Orchestrator(deps=deps)
@@ -59,8 +57,6 @@ class TestOrchestrator(unittest.TestCase):
             retrieve=retrieve,
             llm_call=llm_call,
             evaluator=evaluator,
-            translate_to_english=lambda text: text,
-            translate_to_romanian=lambda items: items,
         )
 
         orchestrator = Orchestrator(deps=deps)
@@ -109,8 +105,6 @@ class TestOrchestrator(unittest.TestCase):
             retrieve=retrieve,
             llm_call=llm_call,
             evaluator=evaluator,
-            translate_to_english=lambda text: text,
-            translate_to_romanian=lambda items: items,
         )
 
         eval_config = EvalConfig(max_retries=1, provider_fallback_order=("openai", "ollama"))
@@ -140,8 +134,6 @@ class TestOrchestrator(unittest.TestCase):
             retrieve=retrieve,
             llm_call=llm_call,
             evaluator=lambda _q, _r, _c: EvaluatorResult(passed=True, score=1.0),
-            translate_to_english=lambda text: text,
-            translate_to_romanian=lambda items: items,
         )
 
         orchestrator = Orchestrator(deps=deps)
@@ -182,8 +174,6 @@ class TestOrchestrator(unittest.TestCase):
             retrieve=retrieve,
             llm_call=llm_call,
             evaluator=evaluator,
-            translate_to_english=lambda text: text,
-            translate_to_romanian=lambda items: items,
         )
 
         eval_config = EvalConfig(max_retries=1, provider_fallback_order=("openai", "ollama"))
@@ -226,8 +216,6 @@ class TestOrchestrator(unittest.TestCase):
             retrieve=retrieve,
             llm_call=llm_call,
             evaluator=evaluator,
-            translate_to_english=lambda text: text,
-            translate_to_romanian=lambda items: items,
         )
 
         eval_config = EvalConfig(max_retries=1, provider_fallback_order=("openai", "ollama"))
@@ -256,8 +244,6 @@ class TestOrchestrator(unittest.TestCase):
                 model="unit",
             ),
             evaluator=lambda _q, _r, _c: EvaluatorResult(passed=True, score=1.0, reasons=[]),
-            translate_to_english=lambda text: text,
-            translate_to_romanian=lambda items: items,
         )
         hybrid_settings = AppSettings(
             retrieval_mode="hybrid",
@@ -266,7 +252,7 @@ class TestOrchestrator(unittest.TestCase):
             hybrid_graph_weight=0.7,
         )
 
-        with patch("agent.orchestrator.orchestrator.SETTINGS", hybrid_settings):
+        with patch("agent.reasoning.engine.SETTINGS", hybrid_settings):
             orchestrator = Orchestrator(deps=deps)
             orchestrator.run(QueryRequest(query="test", top_k=1))
 
@@ -299,11 +285,9 @@ class TestOrchestrator(unittest.TestCase):
                 model="unit",
             ),
             evaluator=lambda _q, _r, _c: EvaluatorResult(passed=True, score=1.0, reasons=[]),
-            translate_to_english=lambda text: text,
-            translate_to_romanian=lambda items: items,
         )
         hybrid_settings = AppSettings(retrieval_mode="hybrid")
-        with patch("agent.orchestrator.orchestrator.SETTINGS", hybrid_settings):
+        with patch("agent.reasoning.engine.SETTINGS", hybrid_settings):
             result = Orchestrator(deps=deps).run(QueryRequest(query="test", top_k=1))
 
         self.assertIsNotNone(result.response)
@@ -321,3 +305,4 @@ class TestOrchestrator(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
