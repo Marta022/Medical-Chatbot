@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Ollama provider wrapper for local model inference."""
+
+from __future__ import annotations
 
 from config.settings import SETTINGS
 

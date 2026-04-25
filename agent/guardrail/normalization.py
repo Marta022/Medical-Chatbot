@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Text normalization helpers for deterministic guardrail matching."""
+
+from __future__ import annotations
 
 from models.text_normalization import normalize_for_matching
 

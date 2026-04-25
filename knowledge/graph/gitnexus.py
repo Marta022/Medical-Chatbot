@@ -1,13 +1,13 @@
-from __future__ import annotations
-
 """GitNexus payload builders for graph visualization responses."""
+
+from __future__ import annotations
 
 import logging
 from typing import Any
 
 from config.settings import SETTINGS
-from knowledge.graph.common import result_to_rows
 from knowledge.graph import get_graph_client
+from knowledge.graph.common import result_to_rows
 
 logger = logging.getLogger(__name__)
 GRAPH_QUERY = (

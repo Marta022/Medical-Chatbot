@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Helpers for optional LLM-as-judge scoring in borderline evaluator cases."""
+
+from __future__ import annotations
 
 import json
 import re

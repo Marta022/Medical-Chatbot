@@ -1,14 +1,14 @@
-from __future__ import annotations
-
 """Router helpers for LLM completion, classification, and PDF markdown cleanup."""
+
+from __future__ import annotations
 
 from agent.reasoning.providers.local_gemma_client import ollama_call
 from agent.reasoning.providers.local_qwen_client import qwen_call
+from agent.reasoning.providers.openai_client import openai_call
 from config.prompts import (
     PDF_MARKDOWN_CLEANUP_SYSTEM_PROMPT,
     build_pdf_markdown_cleanup_user_message,
 )
-from agent.reasoning.providers.openai_client import openai_call
 from config.settings import SETTINGS
 from models import LLMRequest, LLMResponse
 

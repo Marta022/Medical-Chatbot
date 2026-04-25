@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from agent.benchmarking.benchmark import run_evaluation_smoke
 from agent.orchestrator.orchestrator import Orchestrator

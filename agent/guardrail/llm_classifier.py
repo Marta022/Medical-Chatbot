@@ -1,11 +1,8 @@
-from __future__ import annotations
-
 """LLM-backed fallback classification for guardrail decisioning."""
 
-import logging
+from __future__ import annotations
 
-from config.prompts import GUARDRAIL_SYSTEM_PROMPT
-from llm.llm_router import llm_classify
+import logging
 
 from agent.guardrail.policies import (
     LABEL_AMBIGUOUS,
@@ -14,6 +11,8 @@ from agent.guardrail.policies import (
     LABEL_UNSAFE,
     VALID_LLM_LABELS,
 )
+from config.prompts import GUARDRAIL_SYSTEM_PROMPT
+from llm.llm_router import llm_classify
 
 logger = logging.getLogger(__name__)
 

@@ -93,7 +93,7 @@ def _get_model() -> Any:
                     "Embedding model not available in local cache and downloads are disabled. "
                     "Set ALLOW_MODEL_DOWNLOAD=true or provide local model artifacts. "
                     f"Loader error: {exc}"
-                )
+                ) from exc
     return _model
 
 

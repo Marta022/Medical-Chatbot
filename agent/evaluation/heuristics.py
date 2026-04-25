@@ -1,12 +1,11 @@
-from __future__ import annotations
-
 """Deterministic evaluator heuristics and score penalties."""
+
+from __future__ import annotations
 
 import re
 
-from config.eval_config import EVAL_CONFIG
-
 from agent.evaluation.failure_taxonomy import FailureType
+from config.eval_config import EVAL_CONFIG
 
 MIN_RESPONSE_LENGTH = 10
 REFUSED_PHRASES = (

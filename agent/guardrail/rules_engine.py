@@ -1,11 +1,8 @@
-from __future__ import annotations
-
 """Deterministic-first and LLM-assisted guardrail policy engine."""
 
-import logging
+from __future__ import annotations
 
-from config.settings import GUARDRAIL_LLM_ENABLED
-from models import GuardrailResult
+import logging
 
 from agent.guardrail.llm_classifier import classify_guardrail_with_llm
 from agent.guardrail.normalization import normalize_query
@@ -32,8 +29,8 @@ from agent.guardrail.policies import (
     CONFIDENCE_LLM,
     CONFIDENCE_LLM_UNAVAILABLE,
     CONFIDENCE_SAFE_DETERMINISTIC,
-    EMPTY_QUERY_MESSAGE,
     EMERGENCY_MESSAGE,
+    EMPTY_QUERY_MESSAGE,
     LABEL_AMBIGUOUS,
     LABEL_EMERGENCY,
     LABEL_UNSAFE,
@@ -52,6 +49,8 @@ from agent.guardrail.policies import (
     UNSAFE_SOFT_MESSAGE,
 )
 from agent.guardrail.utils import find_grouped_matches, has_any_match
+from config.settings import GUARDRAIL_LLM_ENABLED
+from models import GuardrailResult
 
 logger = logging.getLogger(__name__)
 

@@ -1,20 +1,20 @@
 from __future__ import annotations
 
+import sys
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
-import sys
 
 from models.contracts import PdfStructuredChunk
 from rag.chunking.load_documents import (
-    concatenate_page_markdown_files,
-    _repair_common_mojibake_ro,
+    _chunk_id_for,
+    _merge_page_lines,
     _postprocess_markdown_cleanup,
+    _repair_common_mojibake_ro,
     _split_text_for_llm_cleanup,
     _strip_markdown_code_fences,
-    _merge_page_lines,
-    _chunk_id_for,
+    concatenate_page_markdown_files,
     extract_pdf_pages,
     extract_pdf_to_markdown,
     iter_pdf_pages_with_pymupdf,

@@ -6,8 +6,8 @@ import unittest
 from pathlib import Path
 
 from agent.benchmarking.benchmark import load_retrieval_benchmark_queries
-from agent.evaluation.failure_taxonomy import FailureType
 from agent.evaluation.evaluator import evaluate_response
+from agent.evaluation.failure_taxonomy import FailureType
 from config.eval_config import EVAL_CONFIG
 
 

@@ -1,13 +1,12 @@
-from __future__ import annotations
-
 """Response quality evaluator with deterministic and adaptive retry outputs."""
 
-from config.eval_config import EVAL_CONFIG
-from models import EvaluatorResult
+from __future__ import annotations
 
 from agent.evaluation.adaptive_prompt import build_adaptive_prompt
 from agent.evaluation.failure_taxonomy import FailureType
 from agent.evaluation.heuristics import run_heuristics
+from config.eval_config import EVAL_CONFIG
+from models import EvaluatorResult
 
 BORDERLINE_FAILURE = FailureType.BORDERLINE
 UNKNOWN_FAILURE = FailureType.UNKNOWN

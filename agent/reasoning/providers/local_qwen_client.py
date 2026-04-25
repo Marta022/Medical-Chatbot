@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Qwen provider wrapper backed by local Ollama runtime."""
+
+from __future__ import annotations
 
 from agent.reasoning.providers.local_gemma_client import ollama_call
 from config.settings import SETTINGS

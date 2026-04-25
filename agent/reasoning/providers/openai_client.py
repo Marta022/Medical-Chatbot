@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """OpenAI chat completion client wrapper."""
+
+from __future__ import annotations
 
 import os
 

@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Failure taxonomy for evaluator rejection reasons."""
+
+from __future__ import annotations
 
 from enum import Enum
 

@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Shared text normalization utilities used across runtime modules."""
+
+from __future__ import annotations
 
 import unicodedata
 

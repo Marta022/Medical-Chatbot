@@ -24,8 +24,8 @@ import hashlib
 import json
 import logging
 import re
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from models import MedicalItem
 from models.contracts import PdfStructuredChunk
@@ -829,7 +829,7 @@ def _chunk_id_for(
 ) -> str:
     """Build a stable chunk ID from source metadata and normalized text."""
 
-    payload = f"{source_file}|{page}|{chapter}|{section}|{ordinal}|{text}".encode("utf-8")
+    payload = f"{source_file}|{page}|{chapter}|{section}|{ordinal}|{text}".encode()
     return hashlib.sha1(payload).hexdigest()[:16]
 
 

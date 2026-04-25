@@ -20,10 +20,10 @@ import re
 from dataclasses import replace
 from pathlib import Path
 
-from agent.benchmarking.benchmark import run_evaluation_smoke
 from agent.benchmarking.benchmark import (
     DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH,
     DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH,
+    run_evaluation_smoke,
     run_retrieval_benchmark,
 )
 from agent.orchestrator.chat_loop import run_chat_loop
@@ -36,9 +36,9 @@ from config.settings import (
     ensure_startup_valid,
 )
 from knowledge.qdrant.ingest import ingest
+from models.serde import serialize_to_json_compatible
 from rag.chunking.load_documents import discover_markdown_paths, extract_pdf_to_markdown
 from rag.retrieval.quality_report import build_quality_report
-from models.serde import serialize_to_json_compatible
 
 logger = logging.getLogger(__name__)
 

@@ -1,18 +1,18 @@
-from __future__ import annotations
-
 """Benchmark utilities for Romanian medical multiple-choice evaluation."""
+
+from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from pathlib import Path
 from statistics import mean
-from typing import Any, Callable
+from typing import Any
 
+from agent.evaluation.evaluator import evaluate_response
 from config.eval_config import EVAL_CONFIG
 from config.settings import SETTINGS
-from agent.evaluation.evaluator import evaluate_response
-from models import GuardrailResult, LLMRequest, RetrievalHit
-from models import EvaluatorResult
+from models import EvaluatorResult, GuardrailResult, LLMRequest, RetrievalHit
 
 DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH = "data/dataset/primele_10_grile_pag2_curatate.json"
 DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH = "data/dataset/primele_10_grile_pag2_answer_key.txt"
@@ -390,10 +390,10 @@ def _build_benchmark_context_block(item: dict[str, Any], hits: list[RetrievalHit
         section = hit.section or "unknown"
         page = hit.page if hit.page is not None else -1
         lines.append(
-            (
+
                 f"- [{index}] source_file={source_file}; page={page}; section={section}; "
                 f"text={hit.text}"
-            )
+
         )
     return "\n".join(lines)
 

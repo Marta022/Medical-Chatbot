@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+import importlib
 import unittest
 from unittest.mock import MagicMock, patch
 
 from qdrant_client.http.exceptions import ResponseHandlingException
 
-import importlib
 from models import MedicalItem
 from models.contracts import PdfStructuredChunk
 

@@ -3,8 +3,8 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from llm import llm_router
 from config.settings import SETTINGS
+from llm import llm_router
 from models import LLMRequest
 
 

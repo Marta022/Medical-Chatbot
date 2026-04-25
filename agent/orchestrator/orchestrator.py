@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from agent.evaluation.evaluator import evaluate_response
 from agent.guardrail.rules_engine import apply_guardrails
 from agent.reasoning.engine import (
     ReasoningDependencies,
@@ -13,6 +14,7 @@ from agent.reasoning.engine import (
 )
 from config.eval_config import EVAL_CONFIG, EvalConfig
 from config.settings import BASE_SYSTEM_PROMPT
+from llm.llm_router import llm_ask_request
 from models import (
     EvaluatorResult,
     GuardrailResult,
@@ -23,8 +25,6 @@ from models import (
     RetrievalResult,
 )
 from rag.retrieval.retriever import retrieve_top_similar
-from llm.llm_router import llm_ask_request
-from agent.evaluation.evaluator import evaluate_response
 
 
 @dataclass(frozen=True)

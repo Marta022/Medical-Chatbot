@@ -44,14 +44,12 @@ def append_retrieved_chunks_block(
         if len(text) > max_text_chars:
             text = text[: max_text_chars - len(ELLIPSIS_SUFFIX)].rstrip() + ELLIPSIS_SUFFIX
         lines.append(
-            (
-                f"[{index}] score={hit.score:.4f}; "
-                f"source_file={metadata['source_file']}; "
-                f"page={metadata['page']}; "
-                f"section={metadata['section']}; "
-                f"chunk_id={metadata['chunk_id']}; "
-                f"text={text}"
-            )
+            f"[{index}] score={hit.score:.4f}; "
+            f"source_file={metadata['source_file']}; "
+            f"page={metadata['page']}; "
+            f"section={metadata['section']}; "
+            f"chunk_id={metadata['chunk_id']}; "
+            f"text={text}"
         )
     return "\n".join(lines).strip()
 
@@ -86,11 +84,9 @@ def append_citation_block(response: str, citations: list[CitationRow]) -> str:
     lines = [response.rstrip(), "", CITATIONS_HEADER]
     for index, item in enumerate(citations, start=1):
         lines.append(
-            (
-                f"[{index}] source_file={item['source_file']}; "
-                f"page={item['page']}; "
-                f"section={item['section']}; "
-                f"chunk_id={item['chunk_id']}"
-            )
+            f"[{index}] source_file={item['source_file']}; "
+            f"page={item['page']}; "
+            f"section={item['section']}; "
+            f"chunk_id={item['chunk_id']}"
         )
     return "\n".join(lines).strip()

@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Adaptive retry prompt templates driven by evaluator failure type."""
+
+from __future__ import annotations
 
 from agent.evaluation.failure_taxonomy import FailureType
 

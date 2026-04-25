@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Shared helpers for graph result normalization."""
+
+from __future__ import annotations
 
 from typing import Any
 
