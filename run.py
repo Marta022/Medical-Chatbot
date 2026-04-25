@@ -284,8 +284,8 @@ def _build_parser() -> argparse.ArgumentParser:
     eval_parser.add_argument(
         "--benchmark",
         action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Run benchmark validation against grile dataset and answer key (default: true)",
+        default=False,
+        help="Run benchmark validation against grile dataset and answer key (default: false)",
     )
     eval_parser.add_argument(
         "--benchmark-json-path",

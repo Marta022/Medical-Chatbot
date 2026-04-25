@@ -1,6 +1,5 @@
-"""Public exports for Qdrant ingestion and client helpers."""
+"""Public exports for Qdrant client helpers."""
 
 from knowledge.qdrant.client import COLLECTION, client, ensure_collection
-from knowledge.qdrant.ingest import ingest
 
-__all__ = ["COLLECTION", "client", "ensure_collection", "ingest"]
+__all__ = ["COLLECTION", "client", "ensure_collection"]

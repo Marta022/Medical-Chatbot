@@ -165,7 +165,7 @@ def apply_guardrails(query: str) -> GuardrailResult:
         _log_decision(result)
         return result
 
-    should_use_llm = GUARDRAIL_LLM_ENABLED and (is_personal_medical or not is_info_only)
+    should_use_llm = GUARDRAIL_LLM_ENABLED and is_personal_medical
     if should_use_llm:
         try:
             label = classify_guardrail_with_llm(query)
