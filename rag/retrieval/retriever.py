@@ -80,7 +80,9 @@ def _rerank_hits(
         overlap = len(query_tokens.intersection(hit_tokens))
         overlap_ratio = overlap / len(query_tokens)
         # Keep semantic score dominant, but boost query-term alignment.
-        rerank_score = (hit.score * SEMANTIC_SCORE_WEIGHT) + (overlap_ratio * LEXICAL_OVERLAP_WEIGHT)
+        rerank_score = (hit.score * SEMANTIC_SCORE_WEIGHT) + (
+            overlap_ratio * LEXICAL_OVERLAP_WEIGHT
+        )
         weighted.append((rerank_score, hit))
     return [pair[1] for pair in sorted(weighted, key=lambda item: item[0], reverse=True)[:top_k]]
 
@@ -145,7 +147,9 @@ def _keyword_fallback_hits(
         if overlap == 0:
             continue
         overlap_ratio = overlap / max(len(query_tokens), 1)
-        phrase_bonus = KEYWORD_PHRASE_BONUS if query_phrase and query_phrase in text.lower() else 0.0
+        phrase_bonus = (
+            KEYWORD_PHRASE_BONUS if query_phrase and query_phrase in text.lower() else 0.0
+        )
         score = min(overlap_ratio + phrase_bonus, 1.0)
         if score < SETTINGS.keyword_fallback_min_score:
             continue
@@ -250,7 +254,9 @@ def _graph_hits(
         source_file = str(row.get("source_file", GRAPH_SOURCE)).strip() or GRAPH_SOURCE
         page = row.get("page", "unknown")
         chunk_id = str(row.get("chunk_id", "unknown")).strip() or "unknown"
-        confidence = float(row.get("confidence", DEFAULT_GRAPH_CONFIDENCE) or DEFAULT_GRAPH_CONFIDENCE)
+        confidence = float(
+            row.get("confidence", DEFAULT_GRAPH_CONFIDENCE) or DEFAULT_GRAPH_CONFIDENCE
+        )
         if not source_entity or not target_entity:
             continue
 
@@ -374,7 +380,9 @@ def retrieve_top_similar(
     mode = (filter_mode or retrieval_mode or SETTINGS.retrieval_mode).strip().lower()
     if mode == "hybrid":
         return retrieve_hybrid(input_message, top_k=top_k, filter_by=filter_by)
-    candidate_k = max(top_k, SETTINGS.retrieval_rerank_top_k) if SETTINGS.retrieval_rerank_enabled else top_k
+    candidate_k = (
+        max(top_k, SETTINGS.retrieval_rerank_top_k) if SETTINGS.retrieval_rerank_enabled else top_k
+    )
     vector_hits = _vector_hits(input_message, top_k=candidate_k, filter_by=filter_by)
     provenance = "vector"
     if SETTINGS.keyword_fallback_enabled and (
@@ -382,7 +390,11 @@ def retrieve_top_similar(
     ):
         vector_hits = _keyword_fallback_hits(
             input_message,
-            top_k=max(top_k, SETTINGS.retrieval_rerank_top_k) if SETTINGS.retrieval_rerank_enabled else top_k,
+            top_k=(
+                max(top_k, SETTINGS.retrieval_rerank_top_k)
+                if SETTINGS.retrieval_rerank_enabled
+                else top_k
+            ),
             filter_by=filter_by,
         )
         provenance = "keyword_fallback"

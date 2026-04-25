@@ -59,7 +59,9 @@ class TestConfigAndPrompts(unittest.TestCase):
     def test_validate_startup_rejects_invalid_entity_min_confidence(self) -> None:
         settings = AppSettings(entity_min_confidence=1.2)
         errors = validate_startup(command="eval", settings=settings)
-        self.assertTrue(any("ENTITY_MIN_CONFIDENCE must be between 0 and 1" in item for item in errors))
+        self.assertTrue(
+            any("ENTITY_MIN_CONFIDENCE must be between 0 and 1" in item for item in errors)
+        )
 
     def test_validate_startup_rejects_invalid_graph_backend(self) -> None:
         settings = AppSettings(graph_backend="invalid")
@@ -74,7 +76,9 @@ class TestConfigAndPrompts(unittest.TestCase):
     def test_validate_startup_rejects_invalid_relation_min_confidence(self) -> None:
         settings = AppSettings(relation_min_confidence=1.5)
         errors = validate_startup(command="eval", settings=settings)
-        self.assertTrue(any("RELATION_MIN_CONFIDENCE must be between 0 and 1" in item for item in errors))
+        self.assertTrue(
+            any("RELATION_MIN_CONFIDENCE must be between 0 and 1" in item for item in errors)
+        )
 
     def test_validate_startup_rejects_invalid_retrieval_mode(self) -> None:
         settings = AppSettings(retrieval_mode="invalid")
@@ -84,12 +88,16 @@ class TestConfigAndPrompts(unittest.TestCase):
     def test_validate_startup_rejects_invalid_graph_retrieval_top_k(self) -> None:
         settings = AppSettings(graph_retrieval_top_k=0)
         errors = validate_startup(command="eval", settings=settings)
-        self.assertTrue(any("GRAPH_RETRIEVAL_TOP_K must be greater than 0." in item for item in errors))
+        self.assertTrue(
+            any("GRAPH_RETRIEVAL_TOP_K must be greater than 0." in item for item in errors)
+        )
 
     def test_validate_startup_rejects_invalid_graph_traversal_depth(self) -> None:
         settings = AppSettings(graph_traversal_depth=0)
         errors = validate_startup(command="eval", settings=settings)
-        self.assertTrue(any("GRAPH_TRAVERSAL_DEPTH must be greater than 0." in item for item in errors))
+        self.assertTrue(
+            any("GRAPH_TRAVERSAL_DEPTH must be greater than 0." in item for item in errors)
+        )
 
     def test_validate_startup_rejects_invalid_hybrid_weights(self) -> None:
         settings = AppSettings(hybrid_graph_weight=-0.1)
@@ -101,18 +109,27 @@ class TestConfigAndPrompts(unittest.TestCase):
         errors = validate_startup(command="eval", settings=settings)
         self.assertTrue(any("CHUNK_MIN_CHARS must be greater than 0." in item for item in errors))
         self.assertTrue(any("CHUNK_MIN_WORDS must be greater than 0." in item for item in errors))
-        self.assertTrue(any("LIST_CHUNK_MIN_WORDS must be greater than 0." in item for item in errors))
+        self.assertTrue(
+            any("LIST_CHUNK_MIN_WORDS must be greater than 0." in item for item in errors)
+        )
 
     def test_validate_startup_rejects_invalid_rerank_top_k(self) -> None:
         settings = AppSettings(retrieval_rerank_top_k=0)
         errors = validate_startup(command="eval", settings=settings)
-        self.assertTrue(any("RETRIEVAL_RERANK_TOP_K must be greater than 0." in item for item in errors))
+        self.assertTrue(
+            any("RETRIEVAL_RERANK_TOP_K must be greater than 0." in item for item in errors)
+        )
 
     def test_validate_startup_rejects_invalid_keyword_fallback_settings(self) -> None:
         settings = AppSettings(keyword_fallback_min_score=-0.1, keyword_fallback_candidate_limit=0)
         errors = validate_startup(command="eval", settings=settings)
         self.assertTrue(any("KEYWORD_FALLBACK_MIN_SCORE must be >= 0." in item for item in errors))
-        self.assertTrue(any("KEYWORD_FALLBACK_CANDIDATE_LIMIT must be greater than 0." in item for item in errors))
+        self.assertTrue(
+            any(
+                "KEYWORD_FALLBACK_CANDIDATE_LIMIT must be greater than 0." in item
+                for item in errors
+            )
+        )
 
     def test_validate_startup_requires_llamaindex_for_semantic_chunking_when_strict(self) -> None:
         settings = AppSettings(
@@ -122,7 +139,9 @@ class TestConfigAndPrompts(unittest.TestCase):
         )
         with patch("config.settings._llamaindex_semantic_available", return_value=False):
             errors = validate_startup(command="ingest", settings=settings)
-        self.assertTrue(any("Semantic chunking requires llama-index-core" in item for item in errors))
+        self.assertTrue(
+            any("Semantic chunking requires llama-index-core" in item for item in errors)
+        )
 
     def test_validate_startup_rejects_semantic_mode_without_llamaindex_toggle(self) -> None:
         settings = AppSettings(
@@ -140,7 +159,9 @@ class TestConfigAndPrompts(unittest.TestCase):
         )
         with patch("config.settings._llamaindex_semantic_available", return_value=False):
             errors = validate_startup(command="ingest", settings=settings)
-        self.assertTrue(any("Semantic chunking requires llama-index-core" in item for item in errors))
+        self.assertTrue(
+            any("Semantic chunking requires llama-index-core" in item for item in errors)
+        )
 
     def test_ensure_startup_valid_passes_for_eval_with_temp_prompt(self) -> None:
         with tempfile.NamedTemporaryFile(

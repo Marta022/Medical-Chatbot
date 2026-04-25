@@ -28,7 +28,10 @@ class TestGitNexus(unittest.TestCase):
             close=lambda: None,
         )
         with patch("knowledge.graph.gitnexus.get_graph_client", return_value=graph_client):
-            with patch("knowledge.graph.gitnexus.SETTINGS", SimpleNamespace(gitnexus_base_url="http://nexus:8088")):
+            with patch(
+                "knowledge.graph.gitnexus.SETTINGS",
+                SimpleNamespace(gitnexus_base_url="http://nexus:8088"),
+            ):
                 payload = build_gitnexus_payload(query="mi", limit=5)
 
         self.assertEqual(payload["query"], "mi")

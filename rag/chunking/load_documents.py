@@ -461,7 +461,7 @@ def _strip_markdown_code_fences(text: str) -> str:
 def _postprocess_markdown_cleanup(text: str) -> str:
     """Apply deterministic cleanup for residual encoding/noise artifacts after LLM output."""
     cleaned = _repair_common_mojibake_ro(text)
-    cleaned = cleaned.replace("\"7", " ").replace("'7", " ").replace("`7", " ")
+    cleaned = cleaned.replace('"7', " ").replace("'7", " ").replace("`7", " ")
     cleaned = cleaned.replace("\\/", " ")
 
     def _is_noisy_token(token: str) -> bool:
@@ -519,9 +519,7 @@ def _extract_pages_with_pymupdf(
         if page_indexes is None:
             targets = list(range(document.page_count))
         else:
-            targets = sorted(
-                {index for index in page_indexes if 0 <= index < document.page_count}
-            )
+            targets = sorted({index for index in page_indexes if 0 <= index < document.page_count})
 
         extracted: dict[int, str] = {}
         for index in targets:
@@ -799,8 +797,14 @@ def _merge_page_lines(lines: list[str]) -> list[str]:
             merged[-1] = f"{previous[:-1]}{line}"
             continue
 
-        previous_is_structural = _looks_like_heading(previous) or _is_numbered_item(previous) or _is_bullet_item(previous)
-        line_is_structural = _looks_like_heading(line) or _is_numbered_item(line) or _is_bullet_item(line)
+        previous_is_structural = (
+            _looks_like_heading(previous)
+            or _is_numbered_item(previous)
+            or _is_bullet_item(previous)
+        )
+        line_is_structural = (
+            _looks_like_heading(line) or _is_numbered_item(line) or _is_bullet_item(line)
+        )
         should_join = (
             not previous_is_structural
             and not line_is_structural
@@ -1243,6 +1247,3 @@ def profile_pdf_structure(pdf_path: str, max_chunks_preview: int = 10) -> dict[s
         "preview": preview,
         "parse_error": None,
     }
-
-
-

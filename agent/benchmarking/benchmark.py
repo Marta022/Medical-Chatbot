@@ -14,7 +14,6 @@ from agent.evaluation.evaluator import evaluate_response
 from models import GuardrailResult, LLMRequest, RetrievalHit
 from models import EvaluatorResult
 
-
 DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH = "data/dataset/primele_10_grile_pag2_curatate.json"
 DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH = "data/dataset/primele_10_grile_pag2_answer_key.txt"
 DEFAULT_BENCHMARK_LANGUAGE = "ro"
@@ -349,7 +348,9 @@ def _benchmark_hit_relevance(item: dict[str, Any], hit: RetrievalHit) -> float:
             continue
         option_overlap = len(option_tokens.intersection(hit_tokens)) / max(len(option_tokens), 1)
         option_bonus = max(option_bonus, option_overlap)
-    if _benchmark_requires_single_answer(item) and _choice_pattern_implies_single_answer(item["choices"]):
+    if _benchmark_requires_single_answer(item) and _choice_pattern_implies_single_answer(
+        item["choices"]
+    ):
         return (hit.score * 0.45) + (overlap * 0.2) + (option_bonus * 0.35)
     return (hit.score * 0.65) + (overlap * 0.2) + (option_bonus * 0.15)
 
@@ -572,28 +573,25 @@ def _build_grila_prompt(item: dict[str, Any]) -> str:
             "\nPentru C.d.d., raspunsul este litera unica ceruta de intrebare "
             "(care dintre cele date / care NU face parte dintre cele date)."
         )
-    if "care este lantul temporal corect" in normalized_question or "inlantuirea temporala cauzala corecta" in normalized_question:
-        reasoning_rule = (
-            "Reconstruieste mai intai ordinea corecta a etapelor din context, apoi compara explicit cu variantele A-E si alege o singura varianta."
-        )
+    if (
+        "care este lantul temporal corect" in normalized_question
+        or "inlantuirea temporala cauzala corecta" in normalized_question
+    ):
+        reasoning_rule = "Reconstruieste mai intai ordinea corecta a etapelor din context, apoi compara explicit cu variantele A-E si alege o singura varianta."
         output_template = (
             "ORDINE: <ex. e-c-a-b-d sau INSUFICIENT>\n"
             "VARIANTA: <o singura litera A-E>\n"
             "RASPUNS: <aceeasi litera>"
         )
     elif "care sunt asocierile corecte" in normalized_question:
-        reasoning_rule = (
-            "Reconstruieste mai intai asocierile corecte din context, apoi compara explicit cu variantele A-E si alege varianta care se potriveste complet."
-        )
+        reasoning_rule = "Reconstruieste mai intai asocierile corecte din context, apoi compara explicit cu variantele A-E si alege varianta care se potriveste complet."
         output_template = (
             "ASOCIERI: <ex. a-2, b-1, c-3 sau INSUFICIENT>\n"
             "VARIANTA: <o singura litera A-E>\n"
             "RASPUNS: <aceeasi litera>"
         )
     elif "s.c.f.c.e." in normalized_question or "s c f c e" in normalized_question:
-        reasoning_rule = (
-            "Construieste fraza completa in ordinea fragmentelor si identifica exact fragmentul fals sau exceptia ceruta."
-        )
+        reasoning_rule = "Construieste fraza completa in ordinea fragmentelor si identifica exact fragmentul fals sau exceptia ceruta."
         output_template = (
             "FRAZA: <fraza rezultata sau INSUFICIENT>\n"
             "FRAGMENT_PROBLEMA: <o singura litera A-E>\n"
@@ -896,17 +894,23 @@ def run_retrieval_benchmark(
 
     items = load_retrieval_benchmark_items(benchmark_json_path)
     answer_key = load_retrieval_answer_key(answer_key_path)
-    benchmark_ask_fn: Callable[
-        [str, dict[str, Any]], tuple[str, list[RetrievalHit], str | None]
-    ] | None = None
+    benchmark_ask_fn: (
+        Callable[[str, dict[str, Any]], tuple[str, list[RetrievalHit], str | None]] | None
+    ) = None
 
     if ask_fn is None:
         from agent.guardrail.rules_engine import apply_guardrails
         from llm.llm_router import llm_ask_request
         from rag.retrieval.retriever import retrieve_top_similar
 
-        def _ask_with_item(prompt: str, item: dict[str, Any]) -> tuple[str, list[RetrievalHit], str | None]:
-            guardrail = apply_guardrails(prompt) if use_guardrail else _benchmark_guardrail_allow_all(prompt)
+        def _ask_with_item(
+            prompt: str, item: dict[str, Any]
+        ) -> tuple[str, list[RetrievalHit], str | None]:
+            guardrail = (
+                apply_guardrails(prompt)
+                if use_guardrail
+                else _benchmark_guardrail_allow_all(prompt)
+            )
             if not guardrail.is_valid:
                 return guardrail.message or "", [], "guardrail_blocked"
 
@@ -979,7 +983,9 @@ def run_retrieval_benchmark(
                 previous_response=model_response,
             )
             if benchmark_ask_fn is not None:
-                repaired_response, retrieved_hits, rejection_reason = benchmark_ask_fn(repair_prompt, item)
+                repaired_response, retrieved_hits, rejection_reason = benchmark_ask_fn(
+                    repair_prompt, item
+                )
                 retrieved_chunks = _serialize_retrieved_chunks(retrieved_hits)
             else:
                 repaired_response = ask_fn(repair_prompt)
@@ -1018,11 +1024,17 @@ def run_retrieval_benchmark(
     )
     exact_match_count = sum(1 for row in rows if bool(row["exact_match"]))
     exact_match_rate = (exact_match_count / len(rows)) if rows else 0.0
-    global_exact_match_rate = (exact_match_count / total_dataset_items) if total_dataset_items else 0.0
+    global_exact_match_rate = (
+        (exact_match_count / total_dataset_items) if total_dataset_items else 0.0
+    )
     macro_precision = mean(float(row["precision"]) for row in rows) if rows else 0.0
     macro_recall = mean(float(row["recall"]) for row in rows) if rows else 0.0
     macro_f1 = mean(float(row["f1"]) for row in rows) if rows else 0.0
-    global_score = (sum(float(row["f1"]) for row in rows) / total_dataset_items) if total_dataset_items else 0.0
+    global_score = (
+        (sum(float(row["f1"]) for row in rows) / total_dataset_items)
+        if total_dataset_items
+        else 0.0
+    )
 
     return {
         "benchmark_json_path": benchmark_json_path,
@@ -1031,7 +1043,9 @@ def run_retrieval_benchmark(
         "evaluated_count": len(rows),
         "guardrail_enabled_during_benchmark": use_guardrail,
         "missing_answer_ids": missing_answer_ids,
-        "answer_key_coverage": round((len(rows) / total_dataset_items) if total_dataset_items else 0.0, 4),
+        "answer_key_coverage": round(
+            (len(rows) / total_dataset_items) if total_dataset_items else 0.0, 4
+        ),
         "supports_multiple_correct_answers": True,
         "global_score": round(global_score, 4),
         "global_exact_match_rate": round(global_exact_match_rate, 4),

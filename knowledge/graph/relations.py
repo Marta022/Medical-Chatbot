@@ -8,7 +8,12 @@ from models.contracts import MedicalEntity, MedicalRelation, PdfStructuredChunk
 
 _TRIGGERS = {
     "drug_treats_disease": [r"\btrateaza\b", r"\btratament(?:ul)?\b", r"\brecomandat[ae]?\b"],
-    "condition_causes_symptom": [r"\bcauzeaza\b", r"\bprovoaca\b", r"\bdetermina\b", r"\bduce la\b"],
+    "condition_causes_symptom": [
+        r"\bcauzeaza\b",
+        r"\bprovoaca\b",
+        r"\bdetermina\b",
+        r"\bduce la\b",
+    ],
     "disease_differs_from_disease": [
         r"\bdifer\w*\b",
         r"\bdiferential\b",
@@ -109,7 +114,9 @@ def extract_relations_from_chunk(
             relations.append(
                 MedicalRelation(
                     predicate="condition_causes_symptom",
-                    source_entity_id=build_entity_id(condition.entity_type, condition.canonical_form),
+                    source_entity_id=build_entity_id(
+                        condition.entity_type, condition.canonical_form
+                    ),
                     source_entity_type=condition.entity_type,
                     source_canonical_form=condition.canonical_form,
                     target_entity_id=build_entity_id(symptom.entity_type, symptom.canonical_form),

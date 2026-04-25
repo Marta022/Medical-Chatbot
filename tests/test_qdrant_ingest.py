@@ -41,7 +41,9 @@ class TestQdrantIngest(unittest.TestCase):
                     with patch("knowledge.qdrant.ingest.embed_texts", return_value=[[0.3, 0.4]]):
                         with patch("knowledge.qdrant.ingest.vector_size", return_value=2):
                             with patch("knowledge.qdrant.ingest.ensure_collection"):
-                                with patch("knowledge.qdrant.ingest.client", MagicMock()) as client_mock:
+                                with patch(
+                                    "knowledge.qdrant.ingest.client", MagicMock()
+                                ) as client_mock:
                                     count = ingest_module.ingest(
                                         "a.json",
                                         "b.csv",
@@ -91,7 +93,9 @@ class TestQdrantIngest(unittest.TestCase):
                             return_value=2,
                         ):
                             with patch("knowledge.qdrant.ingest.ensure_collection") as ensure_mock:
-                                with patch("knowledge.qdrant.ingest.client", MagicMock()) as client_mock:
+                                with patch(
+                                    "knowledge.qdrant.ingest.client", MagicMock()
+                                ) as client_mock:
                                     count = ingest_module.ingest(
                                         "a.json",
                                         "b.csv",
@@ -121,7 +125,9 @@ class TestQdrantIngest(unittest.TestCase):
                     ):
                         with patch("knowledge.qdrant.ingest.vector_size", return_value=2):
                             with patch("knowledge.qdrant.ingest.ensure_collection"):
-                                with patch("knowledge.qdrant.ingest.client", MagicMock()) as client_mock:
+                                with patch(
+                                    "knowledge.qdrant.ingest.client", MagicMock()
+                                ) as client_mock:
                                     count = ingest_module.ingest(
                                         "a.json",
                                         "b.csv",
@@ -148,7 +154,9 @@ class TestQdrantIngest(unittest.TestCase):
                 with patch("knowledge.qdrant.ingest.embed_texts", return_value=[[0.4, 0.5]]):
                     with patch("knowledge.qdrant.ingest.vector_size", return_value=2):
                         with patch("knowledge.qdrant.ingest.ensure_collection"):
-                            with patch("knowledge.qdrant.ingest.client", MagicMock()) as client_mock:
+                            with patch(
+                                "knowledge.qdrant.ingest.client", MagicMock()
+                            ) as client_mock:
                                 count = ingest_module.ingest(
                                     "a.json",
                                     "b.csv",
@@ -185,7 +193,9 @@ class TestQdrantIngest(unittest.TestCase):
                     ):
                         with patch("knowledge.qdrant.ingest.vector_size", return_value=2):
                             with patch("knowledge.qdrant.ingest.ensure_collection"):
-                                with patch("knowledge.qdrant.ingest.client", MagicMock()) as client_mock:
+                                with patch(
+                                    "knowledge.qdrant.ingest.client", MagicMock()
+                                ) as client_mock:
                                     ingest_module.ingest("a.json", "b.csv", pdf_paths=["doc.pdf"])
                                     ingest_module.ingest("a.json", "b.csv", pdf_paths=["doc.pdf"])
 
@@ -209,11 +219,15 @@ class TestQdrantIngest(unittest.TestCase):
 
         with patch("knowledge.qdrant.ingest.load_medical_items", return_value=[]):
             with patch("knowledge.qdrant.ingest.load_pdf_chunks", return_value=[pdf_chunk]):
-                with patch("knowledge.qdrant.ingest.load_disease_terms", return_value={"infarct miocardic"}):
+                with patch(
+                    "knowledge.qdrant.ingest.load_disease_terms", return_value={"infarct miocardic"}
+                ):
                     with patch("knowledge.qdrant.ingest.embed_texts", return_value=[[0.3, 0.4]]):
                         with patch("knowledge.qdrant.ingest.vector_size", return_value=2):
                             with patch("knowledge.qdrant.ingest.ensure_collection"):
-                                with patch("knowledge.qdrant.ingest.client", MagicMock()) as client_mock:
+                                with patch(
+                                    "knowledge.qdrant.ingest.client", MagicMock()
+                                ) as client_mock:
                                     count = ingest_module.ingest(
                                         "a.json",
                                         "b.csv",
@@ -227,7 +241,12 @@ class TestQdrantIngest(unittest.TestCase):
         self.assertNotIn("page", point.payload)
         self.assertEqual(point.payload["source_file"], "doc.pdf")
         self.assertTrue(point.payload["entities"])
-        self.assertTrue(any(ent["canonical_form"] == "myocardial infarction" for ent in point.payload["entities"]))
+        self.assertTrue(
+            any(
+                ent["canonical_form"] == "myocardial infarction"
+                for ent in point.payload["entities"]
+            )
+        )
 
     def test_ingest_upserts_in_batches_when_configured(self) -> None:
         ingest_module = importlib.import_module("knowledge.qdrant.ingest")
@@ -242,7 +261,9 @@ class TestQdrantIngest(unittest.TestCase):
                     with patch("knowledge.qdrant.ingest.load_pdf_chunks", return_value=[]):
                         with patch("knowledge.qdrant.ingest.vector_size", return_value=2):
                             with patch("knowledge.qdrant.ingest.ensure_collection"):
-                                with patch("knowledge.qdrant.ingest.client", MagicMock()) as client_mock:
+                                with patch(
+                                    "knowledge.qdrant.ingest.client", MagicMock()
+                                ) as client_mock:
                                     count = ingest_module.ingest(
                                         "a.json",
                                         "b.csv",
@@ -268,7 +289,9 @@ class TestQdrantIngest(unittest.TestCase):
                         with patch("knowledge.qdrant.ingest.vector_size", return_value=2):
                             with patch("knowledge.qdrant.ingest.ensure_collection"):
                                 with patch("knowledge.qdrant.ingest.time.sleep") as sleep_mock:
-                                    with patch("knowledge.qdrant.ingest.client", MagicMock()) as client_mock:
+                                    with patch(
+                                        "knowledge.qdrant.ingest.client", MagicMock()
+                                    ) as client_mock:
                                         client_mock.upsert.side_effect = [transient_error, None]
                                         count = ingest_module.ingest(
                                             "a.json",

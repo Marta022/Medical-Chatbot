@@ -148,7 +148,12 @@ class TestBenchmark(unittest.TestCase):
         }
         hits = [
             RetrievalHit(title="generic", text="febra si temperatura", score=0.95, source="unit"),
-            RetrievalHit(title="mapping", text="a-1 b-2 c-3 tremuraturi ghemuire dezvelire", score=0.8, source="unit"),
+            RetrievalHit(
+                title="mapping",
+                text="a-1 b-2 c-3 tremuraturi ghemuire dezvelire",
+                score=0.8,
+                source="unit",
+            ),
         ]
         ranked = _rerank_benchmark_hits(item, hits, top_k=1)
         self.assertEqual(ranked[0].title, "mapping")
@@ -211,7 +216,9 @@ class TestBenchmark(unittest.TestCase):
             "answer_variant_mismatch",
         )
 
-    def test_benchmark_rejection_reason_requires_sequence_variant_to_match_option_text(self) -> None:
+    def test_benchmark_rejection_reason_requires_sequence_variant_to_match_option_text(
+        self,
+    ) -> None:
         item = {
             "id": 524,
             "intrebare": "F.d.u. Care este lantul temporal corect?",
@@ -269,7 +276,9 @@ class TestBenchmark(unittest.TestCase):
         )
         self.assertEqual(_benchmark_rejection_reason(item, response), "all_options_selected")
 
-    def test_extract_option_letters_falls_back_to_leading_letter_for_hyphenated_option_text(self) -> None:
+    def test_extract_option_letters_falls_back_to_leading_letter_for_hyphenated_option_text(
+        self,
+    ) -> None:
         self.assertEqual(_extract_option_letters("RASPUNS: e-c-a-b-d"), {"E"})
 
     def test_extract_option_letters_uses_answer_segment_only(self) -> None:
@@ -282,7 +291,9 @@ class TestBenchmark(unittest.TestCase):
         self.assertEqual(_extract_option_letters(raw_response), {"C", "D"})
 
     def test_load_retrieval_answer_key_supports_multiple_answers(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as handle:
             handle.write("521: A,C\n522: B\n")
             key_path = handle.name
         try:
@@ -293,7 +304,9 @@ class TestBenchmark(unittest.TestCase):
             Path(key_path).unlink(missing_ok=True)
 
     def test_run_retrieval_benchmark_computes_set_metrics(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as bench_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as bench_handle:
             json.dump(
                 [
                     {
@@ -311,7 +324,9 @@ class TestBenchmark(unittest.TestCase):
             )
             benchmark_path = bench_handle.name
 
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as key_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as key_handle:
             key_handle.write("521: A,C\n")
             key_path = key_handle.name
 
@@ -331,7 +346,9 @@ class TestBenchmark(unittest.TestCase):
             Path(key_path).unlink(missing_ok=True)
 
     def test_load_retrieval_benchmark_items_supports_alternative_json_shape(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as handle:
             json.dump(
                 [
                     {
@@ -354,7 +371,9 @@ class TestBenchmark(unittest.TestCase):
             Path(benchmark_path).unlink(missing_ok=True)
 
     def test_load_retrieval_answer_key_supports_json_raspuns_field(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as handle:
             json.dump(
                 [
                     {"id": 102, "raspuns": "A"},
@@ -372,7 +391,9 @@ class TestBenchmark(unittest.TestCase):
             Path(key_path).unlink(missing_ok=True)
 
     def test_run_retrieval_benchmark_reports_global_score_on_full_dataset(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as bench_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as bench_handle:
             json.dump(
                 [
                     {
@@ -399,7 +420,9 @@ class TestBenchmark(unittest.TestCase):
             )
             benchmark_path = bench_handle.name
 
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as key_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as key_handle:
             key_handle.write("1: A\n")
             key_path = key_handle.name
 
@@ -427,13 +450,19 @@ class TestBenchmark(unittest.TestCase):
         self.assertTrue(_requires_single_answer("C.E. Urmatoarele afirmatii sunt adevarate:"))
         self.assertTrue(_requires_single_answer("care este exceptia dintre urmatoarele"))
         self.assertTrue(
-            _requires_single_answer("Una falsă dintre cele date. Febra (se completează fraza corect enunțată)")
+            _requires_single_answer(
+                "Una falsă dintre cele date. Febra (se completează fraza corect enunțată)"
+            )
         )
-        self.assertFalse(_requires_single_answer("Temperatura corporala normala si patologica, u.a.s.c.c.e."))
+        self.assertFalse(
+            _requires_single_answer("Temperatura corporala normala si patologica, u.a.s.c.c.e.")
+        )
         self.assertFalse(_requires_single_answer("R.I. starea de hidratare ..."))
 
     def test_run_retrieval_benchmark_retries_for_textual_single_answer_format(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as bench_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as bench_handle:
             json.dump(
                 [
                     {
@@ -451,7 +480,9 @@ class TestBenchmark(unittest.TestCase):
             )
             benchmark_path = bench_handle.name
 
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as key_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as key_handle:
             key_handle.write("528: D\n")
             key_path = key_handle.name
 
@@ -477,7 +508,9 @@ class TestBenchmark(unittest.TestCase):
             Path(key_path).unlink(missing_ok=True)
 
     def test_run_retrieval_benchmark_retries_when_single_answer_returns_multiple(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as bench_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as bench_handle:
             json.dump(
                 [
                     {
@@ -495,7 +528,9 @@ class TestBenchmark(unittest.TestCase):
             )
             benchmark_path = bench_handle.name
 
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as key_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as key_handle:
             key_handle.write("527: A\n")
             key_path = key_handle.name
 
@@ -521,7 +556,9 @@ class TestBenchmark(unittest.TestCase):
             Path(key_path).unlink(missing_ok=True)
 
     def test_run_retrieval_benchmark_includes_retrieved_chunks_in_rows(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as bench_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as bench_handle:
             json.dump(
                 [
                     {
@@ -539,7 +576,9 @@ class TestBenchmark(unittest.TestCase):
             )
             benchmark_path = bench_handle.name
 
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as key_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as key_handle:
             key_handle.write("610: A\n")
             key_path = key_handle.name
 
@@ -576,7 +615,9 @@ class TestBenchmark(unittest.TestCase):
             Path(key_path).unlink(missing_ok=True)
 
     def test_run_retrieval_benchmark_keeps_last_rejected_response_and_reason(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as bench_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as bench_handle:
             json.dump(
                 [
                     {
@@ -594,7 +635,9 @@ class TestBenchmark(unittest.TestCase):
             )
             benchmark_path = bench_handle.name
 
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as key_handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as key_handle:
             key_handle.write("611: A\n")
             key_path = key_handle.name
 

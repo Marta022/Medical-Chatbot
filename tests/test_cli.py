@@ -119,7 +119,9 @@ class TestCLI(unittest.TestCase):
         ]
         with patch.object(sys, "argv", argv):
             with patch("run.ensure_startup_valid"):
-                with patch("run.extract_pdf_to_markdown", return_value={"pages_processed": 2}) as extract_mock:
+                with patch(
+                    "run.extract_pdf_to_markdown", return_value={"pages_processed": 2}
+                ) as extract_mock:
                     run.main()
 
         extract_mock.assert_called_once()
@@ -176,7 +178,9 @@ class TestCLI(unittest.TestCase):
         self.assertTrue(benchmark_mock.call_args.kwargs["use_guardrail"])
 
     def test_eval_benchmark_writes_json_output_file(self) -> None:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json", encoding="utf-8") as handle:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as handle:
             output_path = handle.name
         Path(output_path).unlink(missing_ok=True)
 

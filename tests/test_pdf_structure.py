@@ -268,7 +268,7 @@ class TestPdfStructure(unittest.TestCase):
         self.assertEqual(_strip_markdown_code_fences(fenced), "# Titlu\nText")
 
     def test_postprocess_markdown_cleanup_removes_noisy_tokens(self) -> None:
-        raw = "Temperatura OQfI!J~lÄƒ este 37,7Â°C \"7 normal.\nfe.JJL{LLQ[Â§,S\\lgciÈ™~"
+        raw = 'Temperatura OQfI!J~lÄƒ este 37,7Â°C "7 normal.\nfe.JJL{LLQ[Â§,S\\lgciÈ™~'
         cleaned = _postprocess_markdown_cleanup(raw)
         self.assertIn("Temperatura", cleaned)
         self.assertIn("37,7", cleaned)
@@ -339,9 +339,13 @@ class TestPdfStructure(unittest.TestCase):
             ),
         ]
         with patch("rag.chunking.load_documents.extract_pdf_pages", return_value=pages):
-            profile = profile_pdf_structure("DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf")
+            profile = profile_pdf_structure(
+                "DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf"
+            )
 
-        self.assertEqual(profile["source_file"], "DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf")
+        self.assertEqual(
+            profile["source_file"], "DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf"
+        )
         self.assertEqual(profile["pages_detected"], 2)
         self.assertGreater(profile["chunk_count"], 0)
         self.assertGreaterEqual(profile["list_chunk_count"], 1)
@@ -386,7 +390,9 @@ class TestPdfStructure(unittest.TestCase):
         self.assertGreaterEqual(len(section_chunks), 1)
         self.assertGreaterEqual(len(semantic_chunks), 1)
         self.assertTrue(all(chunk.page == 1 for chunk in semantic_chunks))
-        self.assertTrue(all(chunk.source_file == "DORIN-CURS_SEM2_searchable.pdf" for chunk in semantic_chunks))
+        self.assertTrue(
+            all(chunk.source_file == "DORIN-CURS_SEM2_searchable.pdf" for chunk in semantic_chunks)
+        )
         self.assertTrue(all(chunk.chunk_id for chunk in semantic_chunks))
 
     def test_load_pdf_chunks_semantic_requires_llamaindex_toggle(self) -> None:
@@ -432,7 +438,9 @@ class TestPdfStructure(unittest.TestCase):
                 is_list=False,
             )
         ]
-        with patch("rag.chunking.load_documents.parse_pdf_to_structured_chunks", return_value=base_chunks):
+        with patch(
+            "rag.chunking.load_documents.parse_pdf_to_structured_chunks", return_value=base_chunks
+        ):
             with patch(
                 "rag.chunking.load_documents._semantic_chunk_structured_chunks_with_llamaindex",
                 return_value=semantic_out,

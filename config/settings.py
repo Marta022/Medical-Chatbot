@@ -208,11 +208,19 @@ def validate_startup(
         )
     if current.semantic_chunk_max_chars <= 0:
         errors.append("SEMANTIC_CHUNK_MAX_CHARS must be greater than 0.")
-    if command in {INGEST_COMMAND} and current.chunking_strategy == "semantic" and not current.semantic_use_llamaindex:
+    if (
+        command in {INGEST_COMMAND}
+        and current.chunking_strategy == "semantic"
+        and not current.semantic_use_llamaindex
+    ):
         errors.append(
             "Semantic chunking is strict in this project. Set SEMANTIC_USE_LLAMAINDEX=true."
         )
-    if command in {INGEST_COMMAND} and current.chunking_strategy == "semantic" and current.semantic_use_llamaindex:
+    if (
+        command in {INGEST_COMMAND}
+        and current.chunking_strategy == "semantic"
+        and current.semantic_use_llamaindex
+    ):
         if not _llamaindex_semantic_available():
             errors.append(
                 "Semantic chunking requires llama-index-core in runtime when "
@@ -257,11 +265,13 @@ def validate_startup(
             errors.append(f"Primary dataset PDF not found at '{current.dataset_primary_pdf_path}'.")
         if not Path(current.dataset_validation_pdf_path).exists():
             errors.append(
-                "Validation dataset PDF not found at "
-                f"'{current.dataset_validation_pdf_path}'."
+                "Validation dataset PDF not found at " f"'{current.dataset_validation_pdf_path}'."
             )
 
-    if command in {CHAT_COMMAND, EXTRACT_MARKDOWN_COMMAND} and current.llm_provider == DEFAULT_LLM_PROVIDER:
+    if (
+        command in {CHAT_COMMAND, EXTRACT_MARKDOWN_COMMAND}
+        and current.llm_provider == DEFAULT_LLM_PROVIDER
+    ):
         if not os.getenv(OPENAI_API_KEY_ENV):
             errors.append(
                 "OPENAI_API_KEY is required when LLM_PROVIDER=openai for chat or extract-markdown."

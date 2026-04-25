@@ -45,8 +45,7 @@ _TEMPLATES: dict[FailureType, str] = {
         "Previous response: {bad_response}"
     ),
     FailureType.OFF_TOPIC: (
-        "Your previous answer was off topic. Focus only on this question:\n"
-        "{query}"
+        "Your previous answer was off topic. Focus only on this question:\n" "{query}"
     ),
     FailureType.BORDERLINE: (
         "Improve this answer for accuracy, completeness, and safety.\n"
@@ -55,8 +54,7 @@ _TEMPLATES: dict[FailureType, str] = {
         "Context:\n{context_summary}"
     ),
     FailureType.UNKNOWN: (
-        "Provide a clearer and safer answer grounded in available context.\n"
-        "Question: {query}"
+        "Provide a clearer and safer answer grounded in available context.\n" "Question: {query}"
     ),
 }
 

@@ -24,7 +24,9 @@ class TestRetriever(unittest.TestCase):
             },
         )
         with patch("rag.retrieval.retriever.embed_query", return_value=[0.1]) as embed_mock:
-            with patch("rag.retrieval.retriever.client.search", return_value=[fake_hit]) as search_mock:
+            with patch(
+                "rag.retrieval.retriever.client.search", return_value=[fake_hit]
+            ) as search_mock:
                 result = retriever.retrieve_top_similar("q", top_k=1)
 
         embed_mock.assert_called_once()
@@ -73,8 +75,13 @@ class TestRetriever(unittest.TestCase):
         with patch("rag.retrieval.retriever.embed_query", return_value=[0.1]):
             with patch("rag.retrieval.retriever.client.search", return_value=[vector_hit]):
                 with patch("rag.retrieval.retriever.load_disease_terms", return_value=set()):
-                    with patch("rag.retrieval.retriever.extract_entities_from_chunk", return_value=extracted):
-                        with patch("rag.retrieval.retriever.get_graph_client", return_value=graph_client):
+                    with patch(
+                        "rag.retrieval.retriever.extract_entities_from_chunk",
+                        return_value=extracted,
+                    ):
+                        with patch(
+                            "rag.retrieval.retriever.get_graph_client", return_value=graph_client
+                        ):
                             result = retriever.retrieve_hybrid("q", top_k=3)
 
         self.assertEqual(len(result.hits), 2)
@@ -109,7 +116,9 @@ class TestRetriever(unittest.TestCase):
             def __init__(self) -> None:
                 self.calls: list[dict[str, str | int]] = []
 
-            def execute(self, _query: str, params: dict[str, str | int] | None = None) -> list[dict[str, object]]:
+            def execute(
+                self, _query: str, params: dict[str, str | int] | None = None
+            ) -> list[dict[str, object]]:
                 self.calls.append(params or {})
                 return graph_rows
 
@@ -132,8 +141,13 @@ class TestRetriever(unittest.TestCase):
         with patch("rag.retrieval.retriever.embed_query", return_value=[0.1]):
             with patch("rag.retrieval.retriever.client.search", return_value=[vector_hit]):
                 with patch("rag.retrieval.retriever.load_disease_terms", return_value=set()):
-                    with patch("rag.retrieval.retriever.extract_entities_from_chunk", return_value=extracted):
-                        with patch("rag.retrieval.retriever.get_graph_client", return_value=graph_client):
+                    with patch(
+                        "rag.retrieval.retriever.extract_entities_from_chunk",
+                        return_value=extracted,
+                    ):
+                        with patch(
+                            "rag.retrieval.retriever.get_graph_client", return_value=graph_client
+                        ):
                             result = retriever.retrieve_hybrid(
                                 "q",
                                 top_k=2,
@@ -196,7 +210,9 @@ class TestRetriever(unittest.TestCase):
         with patch("rag.retrieval.retriever.SETTINGS", settings):
             with patch("rag.retrieval.retriever.embed_query", return_value=[0.1]):
                 with patch("rag.retrieval.retriever.client.search", return_value=[weak_hit]):
-                    with patch("rag.retrieval.retriever.client.scroll", return_value=([fallback_hit], None)):
+                    with patch(
+                        "rag.retrieval.retriever.client.scroll", return_value=([fallback_hit], None)
+                    ):
                         result = retriever.retrieve_top_similar("sindromul cushing", top_k=1)
 
         self.assertEqual(result.provenance, "keyword_fallback")

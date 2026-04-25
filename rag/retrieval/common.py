@@ -27,7 +27,9 @@ def build_retrieval_hit(
         text=str(payload.get("text", "")).strip(),
         score=float(score),
         source=source,
-        source_file=str(payload.get("source_file")) if payload.get("source_file") is not None else None,
+        source_file=(
+            str(payload.get("source_file")) if payload.get("source_file") is not None else None
+        ),
         page=int(payload.get("page")) if payload.get("page") is not None else None,
         section=str(payload.get("section")) if payload.get("section") is not None else None,
         chunk_id=str(payload.get("chunk_id")) if payload.get("chunk_id") is not None else None,

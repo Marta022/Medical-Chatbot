@@ -33,9 +33,10 @@ def load_eval_config() -> EvalConfig:
     """Load evaluator configuration from environment variables."""
 
     fallback_raw = getenv("EVAL_PROVIDER_FALLBACK_ORDER", "")
-    fallback_order = tuple(
-        item.strip().lower() for item in fallback_raw.split(",") if item.strip()
-    ) or DEFAULT_PROVIDER_FALLBACK_ORDER
+    fallback_order = (
+        tuple(item.strip().lower() for item in fallback_raw.split(",") if item.strip())
+        or DEFAULT_PROVIDER_FALLBACK_ORDER
+    )
     return EvalConfig(
         pass_score=env_float("EVAL_PASS_SCORE", DEFAULT_EVAL_PASS_SCORE),
         max_retries=env_int("EVAL_MAX_RETRIES", DEFAULT_EVAL_MAX_RETRIES),

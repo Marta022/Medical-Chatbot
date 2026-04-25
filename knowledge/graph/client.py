@@ -17,11 +17,9 @@ ERROR_UNSUPPORTED_BACKEND = "Unsupported graph backend: {backend}"
 class GraphClient(Protocol):
     """Minimal graph client contract used by retrieval/visualization flows."""
 
-    def execute(self, query: str, parameters: dict[str, Any] | None = None) -> Any:
-        ...
+    def execute(self, query: str, parameters: dict[str, Any] | None = None) -> Any: ...
 
-    def close(self) -> None:
-        ...
+    def close(self) -> None: ...
 
 
 def _import_kuzu() -> Any:

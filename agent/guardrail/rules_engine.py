@@ -56,7 +56,9 @@ from agent.guardrail.utils import find_grouped_matches, has_any_match
 logger = logging.getLogger(__name__)
 
 
-def _base_result(*, category: str, reason_code: str, confidence: float, is_valid: bool) -> GuardrailResult:
+def _base_result(
+    *, category: str, reason_code: str, confidence: float, is_valid: bool
+) -> GuardrailResult:
     """Construct a normalized guardrail result shell."""
 
     return GuardrailResult(

@@ -36,7 +36,6 @@ from rag.chunking.load_documents import load_medical_items, load_pdf_chunks
 from rag.chunking.strategies import chunk_text
 from rag.retrieval.embeddings import embed_texts, vector_size
 
-
 logger = logging.getLogger(__name__)
 DEFAULT_CHUNKING_STRATEGY = "section"
 DEFAULT_SEMANTIC_CHUNK_MAX_CHARS = 700
@@ -248,7 +247,7 @@ def ingest(
 
     disease_terms = load_disease_terms(json_path)
     graph_chunks: list[Any] = []
-    for pdf_path in (pdf_paths or []):
+    for pdf_path in pdf_paths or []:
         pdf_chunks = load_pdf_chunks(
             pdf_path,
             chunking_strategy=chunking_strategy,
@@ -323,6 +322,6 @@ def _passes_chunk_quality(
     words = len(normalized.split())
     if is_list:
         return words >= _clamp_quality_threshold(list_min_words)
-    return len(normalized) >= _clamp_quality_threshold(min_chars) and words >= _clamp_quality_threshold(
-        min_words
-    )
+    return len(normalized) >= _clamp_quality_threshold(
+        min_chars
+    ) and words >= _clamp_quality_threshold(min_words)

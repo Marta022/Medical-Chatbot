@@ -53,7 +53,11 @@ def get_base_system_prompt() -> str:
 def build_context_block(context_lines: list[str]) -> str:
     """Build the retrieval context block injected into generation prompts."""
 
-    return CONTEXT_BLOCK_HEADER + "\n" + "\n".join(f"{CONTEXT_BULLET_PREFIX}{line}" for line in context_lines)
+    return (
+        CONTEXT_BLOCK_HEADER
+        + "\n"
+        + "\n".join(f"{CONTEXT_BULLET_PREFIX}{line}" for line in context_lines)
+    )
 
 
 def build_pdf_markdown_cleanup_user_message(

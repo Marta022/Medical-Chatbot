@@ -50,7 +50,9 @@ class TestProviderClients(unittest.TestCase):
         self.assertEqual(result, "ok")
 
     def test_qwen_call_uses_ollama_transport(self) -> None:
-        with patch("agent.reasoning.providers.local_qwen_client.ollama_call", return_value="ok") as mocked:
+        with patch(
+            "agent.reasoning.providers.local_qwen_client.ollama_call", return_value="ok"
+        ) as mocked:
             result = local_qwen_client.qwen_call(
                 messages=[{"role": "user", "content": "hi"}],
                 model="qwen3.5",

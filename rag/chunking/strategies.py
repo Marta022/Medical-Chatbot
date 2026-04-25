@@ -143,14 +143,10 @@ def semantic_chunks(
     prepared_text = "\n\n".join(blocks)
 
     if not use_llamaindex:
-        raise RuntimeError(
-            "Semantic chunking requires llama-index semantic splitter."
-        )
+        raise RuntimeError("Semantic chunking requires llama-index semantic splitter.")
     semantic = _llamaindex_semantic_chunks(prepared_text)
     if not semantic:
-        raise RuntimeError(
-            "Semantic chunking requires a working llama-index semantic splitter."
-        )
+        raise RuntimeError("Semantic chunking requires a working llama-index semantic splitter.")
     return semantic
 
 

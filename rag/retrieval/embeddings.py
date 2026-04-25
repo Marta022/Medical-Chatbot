@@ -75,13 +75,18 @@ def _get_model() -> Any:
 
     if _model is None:
         sentence_transformer_cls = _sentence_transformer_cls()
-        allow_download = os.getenv(ALLOW_MODEL_DOWNLOAD_ENV, "").strip().lower() in ALLOW_DOWNLOAD_TRUTHY_VALUES
+        allow_download = (
+            os.getenv(ALLOW_MODEL_DOWNLOAD_ENV, "").strip().lower() in ALLOW_DOWNLOAD_TRUTHY_VALUES
+        )
         try:
             # Prefer local cache so offline/blocked environments do not hang on retries.
             _model = sentence_transformer_cls(MODEL_NAME, local_files_only=True)
         except Exception as exc:
             if allow_download:
-                logger.info("Loading embedding model '%s' with downloads enabled after cache miss.", MODEL_NAME)
+                logger.info(
+                    "Loading embedding model '%s' with downloads enabled after cache miss.",
+                    MODEL_NAME,
+                )
                 _model = sentence_transformer_cls(MODEL_NAME)
             else:
                 raise RuntimeError(

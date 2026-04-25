@@ -132,9 +132,7 @@ class RetrievalResult:
                 score=float(item.get("score", 0.0)),
                 source=str(item.get("source", "unknown")),
                 source_file=(
-                    str(item.get("source_file"))
-                    if item.get("source_file") is not None
-                    else None
+                    str(item.get("source_file")) if item.get("source_file") is not None else None
                 ),
                 page=int(item.get("page")) if item.get("page") is not None else None,
                 section=str(item.get("section")) if item.get("section") is not None else None,

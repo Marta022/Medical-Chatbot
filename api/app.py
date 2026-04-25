@@ -198,9 +198,7 @@ def create_app(
         payload = request.get_json(silent=True) or {}
         json_path = str(payload.get("json_path", SETTINGS.dataset_json_path))
         csv_path = str(payload.get("csv_path", SETTINGS.dataset_csv_path))
-        chunking_strategy = str(
-            payload.get("chunking_strategy", DEFAULT_INGEST_CHUNKING_STRATEGY)
-        )
+        chunking_strategy = str(payload.get("chunking_strategy", DEFAULT_INGEST_CHUNKING_STRATEGY))
         inserted = _deps(app).ingest(json_path, csv_path, chunking_strategy)
         return jsonify(
             {

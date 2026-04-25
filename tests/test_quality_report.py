@@ -116,7 +116,9 @@ class TestQualityReport(unittest.TestCase):
 
         try:
             with patch("rag.retrieval.quality_report.load_pdf_chunks", return_value=chunks):
-                with patch("rag.retrieval.quality_report.retrieve_top_similar", return_value=retrieval):
+                with patch(
+                    "rag.retrieval.quality_report.retrieve_top_similar", return_value=retrieval
+                ):
                     report = build_quality_report(
                         pdf_paths=["doc.pdf"],
                         chunking_strategy="semantic",

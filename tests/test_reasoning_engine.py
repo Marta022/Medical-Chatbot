@@ -96,7 +96,9 @@ class TestReasoningEngine(unittest.TestCase):
         )
         eval_config = EvalConfig(max_retries=1, provider_fallback_order=("openai", "ollama"))
 
-        ReasoningEngine(deps=deps, eval_config=eval_config).run(ReasoningInput(query="test", top_k=1))
+        ReasoningEngine(deps=deps, eval_config=eval_config).run(
+            ReasoningInput(query="test", top_k=1)
+        )
 
         self.assertEqual(len(messages), 2)
         self.assertIn("Revise your answer to address: needs_more_context.", messages[1])
@@ -152,4 +154,3 @@ class TestReasoningEngine(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -34,7 +34,10 @@ class TestEmbeddings(unittest.TestCase):
         fake_model.encode.return_value = FakeArray([[0.1, 0.2, 0.3]])
 
         with patch.dict("os.environ", {"EMBEDDING_PROVIDER": "sentence-transformers"}, clear=False):
-            with patch("rag.retrieval.embeddings._sentence_transformer_cls", return_value=lambda *args, **kwargs: fake_model):
+            with patch(
+                "rag.retrieval.embeddings._sentence_transformer_cls",
+                return_value=lambda *args, **kwargs: fake_model,
+            ):
                 size = embeddings.vector_size()
                 self.assertEqual(size, 3)
 

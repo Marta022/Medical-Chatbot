@@ -21,7 +21,9 @@ class TestLLMClassifier(unittest.TestCase):
         with patch("agent.guardrail.llm_classifier.llm_classify", return_value="maybe"):
             self.assertEqual(classify_guardrail_with_llm("q"), "SAFE")
 
-        with patch("agent.guardrail.llm_classifier.llm_classify", return_value="EMERGENCY - urgent"):
+        with patch(
+            "agent.guardrail.llm_classifier.llm_classify", return_value="EMERGENCY - urgent"
+        ):
             self.assertEqual(classify_guardrail_with_llm("q"), "EMERGENCY")
 
 

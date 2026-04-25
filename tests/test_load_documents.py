@@ -60,7 +60,9 @@ class TestLoadDocuments(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             dataset_dir = Path(tmpdir)
             primary = dataset_dir / "DORIN-CURS_SEM2_searchable.pdf"
-            validation = dataset_dir / "DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf"
+            validation = (
+                dataset_dir / "DORIN_GENERALA_CARDIOVASCULARA-RESPIRATORIE-DISESTIVA.CV01.pdf"
+            )
             notes = dataset_dir / "notes.txt"
 
             primary.write_bytes(b"%PDF-1.4")
