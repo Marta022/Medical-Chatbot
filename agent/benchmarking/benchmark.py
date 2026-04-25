@@ -390,10 +390,8 @@ def _build_benchmark_context_block(item: dict[str, Any], hits: list[RetrievalHit
         section = hit.section or "unknown"
         page = hit.page if hit.page is not None else -1
         lines.append(
-
-                f"- [{index}] source_file={source_file}; page={page}; section={section}; "
-                f"text={hit.text}"
-
+            f"- [{index}] source_file={source_file}; page={page}; section={section}; "
+            f"text={hit.text}"
         )
     return "\n".join(lines)
 
