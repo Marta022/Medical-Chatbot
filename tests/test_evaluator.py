@@ -57,6 +57,18 @@ class TestEvaluator(unittest.TestCase):
         self.assertIn(FailureType.UNSAFE_ADVICE, result.failure_types)
         self.assertEqual(result.retry_strategy, "switch_llm")
 
+    def test_hallucination_risk_uses_switch_llm_strategy(self) -> None:
+        result = evaluate_response(
+            query="Care sunt simptomele gripei?",
+            response=(
+                "Gripa se vindeca instant in 24 de ore in toate cazurile si este intotdeauna "
+                "usoara, fara exceptii."
+            ),
+            context_lines=["Simptome frecvente: febra, tuse, dureri musculare."],
+        )
+        self.assertIn(FailureType.HALLUCINATION_RISK, result.failure_types)
+        self.assertEqual(result.retry_strategy, "switch_llm")
+
     def test_load_retrieval_benchmark_queries_reads_intrebare_entries(self) -> None:
         with tempfile.NamedTemporaryFile(
             "w",

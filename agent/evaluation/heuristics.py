@@ -25,6 +25,10 @@ DISCLAIMER_PATTERN = re.compile(
     r"\b(?:consult|doctor|physician|healthcare|medical professional|medic|farmacist)\b",
     flags=re.IGNORECASE,
 )
+HEDGING_PATTERN = re.compile(
+    r"\b(?:may|might|can|could|possible|possibly|poate|posibil|probabil|in general)\b",
+    flags=re.IGNORECASE,
+)
 TOKEN_PATTERN = re.compile(r"[a-z0-9]{3,}", flags=re.IGNORECASE)
 STOPWORDS = {
     "care",
@@ -71,6 +75,8 @@ def run_heuristics(
 
     if context_lines and _low_context_overlap(stripped, context_lines):
         issues.append((FailureType.CONTEXT_IGNORED, 0.25))
+        if _looks_hallucination_prone(stripped):
+            issues.append((FailureType.HALLUCINATION_RISK, 0.5))
 
     if _off_topic(query, stripped):
         issues.append((FailureType.OFF_TOPIC, 0.2))
@@ -105,3 +111,13 @@ def _off_topic(query: str, response: str) -> bool:
 def _tokens(value: str) -> set[str]:
     tokens = {token.lower() for token in TOKEN_PATTERN.findall(value or "")}
     return {token for token in tokens if token not in STOPWORDS}
+
+
+def _looks_hallucination_prone(response: str) -> bool:
+    lowered = response.lower()
+    # Prefer switching model only when answer sounds certain and lacks safety/uncertainty cues.
+    return (
+        len(response) >= EVAL_CONFIG.safe_min_length
+        and not DISCLAIMER_PATTERN.search(lowered)
+        and not HEDGING_PATTERN.search(lowered)
+    )

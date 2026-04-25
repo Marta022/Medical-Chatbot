@@ -63,7 +63,7 @@ def evaluate_response(
             bad_response=response,
             context_lines=context_lines,
         )
-        if primary_failure in SWITCH_LLM_FAILURES:
+        if any(failure in SWITCH_LLM_FAILURES for failure in failure_types):
             retry_strategy = "switch_llm"
 
     return EvaluatorResult(

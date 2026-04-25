@@ -42,6 +42,11 @@ from rag.retrieval.quality_report import build_quality_report
 
 logger = logging.getLogger(__name__)
 
+PREFERRED_DEFAULT_MARKDOWN_PATHS = [
+    "data/cap1_revizuit.md",
+    "data/cap2_revizuit.md",
+]
+
 
 def _env_markdown_paths() -> list[str]:
     """Return markdown paths configured via INGEST_MARKDOWN_PATHS env var.
@@ -69,6 +74,11 @@ def _default_markdown_paths() -> list[str]:
     env_paths = _env_markdown_paths()
     if env_paths:
         return env_paths
+
+    preferred_paths = [path for path in PREFERRED_DEFAULT_MARKDOWN_PATHS if Path(path).exists()]
+    if preferred_paths:
+        return preferred_paths
+
     return discover_markdown_paths()
 
 
