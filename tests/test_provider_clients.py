@@ -16,10 +16,23 @@ from agent.reasoning.providers import (
 class TestProviderClients(unittest.TestCase):
     def setUp(self) -> None:
         openai_client._client = None
+        anthropic_client._client = None
 
-    def test_anthropic_call_not_implemented(self) -> None:
-        with self.assertRaises(NotImplementedError):
-            anthropic_client.anthropic_call(messages=[{"role": "user", "content": "hi"}])
+    def test_anthropic_call_uses_client(self) -> None:
+        fake_block = SimpleNamespace(text="ok")
+        fake_response = SimpleNamespace(content=[fake_block])
+        fake_client = MagicMock()
+        fake_client.messages.create.return_value = fake_response
+
+        with patch("agent.reasoning.providers.anthropic_client.Anthropic", return_value=fake_client):
+            os.environ["ANTHROPIC_API_KEY"] = "test"
+            result = anthropic_client.anthropic_call(
+                messages=[{"role": "user", "content": "hi"}],
+                model="claude-test",
+            )
+
+        self.assertEqual(result, "ok")
+        fake_client.messages.create.assert_called_once()
 
     def test_openai_call_uses_client(self) -> None:
         fake_message = SimpleNamespace(content="ok")

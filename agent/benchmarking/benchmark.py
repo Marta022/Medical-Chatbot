@@ -25,16 +25,16 @@ REVIEW_RETRY_MESSAGE = (
     "Revizuire obligatorie: raspunsul anterior nu a fost suficient de "
     "bine sustinut de context sau de strict. Raspuns anterior: {previous_response}"
 )
-KEY_ORDER = "ORDINE"
-KEY_ASSOCIATIONS = "ASOCIERI"
-KEY_VARIANT = "VARIANTA"
-KEY_FRAGMENT_ISSUE = "FRAGMENT_PROBLEMA"
+KEY_ORDER = "ORDER"
+KEY_ASSOCIATIONS = "ASSOCIATIONS"
+KEY_VARIANT = "OPTION"
+KEY_FRAGMENT_ISSUE = "ISSUE_FRAGMENT"
 QUESTION_PHRASE_SEQUENCE = "care este lantul temporal corect"
 QUESTION_PHRASE_MAPPING = "care sunt asocierile corecte"
 QUESTION_PHRASE_SCFCE_DOTTED = "s.c.f.c.e."
 QUESTION_PHRASE_SCFCE_SPACED = "s c f c e"
-STATUS_TRUE = "ADEVARAT"
-STATUS_FALSE = "FALS"
+STATUS_TRUE = "TRUE"
+STATUS_FALSE = "FALSE"
 REJECTION_EMPTY_RESPONSE = "empty_response"
 REJECTION_FORBIDDEN_REASONING = "forbidden_reasoning"
 REJECTION_MISSING_ANSWER_LETTERS = "missing_answer_letters"
@@ -56,9 +56,9 @@ Rules:
 - Be conservative: mark an option as correct only if the context supports it clearly.
 - For R.I. and u.a.s.c.c.e., verify each option independently before selecting letters.
 - For R.I. and u.a.s.c.c.e., use `INSUFICIENT` by default when the context does not directly confirm an option.
-- Never mark an option `ADEVARAT` for R.I. / u.a.s.c.c.e. unless the support is explicit in the retrieved context.
-- For R.I., final answer letters are the options marked `ADEVARAT`.
-- For u.a.s.c.c.e., final answer letters are the options marked `FALS`.
+- Never mark an option `TRUE` for R.I. / u.a.s.c.c.e. unless the support is explicit in the retrieved context.
+- For R.I., final answer letters are the options marked `TRUE`.
+- For u.a.s.c.c.e., final answer letters are the options marked `FALSE`.
 - For F.d.u. and F.d.d. sequence/association items, derive the correct order or mapping from context first, then compare all A-E variants and choose the single best option.
 - For u.f.d.f.d., u.i.d.f.d., u.f.c.d., c.d.d., and c.e., determine the single required letter exactly from context.
 - Do not use popularity, intuition, or outside medical knowledge when context is weak.
@@ -538,23 +538,23 @@ def _build_grila_prompt(item: dict[str, Any]) -> str:
     normalized_question = _normalize_romanian_text(question_text)
     is_single_answer = _benchmark_requires_single_answer(item)
     response_rule = (
-        "RASPUNS: <o singura litera din A-E>."
+        "ANSWER: <one letter from A-E>."
         if is_single_answer
-        else "RASPUNS: <una sau mai multe litere din A-E separate prin virgula, in ordine alfabetica>."
+        else "ANSWER: <one or more letters from A-E, comma-separated, in alphabetical order>."
     )
     fdu_hint = ""
     reasoning_rule = (
         "Mai intai evalueaza fiecare optiune A-E independent fata de context. "
-        "Foloseste format structurat cu statut pentru fiecare optiune. "
-        "Marcheaza ADEVARAT doar daca suportul este explicit; altfel foloseste FALS sau INSUFICIENT."
+        "Foloseste format structurat cu status pentru fiecare optiune. "
+        "Marcheaza TRUE doar daca suportul este explicit; altfel foloseste FALSE sau INSUFICIENT."
     )
     output_template = (
-        "STATUT_A: ADEVARAT/FALS/INSUFICIENT\n"
-        "STATUT_B: ADEVARAT/FALS/INSUFICIENT\n"
-        "STATUT_C: ADEVARAT/FALS/INSUFICIENT\n"
-        "STATUT_D: ADEVARAT/FALS/INSUFICIENT\n"
-        "STATUT_E: ADEVARAT/FALS/INSUFICIENT\n"
-        "RASPUNS: <literele finale>"
+        "STATUS_A: TRUE/FALSE/INSUFFICIENT\n"
+        "STATUS_B: TRUE/FALSE/INSUFFICIENT\n"
+        "STATUS_C: TRUE/FALSE/INSUFFICIENT\n"
+        "STATUS_D: TRUE/FALSE/INSUFFICIENT\n"
+        "STATUS_E: TRUE/FALSE/INSUFFICIENT\n"
+        "ANSWER: <final letters>"
     )
     if re.search(r"\bf\.?d\.?u\.?\b", normalized_question):
         fdu_hint = (
@@ -577,37 +577,37 @@ def _build_grila_prompt(item: dict[str, Any]) -> str:
     ):
         reasoning_rule = "Reconstruieste mai intai ordinea corecta a etapelor din context, apoi compara explicit cu variantele A-E si alege o singura varianta."
         output_template = (
-            "ORDINE: <ex. e-c-a-b-d sau INSUFICIENT>\n"
-            "VARIANTA: <o singura litera A-E>\n"
-            "RASPUNS: <aceeasi litera>"
+            "ORDER: <ex. e-c-a-b-d sau INSUFICIENT>\n"
+            "OPTION: <o singura litera A-E>\n"
+            "ANSWER: <aceeasi litera>"
         )
     elif "care sunt asocierile corecte" in normalized_question:
         reasoning_rule = "Reconstruieste mai intai asocierile corecte din context, apoi compara explicit cu variantele A-E si alege varianta care se potriveste complet."
         output_template = (
-            "ASOCIERI: <ex. a-2, b-1, c-3 sau INSUFICIENT>\n"
-            "VARIANTA: <o singura litera A-E>\n"
-            "RASPUNS: <aceeasi litera>"
+            "ASSOCIATIONS: <ex. a-2, b-1, c-3 sau INSUFICIENT>\n"
+            "OPTION: <o singura litera A-E>\n"
+            "ANSWER: <aceeasi litera>"
         )
     elif "s.c.f.c.e." in normalized_question or "s c f c e" in normalized_question:
         reasoning_rule = "Construieste fraza completa in ordinea fragmentelor si identifica exact fragmentul fals sau exceptia ceruta."
         output_template = (
             "FRAZA: <fraza rezultata sau INSUFICIENT>\n"
-            "FRAGMENT_PROBLEMA: <o singura litera A-E>\n"
-            "RASPUNS: <aceeasi litera>"
+            "ISSUE_FRAGMENT: <o singura litera A-E>\n"
+            "ANSWER: <aceeasi litera>"
         )
     elif re.search(r"\bu\.?a\.?s\.?c\.?c\.?e\.?\b", normalized_question):
         reasoning_rule = (
-            "Evalueaza fiecare optiune A-E independent fata de context si marcheaza ADEVARAT numai cand suportul este explicit. "
-            "In RASPUNS include DOAR literele variantelor marcate FALS. "
-            "Nu include niciodata variante marcate ADEVARAT sau INSUFICIENT."
+            "Evalueaza fiecare optiune A-E independent fata de context si marcheaza TRUE numai cand suportul este explicit. "
+            "In ANSWER include DOAR literele variantelor marcate FALSE. "
+            "Nu include niciodata variante marcate TRUE sau INSUFICIENT."
         )
         output_template = (
-            "STATUT_A: ADEVARAT/FALS/INSUFICIENT\n"
-            "STATUT_B: ADEVARAT/FALS/INSUFICIENT\n"
-            "STATUT_C: ADEVARAT/FALS/INSUFICIENT\n"
-            "STATUT_D: ADEVARAT/FALS/INSUFICIENT\n"
-            "STATUT_E: ADEVARAT/FALS/INSUFICIENT\n"
-            "RASPUNS: <doar literele cu statut FALS, separate prin virgula, in ordine alfabetica>"
+            "STATUS_A: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_B: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_C: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_D: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_E: TRUE/FALSE/INSUFFICIENT\n"
+            "ANSWER: <doar literele cu status FALSE, separate prin virgula, in ordine alfabetica>"
         )
     elif is_single_answer:
         reasoning_rule = (
@@ -615,12 +615,12 @@ def _build_grila_prompt(item: dict[str, Any]) -> str:
             "Foloseste format structurat si marcheaza variantele nesustinute ca INSUFICIENT."
         )
         output_template = (
-            "STATUT_A: ADEVARAT/FALS/INSUFICIENT\n"
-            "STATUT_B: ADEVARAT/FALS/INSUFICIENT\n"
-            "STATUT_C: ADEVARAT/FALS/INSUFICIENT\n"
-            "STATUT_D: ADEVARAT/FALS/INSUFICIENT\n"
-            "STATUT_E: ADEVARAT/FALS/INSUFICIENT\n"
-            "RASPUNS: <o singura litera>"
+            "STATUS_A: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_B: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_C: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_D: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_E: TRUE/FALSE/INSUFFICIENT\n"
+            "ANSWER: <o singura litera>"
         )
     return f"""
 Rezolva aceasta grila medicala pe baza contextului disponibil.
@@ -628,7 +628,7 @@ Raspunde strict in formatul:
 {response_rule}
 Nu repeta textul variantei, returneaza doar litera(ele) finala(e).{fdu_hint}
 Metoda obligatorie: {reasoning_rule}
-Regula de prudenta: daca suportul contextual pentru o optiune nu este explicit, nu o marca ADEVARAT.
+Regula de prudenta: daca suportul contextual pentru o optiune nu este explicit, nu o marca TRUE.
 Format obligatoriu exact:
 {output_template}
 
@@ -700,7 +700,7 @@ def _build_single_answer_repair_prompt(
         f"{original_prompt}\n\n"
         "Corectie obligatorie de format: aceasta intrebare cere EXACT un singur raspuns.\n"
         f"Raspunsul tau anterior a fost: {previous_response}\n"
-        "Returneaza acum STRICT in format structurat valid si cu RASPUNS: <o singura litera din A-E>."
+        "Returneaza acum STRICT in format structurat valid si cu ANSWER: <o singura litera din A-E>."
     )
 
 
@@ -732,11 +732,18 @@ def _is_uascce_question(normalized_question: str) -> bool:
 
 
 def _extract_option_statuses(response: str) -> dict[str, str]:
-    """Extract STATUT_A..E fields from response."""
+    """Extract STATUS_A..E fields from response, with Romanian fallback."""
 
     statuses: dict[str, str] = {}
     for letter in _CHOICE_LETTERS:
-        status = _extract_named_line(response, f"STATUT_{letter}").upper().strip(" .")
+        status = _extract_named_line(response, f"STATUS_{letter}").upper().strip(" .")
+        if not status:
+            status = _extract_named_line(response, f"STATUT_{letter}").upper().strip(" .")
+        status = (
+            status.replace("ADEVARAT", "TRUE")
+            .replace("FALS", "FALSE")
+            .replace("INSUFICIENT", "INSUFFICIENT")
+        )
         if status:
             statuses[letter] = status
     return statuses
@@ -772,7 +779,12 @@ def _benchmark_rejection_reason(item: dict[str, Any], response: str) -> str | No
     if is_sequence or is_mapping:
         derived_key = KEY_ORDER if is_sequence else KEY_ASSOCIATIONS
         derived_value = _extract_named_line(response, derived_key)
+        if not derived_value:
+            fallback_key = "ORDINE" if is_sequence else "ASOCIERI"
+            derived_value = _extract_named_line(response, fallback_key)
         variant = _extract_named_line(response, KEY_VARIANT).upper().strip(" .")
+        if not variant:
+            variant = _extract_named_line(response, "VARIANTA").upper().strip(" .")
         if len(variant) != 1 or variant not in _CHOICE_LETTERS:
             return REJECTION_MISSING_OR_INVALID_VARIANT
         matched_letter = _match_derived_value_to_option(item, derived_value)
@@ -784,6 +796,8 @@ def _benchmark_rejection_reason(item: dict[str, Any], response: str) -> str | No
 
     if _is_scfce_question(normalized_question):
         fragment = _extract_named_line(response, KEY_FRAGMENT_ISSUE).upper().strip(" .")
+        if not fragment:
+            fragment = _extract_named_line(response, "FRAGMENT_PROBLEMA").upper().strip(" .")
         if len(fragment) != 1 or fragment not in _CHOICE_LETTERS:
             return REJECTION_MISSING_OR_INVALID_FRAGMENT
         if predicted != {fragment}:

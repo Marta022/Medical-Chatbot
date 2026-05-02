@@ -53,8 +53,8 @@ class TestBenchmark(unittest.TestCase):
                 "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
             }
         )
-        self.assertIn("include DOAR literele variantelor marcate FALS", prompt)
-        self.assertIn("Nu include niciodata variante marcate ADEVARAT sau INSUFICIENT", prompt)
+        self.assertIn("In ANSWER include DOAR literele variantelor marcate FALSE", prompt)
+        self.assertIn("Nu include niciodata variante marcate TRUE sau INSUFICIENT", prompt)
 
     def test_benchmark_system_prompt_is_exam_specific(self) -> None:
         self.assertIn("multiple-choice benchmark items", BENCHMARK_SYSTEM_PROMPT)

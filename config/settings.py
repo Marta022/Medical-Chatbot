@@ -13,7 +13,7 @@ from config.common import env_bool, env_float, env_int
 
 load_dotenv()
 
-SUPPORTED_LLM_PROVIDERS = {"openai", "ollama", "qwen3.5"}
+SUPPORTED_LLM_PROVIDERS = {"openai", "anthropic", "ollama", "qwen3.5"}
 SUPPORTED_CHUNKING_STRATEGIES = {"section", "semantic"}
 SUPPORTED_GRAPH_BACKENDS = {"kuzu"}
 SUPPORTED_RETRIEVAL_MODES = {"vector", "hybrid"}
@@ -22,6 +22,7 @@ DEFAULT_QDRANT_COLLECTION = "medical_docs"
 DEFAULT_LLM_TXT_PATH = "llm.txt"
 DEFAULT_LLM_PROVIDER = "openai"
 DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
+DEFAULT_ANTHROPIC_MODEL = "claude-3-5-haiku-latest"
 DEFAULT_OLLAMA_MODEL = "gemma2:2b"
 DEFAULT_QWEN_MODEL = "qwen3.5"
 DEFAULT_TOP_K = 3
@@ -68,6 +69,7 @@ class AppSettings:
     llm_txt_path: str = DEFAULT_LLM_TXT_PATH
     llm_provider: str = DEFAULT_LLM_PROVIDER
     openai_model: str = DEFAULT_OPENAI_MODEL
+    anthropic_model: str = DEFAULT_ANTHROPIC_MODEL
     ollama_model: str = DEFAULT_OLLAMA_MODEL
     qwen_model: str = DEFAULT_QWEN_MODEL
     default_top_k: int = DEFAULT_TOP_K
@@ -113,6 +115,7 @@ def load_settings() -> AppSettings:
         llm_txt_path=os.getenv("LLM_TXT_PATH", DEFAULT_LLM_TXT_PATH).strip(),
         llm_provider=os.getenv("LLM_PROVIDER", DEFAULT_LLM_PROVIDER).strip().lower(),
         openai_model=os.getenv("OPENAI_MODEL", DEFAULT_OPENAI_MODEL).strip(),
+        anthropic_model=os.getenv("ANTHROPIC_MODEL", DEFAULT_ANTHROPIC_MODEL).strip(),
         ollama_model=os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL).strip(),
         qwen_model=os.getenv("QWEN_MODEL", DEFAULT_QWEN_MODEL).strip(),
         default_top_k=env_int("DEFAULT_TOP_K", DEFAULT_TOP_K),

@@ -37,6 +37,20 @@ class TestLLMRouter(unittest.TestCase):
         self.assertEqual(response.provider, "ollama")
         self.assertEqual(response.model, SETTINGS.ollama_model)
 
+    def test_llm_ask_request_uses_anthropic(self) -> None:
+        request = LLMRequest(
+            system_prompt="sys",
+            user_message="hello",
+            context_block="",
+            provider="anthropic",
+        )
+        with patch("llm.llm_router.anthropic_call", return_value="ok") as mocked:
+            response = llm_router.llm_ask_request(request)
+        mocked.assert_called_once()
+        self.assertEqual(response.content, "ok")
+        self.assertEqual(response.provider, "anthropic")
+        self.assertEqual(response.model, SETTINGS.anthropic_model)
+
     def test_llm_ask_request_uses_qwen35(self) -> None:
         request = LLMRequest(
             system_prompt="sys",
@@ -65,6 +79,15 @@ class TestLLMRouter(unittest.TestCase):
             response = llm_router.llm_classify(
                 messages=[{"role": "user", "content": "test"}],
                 provider="qwen3.5",
+            )
+        mocked.assert_called_once()
+        self.assertEqual(response, "SAFE")
+
+    def test_llm_classify_uses_anthropic_provider(self) -> None:
+        with patch("llm.llm_router.anthropic_call", return_value="SAFE") as mocked:
+            response = llm_router.llm_classify(
+                messages=[{"role": "user", "content": "test"}],
+                provider="anthropic",
             )
         mocked.assert_called_once()
         self.assertEqual(response, "SAFE")

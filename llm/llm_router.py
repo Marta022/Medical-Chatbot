@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from agent.reasoning.providers.anthropic_client import anthropic_call
 from agent.reasoning.providers.local_gemma_client import ollama_call
 from agent.reasoning.providers.local_qwen_client import qwen_call
 from agent.reasoning.providers.openai_client import openai_call
@@ -13,9 +14,10 @@ from config.settings import SETTINGS
 from models import LLMRequest, LLMResponse
 
 PROVIDER_OPENAI = "openai"
+PROVIDER_ANTHROPIC = "anthropic"
 PROVIDER_OLLAMA = "ollama"
 PROVIDER_QWEN = "qwen3.5"
-SUPPORTED_PROVIDERS = {PROVIDER_OPENAI, PROVIDER_OLLAMA, PROVIDER_QWEN}
+SUPPORTED_PROVIDERS = {PROVIDER_OPENAI, PROVIDER_ANTHROPIC, PROVIDER_OLLAMA, PROVIDER_QWEN}
 ERROR_UNSUPPORTED_PROVIDER = "Unsupported LLM provider: {provider}"
 ERROR_INVALID_PAGE_NUMBER = "page_number must be greater than or equal to 1"
 ERROR_EMPTY_PAGE_TEXT = "page_text must be a non-empty string"
@@ -61,6 +63,13 @@ def llm_ask_request(request: LLMRequest) -> LLMResponse:
     if provider == PROVIDER_QWEN:
         content = qwen_call(messages=request.messages(), temperature=request.temperature)
         return LLMResponse(content=content, provider=PROVIDER_QWEN, model=SETTINGS.qwen_model)
+    if provider == PROVIDER_ANTHROPIC:
+        content = anthropic_call(messages=request.messages(), temperature=request.temperature)
+        return LLMResponse(
+            content=content,
+            provider=PROVIDER_ANTHROPIC,
+            model=SETTINGS.anthropic_model,
+        )
 
     content = openai_call(messages=request.messages(), temperature=request.temperature)
     return LLMResponse(content=content, provider=PROVIDER_OPENAI, model=SETTINGS.openai_model)
@@ -78,6 +87,8 @@ def llm_classify(
         return ollama_call(messages=messages, temperature=temperature)
     if chosen == PROVIDER_QWEN:
         return qwen_call(messages=messages, temperature=temperature)
+    if chosen == PROVIDER_ANTHROPIC:
+        return anthropic_call(messages=messages, temperature=temperature)
     return openai_call(messages=messages, temperature=temperature)
 
 
