@@ -1,7 +1,0 @@
-1. Titlul temei: Sistem de tip chatbot medical folosind tehnici RAG și LLM
-
-2. Descrierea temei:
-Lucrarea propusa constă în dezvoltarea de tehnici de Inteligență Artificială specifice sistemelor de tip LLM – Large Language Models pentru date text având ca aplicație un chatbot funcțional pentru domeniul medical. Acesta va fi conceput astfel încât să poată procesa date specifice dialogului dintre medic și pacienți și va oferi răspunsuri pentru diferite afecțiuni. De exemplu, în cazul în care sunt solicitate situații grave "persoana de lângă mine nu poate să respire" sistemul va fi capabil să decidă că este nevoie de consultarea de urgență a unui medic, în loc să încerce să furnizeze soluții text. Se vor implementa astfel și tehnici de tip RAG Retrieval-Augmented-Generation.
-
-3. Contribuția originală:
-O soluție poate fi dată de folosirea tehnologiilor de tip RAG Retrieval-Augmented-Generation, adaptive prompting, guardrails, multi-turn agents pentru validare rezultate, vector store, SQL DB, dictionare, GUI. Se vor explora diferite tehnici de învățare cu rețele neuronale. Lucrarea presupune analiza detaliată a literaturii de specialitate, sinteza acesteia prin identificarea metodelor relevante cât și a seturilor de date adnotate necesare dezvoltării de algoritmi noi, dezvoltarea metodelor propuse, implementarea/programarea acestora în limbajul python, cât și experimentarea într-un cadru de tip antrenare-evaluare cu corectarea erorilor și îmbunătățirea performanțelor.

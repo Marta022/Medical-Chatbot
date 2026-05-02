@@ -1,4 +1,0 @@
-{
-  "evaluated_count": 0,
-  "aggregate": {}
-}
