@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Anthropic chat client wrapper."""
+
+from __future__ import annotations
 
 import os
 
