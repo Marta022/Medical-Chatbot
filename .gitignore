@@ -73,6 +73,9 @@ docs/_build/
 output/
 resources/
 docs/
+tests/
+.claude
+.github
 
 # PyBuilder
 .pybuilder/
@@ -209,5 +212,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+#Files from the project
+tests/
 
 
