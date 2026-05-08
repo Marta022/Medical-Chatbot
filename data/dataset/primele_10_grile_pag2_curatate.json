@@ -1,0 +1,436 @@
+[
+  {
+    "id": 521,
+    "intrebare": "Temperatura corporala normala si patologica, u.a.s.c.c.e.",
+    "A": "Intr-o ambianta neutra termic, metabolismul produce mai putina caldura decat este necesar pentru mentinerea temperaturii centrale intre aproximativ 36,5-37,5 C.",
+    "B": "Persoanele varstnice pot avea capacitate redusa de a dezvolta febra.",
+    "C": "La femeile care au menstruatie, temperatura matinala este in general mai mare in cele doua saptamani dinainte de ovulatie.",
+    "D": "Dupa ovulatie, temperatura se mentine la nivelul crescut pana la urmatoarea ovulatie.",
+    "E": "Temperatura corporala este influentata si de sarcina."
+  },
+  {
+    "id": 522,
+    "intrebare": "R.I. Temperatura corporala normala si patologica, u.a.s.c.c.e.",
+    "A": "Febra este definita drept T >37,2 C dimineata si >37,7 C seara.",
+    "B": "Persoanele varstnice pot face doar o febra modesta chiar si in infectii severe.",
+    "C": "La ovulatie, temperatura scade cu aproximativ 0,8 C.",
+    "D": "Temperatura corporala scade in perioada postprandiala.",
+    "E": "Temperatura corporala este influentata de disfunctii endocrinologice."
+  },
+  {
+    "id": 523,
+    "intrebare": "F.d.u. Evenimente legate de febra: a. vasoconstrictie periferica; b. devierea sangelui din periferie catre organele interne; c. activarea neuronilor din centrul vasomotor; d. scade pierderea de caldura prin piele, iar individului i se face frig; e. ridicarea nivelului de referinta hipotalamic. Care este lantul temporal corect?",
+    "A": "a-c-d-b-e",
+    "B": "b-e-d-c-a",
+    "C": "c-e-a-d-b",
+    "D": "d-b-e-a-c",
+    "E": "e-c-a-b-d"
+  },
+  {
+    "id": 524,
+    "intrebare": "F.d.u. Evenimente legate de febra: a. scaderea pierderii de caldura prin piele; b. individul incepe sa tremure (frison); c. vasoconstrictie periferica (resimtita initial la maini si picioare); d. creste productia de caldura in muschi; e. individul are senzatie de frig. Care este lantul temporal corect?",
+    "A": "a-d-c-e-b",
+    "B": "b-e-c-a-d",
+    "C": "c-a-e-b-d",
+    "D": "d-e-a-c-b",
+    "E": "e-a-c-d-b"
+  },
+  {
+    "id": 525,
+    "intrebare": "F.d.u. Mecanisme de crestere a temperaturii centrale implicate in producerea febrei: 1. scaderea pierderii de caldura prin piele; 2. cresterea productiei de caldura in muschi; 3. cresterea productiei de caldura metabolica; 4. reducerea pierderii de caldura prin gesturi adaptative; si urmatoarele procese/atitudini: a. vasoconstrictie; b. tremuraturi; c. individul se imbraca mai gros, se acopera cu o patura, se ghemuieste; d. termogeneza hepatica. Care sunt asocierile corecte?",
+    "A": "a-1, b-2, c-4, d-3",
+    "B": "a-2, b-1, c-3, d-4",
+    "C": "a-2, b-3, c-1, d-4",
+    "D": "a-2, b-4, c-1, d-3",
+    "E": "a-4, b-1, c-2, d-3"
+  },
+  {
+    "id": 526,
+    "intrebare": "R.I. Febra si frisonul, u.a.s.c.c.e",
+    "A": "Febra reprezinta cresterea temperaturii corpului peste nivelul de referinta hipotalamic.",
+    "B": "Cresterea temperaturii corporale din febra depaseste variatia zilnica normala.",
+    "C": "In majoritatea cazurilor de febra, nivelul de referinta hipotalamic este urcat cu 1-2 C.",
+    "D": "Cresterea temperaturii se realizeaza prin procese fiziologice care conserva sau produc caldura.",
+    "E": "Frisonul nu este obligatoriu daca mecanismele de pastrare a caldurii ridica temperatura sangelui suficient."
+  },
+  {
+    "id": 527,
+    "intrebare": "U.f.d.f.d. Febra s.c.f.c.e.",
+    "A": "Procesele fiziologice prin care caldura este conservata (vasodilatatie).",
+    "B": "sau produsa (termogeneza musculara, hepatica etc.)",
+    "C": "continua pana cand",
+    "D": "temperatura sangelui care iriga neuronii hipotalamici",
+    "E": "corespunde noului nivel de referinta al termostatului"
+  },
+  {
+    "id": 528,
+    "intrebare": "U.f.d.f.d. Febra s.c.f.c.e.",
+    "A": "Dupa atingerea echilibrului",
+    "B": "termic la noul punct de referinta (set-point)",
+    "C": "hipotalamusul mentine temperatura la nivel febril",
+    "D": "prin alte mecanisme decat",
+    "E": "in starea normala (afebrila)"
+  },
+  {
+    "id": 529,
+    "intrebare": "R.I. Mentinerea echilibrului termic, f.d.u. categorii de procese: 1. reducerea pierderii de caldura; 2. reducerea pierderii de caldura prin gesturi adaptative; 3. disiparea caldurii; si urmatoarele procese/atitudini: a. imbracare, acoperire; b. vasoconstrictie; c. transpiratie. Care sunt asocierile corecte?",
+    "A": "a-1, b-2, c-3",
+    "B": "a-1, b-3, c-2",
+    "C": "a-2, b-1, c-3",
+    "D": "a-3, b-1, c-2",
+    "E": "a-3, b-2, c-1"
+  },
+  {
+    "id": 530,
+    "intrebare": "R.I. Mentinerea echilibrului termic, f.d.u. categorii de procese: 1. cresterea productiei de caldura; 2. reducerea pierderii de caldura prin gesturi adaptative; 3. disiparea caldurii prin gesturi adaptative; si urmatoarele procese/atitudini: a. tremuraturi; b. ghemuire; c. dezvelire. Care sunt asocierile corecte?",
+    "A": "a-1, b-2, c-3",
+    "B": "a-1, b-3, c-2",
+    "C": "a-2, b-1, c-3",
+    "D": "a-2, b-3, c-1",
+    "E": "a-3, b-1, c-2"
+  },
+  {
+    "id": 532,
+    "intrebare": "F.d.d. Evenimente asociate cu remiterea febrei: a. temperatura sangelui de la nivelul hipotalamusului coboara pana la noul nivel de referinta; b. disparitia caldurii prin procese fiziologice si gesturi adaptative; c. scaderea concentratiei de pirogeni sau administrare de antipiretice; d. nivelul de referinta hipotalamic revine (coboara) la nivelul normal. Care este inlantuirea temporala cauzala corecta?",
+    "A": "a-d-b-c",
+    "B": "b-a-d-c",
+    "C": "c-a-b-d",
+    "D": "c-d-b-a",
+    "E": "d-a-c-b"
+  },
+  {
+    "id": 533,
+    "intrebare": "R.I. Valorile anormal crescute ale temperaturii, u.a.s.c.c.e.",
+    "A": "De obicei, febra infectioasa nu depaseste plafonul termic natural de 41,1 C.",
+    "B": "O febra >=41,5 C se numeste hiperpirexie.",
+    "C": "Hiperpirexia apare cel mai adesea la pacienti cu infectii severe.",
+    "D": "Febra hipotalamica poate avea un substrat organic sau functional.",
+    "E": "Cei mai multi pacienti cu leziuni hipotalamice au temperaturi corporale subnormale, nu supranormale."
+  },
+  {
+    "id": 534,
+    "intrebare": "R.I. Valorile anormal crescute ale temperaturii, u.a.s.c.c.e.",
+    "A": "Mentinerea febrei sub plafonul termic natural ar putea fi mediata prin neuropeptide care functioneaza drept antipiretice centrale.",
+    "B": "Hiperpirexia poate sa apara la pacienti cu infectii severe.",
+    "C": "In cazuri rare, nivelul de referinta hipotalamic creste in urma tulburarii hipotalamice.",
+    "D": "Urcarea nivelului termostatic hipotalamic printr-o afectiune hipotalamica se numeste hipertermie maligna.",
+    "E": "Leziunile hipotalamice care pot provoca febra hipotalamica sunt traumatisme, hemoragii, tumori."
+  },
+  {
+    "id": 535,
+    "intrebare": "U.f.d.f.d. Hipertermia s.c.f.c.e.",
+    "A": "Expunerea la caldura si productia endogena de caldura;",
+    "B": "uneori combinate (de exemplu, efort intr-o ambianta foarte calda);",
+    "C": "pot produce caldura mai lent decat aceasta poate fi disipata;",
+    "D": "decat aceasta poate fi disipata",
+    "E": "prin mecanisme fiziologice."
+  },
+  {
+    "id": 536,
+    "intrebare": "R.I. Hipertermie si diferentierea acesteia de febra, u.a.s.c.c.e.",
+    "A": "Hipertermia reprezinta cresterea necontrolata a temperaturii corpului, depasind capacitatea organismului de a pierde caldura.",
+    "B": "Diferentierea febrei de hipertermie este esentiala deoarece hipertermia poate provoca rapid moartea, desi raspunde la antipiretice.",
+    "C": "Expunerea la caldura precedand cresterea de temperatura este sugestiva pentru diagnosticul de hipertermie.",
+    "D": "In socul termic pielea este calda dar uscata.",
+    "E": "Antipireticele (aspirina, acetaminofenul) nu scad temperatura in hipertermie."
+  },
+  {
+    "id": 537,
+    "intrebare": "R.I. Hipertermie si diferentierea acesteia de febra, u.a.s.c.c.e.",
+    "A": "In hipertermie, nivelul de referinta al centrului termoregulator hipotalamic este mult ridicat.",
+    "B": "Diferentierea febrei de hipertermie este dificila in situatii de urgenta.",
+    "C": "Cresterea temperaturii dupa administrarea de medicamente care interfereaza cu termoreglarea este sugestiva pentru diagnosticul de hipertermie.",
+    "D": "La pacientii care iau medicamente care blocheaza transpiratia, pielea este calda dar uscata.",
+    "E": "Antipireticele scad temperatura in febra daca sunt administrate in doze suficient de mari."
+  },
+  {
+    "id": 538,
+    "intrebare": "R.I. Hipertermie si diferentierea acesteia de febra, u.a.s.c.c.e.",
+    "A": "In producerea hipertermiei sunt implicati pirogeni.",
+    "B": "Intr-o stare septica sistemica, febra (hiperpirexia) se poate instala rapid, ajungand la temperaturi care depasesc 40,5 C.",
+    "C": "Diagnosticul de hipertermie se pune adesea pe baza evenimentelor imediat precedente cresterii de temperatura.",
+    "D": "In febra pielea poate fi rece ca urmare a vasoconstrictiei.",
+    "E": "In doze suficient de mari, antipireticele scad temperatura macar partial chiar si in hiperpirexie."
+  },
+  {
+    "id": 539,
+    "intrebare": "U.f.d.f.d. Socul termic s.c.f.c.e.",
+    "A": "Intr-o ambianta uscata se pot disipa maxim 600 kcal/h prin",
+    "B": "sudoratie, necesitand productia a >1 L de transpiratie;",
+    "C": "proces facilitat intr-un mediu cu umiditate crescuta;",
+    "D": "efortul intr-un mediu cu temperatura si umiditate crescute;",
+    "E": "favorizeaza socul termic."
+  },
+  {
+    "id": 540,
+    "intrebare": "C.d.d. Nu face parte dintre categoriile de persoane cele mai expuse la soc termic.",
+    "A": "Varstnici.",
+    "B": "Imobilizati la pat.",
+    "C": "Care sunt imbracati gros.",
+    "D": "Care iau medicamente anticolinergice, antiparkinsoniene sau diuretice.",
+    "E": "Care stau in incaperi prost ventilate, fara aer conditionat."
+  },
+  {
+    "id": 541,
+    "intrebare": "F.d.d. Cauze ale hipertermiei: 1. soc termic; 2. hipertermia indusa de medicamente/droguri; 3. sindromul serotoninergic; si urmatoarele trasaturi: a. se deosebeste de sindromul malign neuroleptic prin tremuraturi si mioclonii; b. apare cel mai adesea dupa medicamente psihotrope sau droguri; c. se produce intr-un mediu cald. Care sunt asocierile corecte?",
+    "A": "a-1, b-3, c-2",
+    "B": "a-2, b-1, c-3",
+    "C": "a-3, b-1, c-2",
+    "D": "a-1, b-2, c-3",
+    "E": "a-3, b-2, c-1"
+  },
+  {
+    "id": 542,
+    "intrebare": "F.d.d. Cauze ale hipertermiei: 1. soc termic; 2. sindromul neuroleptic malign; 3. hipertermia maligna; si urmatoarele trasaturi: a. apare la persoane care au o anumita anomalie mostenita, rara, a reticulului sarcoplasmic din muschii scheletici; b. este provocata de medicamente neuroleptice; c. este favorizata de efortul intr-un mediu cu temperatura si umiditate crescute. Care sunt asocierile corecte?",
+    "A": "a-1, b-3, c-2",
+    "B": "a-2, b-1, c-3",
+    "C": "a-3, b-1, c-2",
+    "D": "a-1, b-2, c-3",
+    "E": "a-3, b-2, c-1"
+  },
+  {
+    "id": 607,
+    "intrebare": "Ambliopia reprezinta:",
+    "A": "pierderea in timp a acuitatii vizuale a globului ocular strabic, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la copii cu strabism;",
+    "B": "pierderea in timp a acuitatii vizuale a globului ocular strabic, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la adulti cu strabism;",
+    "C": "pierderea in timp a acuitatii vizuale a globului ocular sanatos, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la copii cu strabism;",
+    "D": "pierderea in timp a acuitatii vizuale a globului ocular sanatos, prin suprimarea la nivel cortical a imaginii formate de catre acesta, la adulti cu strabism;",
+    "E": "scaderea acuitatii vizuale bilaterale, la pacienti cu strabism."
+  },
+  {
+    "id": 608,
+    "intrebare": "Cataracta poate da urmatoarele manifestari clinice, care este EXCEPTIA:",
+    "A": "vedere in nuante de galben, estomparea celorlalte culori;",
+    "B": "scaderea vederii pe timp de noapte;",
+    "C": "vedere \"incetosata\";",
+    "D": "necesitatea cresterii iluminarii la citit;",
+    "E": "durere oculara intensa prin cresterea presiunii intraoculare."
+  },
+  {
+    "id": 609,
+    "intrebare": "Cea mai frecventa cauza a otitei externe este infectia:",
+    "A": "cu pneumococ;",
+    "B": "cu stafilococ auriu;",
+    "C": "cu Pseudomonas Aeruginosa;",
+    "D": "micotica a canalului auditiv extern;",
+    "E": "herpes simplex."
+  },
+  {
+    "id": 610,
+    "intrebare": "Cea mai frecventa cauza de anosmie este:",
+    "A": "abuzul de cocaina;",
+    "B": "traumatismele nazale, cu fracturarea piramidei nazale;",
+    "C": "rinita vasomotorie;",
+    "D": "polipoza nazala;",
+    "E": "rinofima."
+  },
+  {
+    "id": 611,
+    "intrebare": "Cea mai frecventa cauza de orbire secundara afectarii corneei este data de cheratita:",
+    "A": "cu pneumococ;",
+    "B": "cu virus herpes simplex;",
+    "C": "fungica;",
+    "D": "cu Pseudomonas Aeruginosa;",
+    "E": "gonococica."
+  },
+  {
+    "id": 612,
+    "intrebare": "Chemozisul:",
+    "A": "semnifica edem palpebral;",
+    "B": "semnifica hiperemie sclerala;",
+    "C": "semnifica edem conjunctival;",
+    "D": "reprezinta o zona de dehiscenta la nivelul sclerei;",
+    "E": "reprezinta inflamatia corneei datorata unei infectii, abraziuni sau substante chimice."
+  },
+  {
+    "id": 613,
+    "intrebare": "Chemozisul reprezinta:",
+    "A": "ingrosare triunghiulara a conjunctivei bulbare, care se extinde pe suprafata corneei;",
+    "B": "lacrimare excesiva datorata obstructiei canalului lacrimal;",
+    "C": "edem conjunctival;",
+    "D": "edem periorbital;",
+    "E": "inflamatie corneana secundara unei abraziuni."
+  },
+  {
+    "id": 614,
+    "intrebare": "Clinic, in glaucomul cu unghi inchis pot aparea, care este EXCEPTIA:",
+    "A": "cefalee;",
+    "B": "mioza intensa;",
+    "C": "varsaturi;",
+    "D": "durere intensa oculara;",
+    "E": "cornee cu aspect \"fumuriu\"."
+  },
+  {
+    "id": 615,
+    "intrebare": "Clinic, in otita externa domina:",
+    "A": "febra;",
+    "B": "otoreea;",
+    "C": "disfonia;",
+    "D": "otalgia;",
+    "E": "edemul pavilionului."
+  },
+  {
+    "id": 616,
+    "intrebare": "Coloboma reprezinta:",
+    "A": "lipsa de substanta la nivelul irisului survenita posttraumatic;",
+    "B": "lipsa de substanta la nivelul corneei survenita posttraumatic;",
+    "C": "anomalie dobandita a formei corneei (aspect de con);",
+    "D": "opacifierea cristalinului;",
+    "E": "lipsa congenitala de substanta la nivelul irisului."
+  },
+  {
+    "id": 621,
+    "intrebare": "Despre xerostomie este adevarat ca:",
+    "A": "apare in urma hipersecretiei glandelor salivare;",
+    "B": "apare datorita igienei orale deficitare;",
+    "C": "predispune la aparitia candidozei orale si a cariilor dentare;",
+    "D": "predispune la aparitia leucoplaziei;",
+    "E": "se asociaza cu macroglosie;"
+  },
+  {
+    "id": 622,
+    "intrebare": "Dintii Hutchinson:",
+    "A": "sunt incisivi ce prezinta eroziuni determinate de refluxul de suc gastric;",
+    "B": "sunt dinti ce prezinta incizuri sau abraziuni provocate de traumatisme repetate;",
+    "C": "apar in sarcoidoza;",
+    "D": "apar in sifilisul secundar;",
+    "E": "apar in sifilisul congenital;"
+  },
+  {
+    "id": 623,
+    "intrebare": "Durerea la presiunea aplicata pe tragus sau la tractionarea pavilionului apare in:",
+    "A": "otita medie purulenta;",
+    "B": "otita externa;",
+    "C": "otita medie seroasa;",
+    "D": "otoscleroza;",
+    "E": "prezenta dopurilor gutosi;"
+  },
+  {
+    "id": 624,
+    "intrebare": "Entropionul reprezinta:",
+    "A": "imposibilitatea inchiderii complete a pleoapei;",
+    "B": "intoarcerea marginii pleoapei afectate catre exterior;",
+    "C": "intoarcerea marginii pleoapei afectate catre interior;",
+    "D": "protruzia unui glob ocular;",
+    "E": "pierderea de substanta la nivelul corneei;"
+  },
+  {
+    "id": 625,
+    "intrebare": "Epifora reprezinta:",
+    "A": "secretie oculara purulenta;",
+    "B": "lacrimare excesiva;",
+    "C": "prezenta sangelui in camera anterioara a globului ocular;",
+    "D": "hemoragie in corpul vitros;",
+    "E": "inflamatia sclerei;"
+  },
+  {
+    "id": 626,
+    "intrebare": "Epifora reprezinta:",
+    "A": "protruzia unui glob ocular;",
+    "B": "inflamatia cronica a marginii pleoapei;",
+    "C": "intoarcerea marginii pleoapei catre exterior, cu expunerea conjunctivei;",
+    "D": "lacrimare excesiva ce apare in obstructia canalului lacrimal;",
+    "E": "placa cu suprafata alba, situata sub nivelul mucoasei, la nivelul pleoapei;"
+  },
+  {
+    "id": 627,
+    "intrebare": "Esotropia reprezinta:",
+    "A": "devierea temporala a unui glob ocular;",
+    "B": "devierea supero-externa a unui glob ocular;",
+    "C": "devierea infero-externa a unui glob ocular;",
+    "D": "devierea nazala a unui glob ocular;",
+    "E": "devierea supero-interna a unui glob ocular;"
+  },
+  {
+    "id": 628,
+    "intrebare": "Gustul este detectat la nivelul limbii dupa cum urmeaza:",
+    "A": "sarat la nivelul varfului limbii;",
+    "B": "dulce la nivelul marginilor limbii;",
+    "C": "amar la baza limbii;",
+    "D": "amar si sarat la baza limbii;",
+    "E": "amar la varful limbii;"
+  },
+  {
+    "id": 629,
+    "intrebare": "Halitoza:",
+    "A": "este un miros neplacut al respiratiei determinat cel mai frecvent de igiena precara a cavitatii bucale;",
+    "B": "este un miros neplacut al respiratiei determinat cel mai frecvent de afectiune nazala;",
+    "C": "este un miros neplacut al respiratiei determinat cel mai frecvent de afectiune pulmonara cronica;",
+    "D": "este un miros neplacut al respiratiei care apare cel mai frecvent in diabet;",
+    "E": "este un miros neplacut al respiratiei care apare cel mai frecvent in uremie;"
+  },
+  {
+    "id": 630,
+    "intrebare": "Hemianopsia bitemporala apare in:",
+    "A": "leziuni ale chiasmei optice;",
+    "B": "leziuni ale nervului optic;",
+    "C": "leziuni ale radiatiei optice;",
+    "D": "leziuni ale cortexului occipital;",
+    "E": "glaucom;"
+  },
+  {
+    "id": 631,
+    "intrebare": "Hemianopsia bitemporala:",
+    "A": "reprezinta pierderea acuitatii vizuale a globilor oculari in cadranele temporale ale campului vizual;",
+    "B": "reprezinta pierderea acuitatii vizuale la nivelul jumatatilor temporale ale campului vizual prin lezarea fibrelor temporale bilateral;",
+    "C": "reprezinta pierderea acuitatii vizuale la nivelul jumatatilor temporale ale campului vizual prin lezarea radiatiilor optice;",
+    "D": "reprezinta pierderea acuitatii vizuale la nivelul jumatatilor temporale ale campului vizual prin lezarea fibrelor nazale bilateral;",
+    "E": "reprezinta pierderea acuitatii vizuale la nivelul jumatatilor temporale ale campului vizual prin lezarea posttraumatica a retinei;"
+  },
+  {
+    "id": 632,
+    "intrebare": "Hemianopsia bitemporala poate fi semn de:",
+    "A": "dezlipire de retina;",
+    "B": "leziune unilaterala de tract optic;",
+    "C": "leziune a chiasmei optice (de exemplu tumora hipofizara);",
+    "D": "leziuni ale radiatiilor optice;",
+    "E": "leziuni ale cortexului occipital;"
+  },
+  {
+    "id": 633,
+    "intrebare": "Hipopionul reprezinta:",
+    "A": "un inel cornean de culoare gri-verde ce apare in boala Wilson;",
+    "B": "prezenta sangelui in camera anterioara a globului ocular;",
+    "C": "prezenta unui corp strain intraocular;",
+    "D": "prezenta puroiului in camera anterioara a globului ocular;",
+    "E": "constrictie pupilara bilaterala;"
+  },
+  {
+    "id": 634,
+    "intrebare": "In boala Basedow pot aparea, c. e.:",
+    "A": "exoftalmie;",
+    "B": "cresterea de volum a tiroidei;",
+    "C": "tegumente reci, aspre;",
+    "D": "tegumente calde, umede;",
+    "E": "intoleranta la cald;"
+  },
+  {
+    "id": 635,
+    "intrebare": "In hipotiroidism NU apare:",
+    "A": "bradilalie;",
+    "B": "crestere ponderala;",
+    "C": "tremor al mainilor;",
+    "D": "bradicardie;",
+    "E": "constipatie;"
+  },
+  {
+    "id": 636,
+    "intrebare": "Inelul Kayser-Fleischer:",
+    "A": "are culoare albastra si apare in boala Wilson;",
+    "B": "apare la nivelul irisului, are culoare verde si semnifica intoxicatie acuta cu fier;",
+    "C": "se gaseste la nivelul irisului, are culoare verde-galbuie si apare in hemocromatoza;",
+    "D": "se gaseste la periferia corneei, are culoare verde-galbuie si apare in hemocromatoza;",
+    "E": "se gaseste la periferia corneei, are culoare verde-galbuie si apare in boala Wilson;"
+  },
+  {
+    "id": 637,
+  "intrebare": "Inelul Kayser-Fleischer:",
+  "A": "apare prin depunere de cupru in membrana Descemet;",
+  "B": "apare la persoanele varstnice, la periferia corneei si are aspect argintiu;",
+  "C": "semnifica prezenta unei dislipidemii;",
+  "D": "apare prin depunere de cupru la nivelul corneei;",
+  "E": "apare in boala Wilson, prin depunere de cupru la nivelul cristalinului;"
+}
+]
+
+

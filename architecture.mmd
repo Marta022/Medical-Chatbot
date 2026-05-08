@@ -1,0 +1,24 @@
+## System Architecture
+
+```mermaid
+graph TD
+    User --> CLI[CLI: run.py]
+    CLI --> Orchestrator
+
+    Orchestrator --> Guardrails
+    Orchestrator --> Reasoning[Reasoning Engine]
+    Reasoning --> Retriever
+    Retriever --> Qdrant[(Qdrant)]
+    Reasoning --> LLMRouter
+    LLMRouter --> Providers[Provider Clients]
+    Reasoning --> Evaluator
+
+    Evaluator -->|pass/fail signal| Reasoning
+    Reasoning -->|final validated response| Orchestrator
+    Orchestrator --> CLI
+
+    CLI --> User
+
+    OpenWebUI --> API[REST/OpenAI-compatible API]
+    API --> Orchestrator
+```

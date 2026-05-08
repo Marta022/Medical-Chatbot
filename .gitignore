@@ -70,6 +70,12 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+output/
+resources/
+docs/
+tests/
+.claude
+.github
 
 # PyBuilder
 .pybuilder/
@@ -138,6 +144,7 @@ celerybeat.pid
 .env
 .envrc
 .venv
+.env.example
 env/
 venv/
 ENV/
@@ -205,3 +212,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+#Files from the project
+tests/
+
+
