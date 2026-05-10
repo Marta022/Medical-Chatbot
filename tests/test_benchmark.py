@@ -14,6 +14,7 @@ from agent.benchmarking.benchmark import (
     _build_grila_prompt,
     _build_option_queries,
     _extract_option_letters,
+    _is_uascce_question,
     _requires_single_answer,
     _rerank_benchmark_hits,
     load_retrieval_answer_key,
@@ -45,7 +46,7 @@ class TestBenchmark(unittest.TestCase):
         )
         self.assertIn("Pentru C.d.d.", prompt)
 
-    def test_build_grila_prompt_for_uascce_requires_only_true_letters_in_answer(self) -> None:
+    def test_build_grila_prompt_for_uascce_requires_false_letters_in_answer(self) -> None:
         prompt = _build_grila_prompt(
             {
                 "id": 541,
@@ -53,8 +54,24 @@ class TestBenchmark(unittest.TestCase):
                 "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
             }
         )
-        self.assertIn("In ANSWER include DOAR literele variantelor marcate FALSE", prompt)
-        self.assertIn("Nu include niciodata variante marcate TRUE sau INSUFICIENT", prompt)
+        self.assertIn("u.a.s.c.c.e. cere literele variantelor FALSE/INCORECTE", prompt)
+        self.assertIn("ANSWER: <doar literele variantelor FALSE/INCORECTE", prompt)
+
+    def test_build_grila_prompt_for_ce_requires_exception_false_letter(self) -> None:
+        prompt = _build_grila_prompt(
+            {
+                "id": 590,
+                "intrebare": "Sindromul febril poate include, c.e.",
+                "choices": {"A": "falsa", "B": "adevarata", "C": "adevarata", "D": "d", "E": "e"},
+            }
+        )
+        self.assertIn("intrebare de exceptie", prompt)
+        self.assertIn("ANSWER: <o singura litera, varianta FALSE/EXCEPTIA>", prompt)
+
+    def test_uascce_detection_handles_trailing_dot_and_combined_ri_marker(self) -> None:
+        question = "R.I. Temperatura corporala normala si patologica, u.a.s.c.c.e."
+        self.assertTrue(_is_uascce_question(question))
+        self.assertFalse(_requires_single_answer(question))
 
     def test_benchmark_system_prompt_is_exam_specific(self) -> None:
         self.assertIn("multiple-choice benchmark items", BENCHMARK_SYSTEM_PROMPT)
@@ -264,6 +281,54 @@ class TestBenchmark(unittest.TestCase):
         )
         self.assertIsNone(_benchmark_rejection_reason(item, response))
 
+    def test_benchmark_rejection_reason_handles_uascce_with_trailing_dot(self) -> None:
+        item = {
+            "id": 521,
+            "intrebare": "Temperatura corporala normala si patologica, u.a.s.c.c.e.",
+            "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+        }
+        response = (
+            "STATUS_A: FALSE\nSTATUS_B: TRUE\nSTATUS_C: FALSE\n"
+            "STATUS_D: FALSE\nSTATUS_E: TRUE\nANSWER: A,C,D"
+        )
+        self.assertIsNone(_benchmark_rejection_reason(item, response))
+
+    def test_benchmark_rejection_reason_rejects_all_false_uascce_with_trailing_dot(self) -> None:
+        item = {
+            "id": 521,
+            "intrebare": "Temperatura corporala normala si patologica, u.a.s.c.c.e.",
+            "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+        }
+        response = (
+            "STATUS_A: FALSE\nSTATUS_B: FALSE\nSTATUS_C: FALSE\n"
+            "STATUS_D: FALSE\nSTATUS_E: FALSE\nANSWER: A,B,C,D,E"
+        )
+        self.assertEqual(_benchmark_rejection_reason(item, response), "all_options_selected")
+
+    def test_benchmark_rejection_reason_rejects_true_answer_for_ce_exception(self) -> None:
+        item = {
+            "id": 590,
+            "intrebare": "Manifestarile neuropsihice pot include, c.e.:",
+            "choices": {"A": "exceptie", "B": "corect", "C": "corect", "D": "corect", "E": "corect"},
+        }
+        response = (
+            "STATUS_A: FALSE\nSTATUS_B: TRUE\nSTATUS_C: TRUE\n"
+            "STATUS_D: TRUE\nSTATUS_E: TRUE\nANSWER: B"
+        )
+        self.assertEqual(_benchmark_rejection_reason(item, response), "status_answer_mismatch")
+
+    def test_benchmark_rejection_reason_accepts_false_answer_for_uce_exception(self) -> None:
+        item = {
+            "id": 592,
+            "intrebare": "Efectele negative ale febrei se afla u.c.e.:",
+            "choices": {"A": "corect", "B": "corect", "C": "corect", "D": "corect", "E": "exceptie"},
+        }
+        response = (
+            "STATUS_A: TRUE\nSTATUS_B: TRUE\nSTATUS_C: TRUE\n"
+            "STATUS_D: TRUE\nSTATUS_E: FALSE\nANSWER: E"
+        )
+        self.assertIsNone(_benchmark_rejection_reason(item, response))
+
     def test_benchmark_rejection_reason_rejects_all_true_multi_answer(self) -> None:
         item = {
             "id": 526,
@@ -448,6 +513,7 @@ class TestBenchmark(unittest.TestCase):
         self.assertTrue(_requires_single_answer("F.d.u. Care este lantul temporal corect?"))
         self.assertTrue(_requires_single_answer("c.e. Urmatoarele afirmatii sunt corecte:"))
         self.assertTrue(_requires_single_answer("C.E. Urmatoarele afirmatii sunt adevarate:"))
+        self.assertTrue(_requires_single_answer("u.c.e. Printre efecte se afla:"))
         self.assertTrue(_requires_single_answer("care este exceptia dintre urmatoarele"))
         self.assertTrue(
             _requires_single_answer(

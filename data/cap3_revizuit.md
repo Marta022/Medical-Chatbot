@@ -288,7 +288,7 @@ IC poate fi:
 - (golirea insuficientă a ventriculului ~ rămâne mult sânge în ventricul la sfârșitul sistolei ~ cantitate mare de sânge în ventricul în diastolă) sau
 - (relaxarea insuficientă a ventriculului) ~ (în ambele variante) crește presiunea diastolică din ventricul, presiune care se transmite direct atriului (deoarece în diastolă atriul comunică liber cu ventriculul, valva atrioventriculară fiind deschisă).
 
-# activarea SRAA
+#### Activarea SRAA
 activarea SRAA are intensitate maximă în faza timpurie a insuficienței cardiace acute, severe și este mai puțin intensă la pacienții cu IC cronică, stabilă, compensată;
 insuficiența ventriculară stângă (IVS) ~
 contracție (ejecției golire) sau relaxare (umplere) deficitară a VS ~ acumularea de sânge în teritoriul venos (în detrimentul VSCE) ~ crește presiunea în capilarele pulmonare ~ crește presiunea în artera pulmonară ~ împiedică golirea VD ~ crește presiunea diastolică în VD ~ crește presiunea venoasă sistemică ~ edem periferic;
@@ -317,7 +317,6 @@ activarea SRAA;
 
 ### Manifestări asociate edemului cardiac:
 
-### Edemul din GNDA (edemul nefritic)
 - IC → debit cardiac scăzut și circulație încetinită a sângelui → o cantitate mică de sânge circulă lent prin capilarele sistemice → cantitate mică de Hgb oxigenată disponibilă pentru a furniza oxigen țesuturilor → desaturare excesivă a Hgb → culoare cianotică a sângelui din capilare → cianoză periferică → edemul cardiac se asociază cu cianoză periferică;
 - În măsura în care există IVS → creșterea presiunii venoase pulmonare → crește p.h. în capilare → crește transsudarea lichidului din capilare → edem pulmonar interstițial → raluri de stază bazale bilaterale;
 - Dispnee (inițial la efort, din ce în ce mai mic), ulterior și dispnee de repaus, agravată în decubit → pacientul are tendința de a sta cu trunchiul ridicat pentru a respira mai bine (ortopnee) → lichidul nu va transsuda în interstițiul situat mai sus de nivelul toracelui → foarte rar edemul cardiac se observă la față; episoade de dispnee paroxistică nocturnă;
@@ -339,9 +338,11 @@ activarea SRAA;
 - Bioumoral:
 - Retenție azotată cu uree crescută disproporționat față de creatinină, hiperuricemie, adesea hiponatremie (cu hiperhidratare); uneori enzime hepatice crescute secundar stazei hepatice cronice; enzime de colestază crescute, chiar fără creșterea bilirubinei directe adesea sunt singurul element bioumoral care reflectă staza hepatică;
 
+### Edemul din GNDA (edemul nefritic)
+
 ### Capilarele glomerulare
 Capilarele glomerulare sunt înțesate de celule inflamatoare, care sunt înghesuite una într-alta, blocând capilarele și împiedicând curgerea sângelui prin ele → scade fluxul de sânge prin glomerul → scade filtrarea glomerulară → RHS → crește volemia → crește presiunea din vasele de sânge (artere, vene, capilare) → HTA (mergând până la edem cerebral) și transsudare de lichid în interstițiu (sistemic și pulmonar → edem periferic, edem pulmonar, congestie pulmonară fără cardiomegalie pe radiografia toracică, dar poate să nu apară ortopnee) și în seroase, ajungându-se până la anasarcă.
-### Edemul nefritic:
+### Manifestări ale edemului nefritic
 - Se asociază în mod caracteristic cu hematurie, proteinurie, HTA și alte semne de RHS; în cazurile mai grave, apare retenție azotată
 - Este în general acut → este moale și pufos;
 - Spre deosebire de edemul din ICCg, nu se asociază cu:
@@ -439,7 +440,7 @@ Majoritatea glomerulopatiilor producătoare de sindrom nefrotic (SN) provoacă �
 ## Edemul din malnutriția proteică (edemul carențial)
 Apare la persoanele dezavantajate material (bătrâni, persoane fără adăpost, prizonieri, asediați etc.) și psihic (psihoze, nevroze, anorexie, bulimie asociată vărsăturilor provocate repetate), ca și la cele care se privează de alimente perioade îndelungate cu scop terapeutic.
 
-## Edemul din bolile digestive cu pierdere de proteine
+## Manifestări ale edemului prin deficit proteic
 - hipoalbuminemie ~ scăderea presiunii oncotice plasmatice ~ ... ~ edem;
 - ar putea contribui și hipokalemia și deficitul caloric (prin perturbarea funcției cardiace);
 - deficitul de vitamine și oligoelemente (de exemplu zinc) asociat provoacă leziuni cutanate;
@@ -483,7 +484,6 @@ Creșterea permeabilității peretelui capilar poate fi indusă și de imunotera
 - Ac monoclonal OKT3.
 ## Edemul idiopatic
 
- Edemul pulmonar necardiogen
 Se produce aproape exclusiv la femei. Episoadele de edem apar periodic, fără a fi legate de ciclul menstrual, adesea însoțite de distensie abdominală. Trebuie deosebit de edemul catamenial (ciclic, premenstrual), în care RHS este consecința stimulării estrogenice și/sau progesteronice excesive.
 Se produc variații circadiene ale greutății legate de RHS ortostatică:
 - Pacienta crește în greutate câteva kilograme după un ortostatism de câteva ore.
@@ -494,11 +494,12 @@ Se produc variații circadiene ale greutății legate de RHS ortostatică:
 - Ușoară hipovolemie.
 - Hiperreninemie cronică cu hiperplazie juxtaglomerulară.
 - Mecanismele de reținere a sării supracompensează efectele directe ale diureticelor.
-- Oprirea bruscă a diureticelor lasă (față de interstițiul din jur).
-- Excesul de lichid interstițial este absorbit în vasele limfatice, iar fluxul limfatic este ușurat de scăderea rezistenței la fluxul limfei ca urmare a creșterii diametrului luminal.
-Organizarea filamentelor de ancorare, cuplată cu joncțiunile suprapuse/întrepătrunse dintre celule endoteliale limfatice adiacente, creează un sistem de valvă unidirecțională care împiedică fluxul retrograd din capilarul limfatic înapoi în spațiul interstițial. Aceste mecanisme sunt operante în cazul edemului hidrostatic și oncotic (care se asociază cu o creștere a fluxului limfatic, în măsura în care acesta nu este stânjenit prin alte mecanisme, de exemplu prin creșterea presiunii în vena cavă superioară) întrucât filamentele de ancorare sunt intacte. Dimpotrivă, în edemul inflamator aceste filamente sunt distruse, motiv pentru care nu se poate produce creștere fluxului limfatic.
-Necontracarați factorii care rețin Na+ ~ retenție lichid ~ edem. Au fost semnalate și scăderea activității dopaminergice și scăderea excreției urinare de kalikreină și kinină, care ar putea avea importanță patogenică.
-## Lezarea peretelui capilarelor pulmonare
+- Oprirea bruscă a diureticelor lasă necontracarați factorii care rețin Na+ → retenție lichidiană → edem.
+- Au fost semnalate și scăderea activității dopaminergice și scăderea excreției urinare de kalikreină și kinină, care ar putea avea importanță patogenică.
+
+## Edemul pulmonar necardiogen
+
+### Lezarea peretelui capilarelor pulmonare
 - Proteinele și alte macromolecule scapă din capilare în interstițiu.
 - Lichidul se deplasează din vas în interstițiul pulmonar.
 - Acumulare de apă în plămâni.
@@ -566,7 +567,7 @@ Edemul este localizat sau generalizat?
 - în edemul pulmonar necardiogen se datorează în primul rând fenomenelor de șunt intrapulmonar.
 
 
-## Semiologia tesutului adipos -Dr. O.O.
+## Semiologia țesutului adipos - Dr. O.O.
  Include:
 - creșterea în greutate - v. „Greutatea excesivă" în cap. „Starea de nutriție" din „Note de curs" vol. 1
 - scăderea în greutate.
@@ -575,7 +576,7 @@ Edemul este localizat sau generalizat?
 Individul sănătos își menține greutatea corporală la un punct de echilibru foarte stabil, în condițiile în care aportul de calorii și nivelul de activitate variază mult de la o zi la alta. Din cauza importanței fiziologice a menținerii depozitelor de energie, scăderea în greutate voluntară este dificil de realizat și de menținut.
 ### Apetitul
 Apetitul și metabolismul sunt reglate de o rețea complexă de factori nervoși și hormonali - centrii hipotalamici ai foamei/alimentației și sațietății joacă un rol central în aceste procese.
-- de
+Factori anorexigeni:
 - neuropeptide cum ar fi hormonul eliberator de corticotropină hormonul stimulator al melanocitelor-a (a-MSH) și CART (peptida a cărei transcriere este reglată de cocaină și de amfetamină) induc anorexie acționând central asupra centrilor sațietății;
 - peptidele gastrointestinale grelină, glucagon, somatostatină și colecistokinină semnalează sațietatea și reduc ingestia de alimente;
 - leptina:
@@ -588,7 +589,8 @@ Apetitul și metabolismul sunt reglate de o rețea complexă de factori nervoși
 - activează o serie de căi nervoase care schimbă comportamentul de căutare a hranei și metabolismul;
 - reducerea țesutului adipos se asociază cu scăderea producției de leptină;
 - deficitul de leptină induce răspunsuri adaptive, printre care inhibarea hormonilor hipotalamici TRH (hormonul eliberator de tirotropină) și GnRH (hormonul eliberator de gonadotropină).
-- de
+
+Factori orexigeni:
 - hipoglicemia suprimă secreția de insulină, reducând utilizarea glucozei și inhibând centrul sațietății;
 - grelina:
 - este considerată contrapartea leptinei întrucât stimulează senzația de foame;

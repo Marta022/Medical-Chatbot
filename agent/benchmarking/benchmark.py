@@ -54,13 +54,18 @@ You are solving Romanian medical multiple-choice benchmark items using ONLY the 
 Rules:
 - Answer in Romanian.
 - Be conservative: mark an option as correct only if the context supports it clearly.
+- `ANSWER` must contain only option letters, never explanations and never option text.
+- Derive `ANSWER` mechanically from the structured fields you output; do not add extra letters after the status check.
 - For R.I. and u.a.s.c.c.e., verify each option independently before selecting letters.
 - For R.I. and u.a.s.c.c.e., use `INSUFICIENT` by default when the context does not directly confirm an option.
 - Never mark an option `TRUE` for R.I. / u.a.s.c.c.e. unless the support is explicit in the retrieved context.
 - For R.I., final answer letters are the options marked `TRUE`.
 - For u.a.s.c.c.e., final answer letters are the options marked `FALSE`.
+- For R.I. and u.a.s.c.c.e., never include options marked `INSUFICIENT` in `ANSWER`.
+- If all five options would be selected, re-check the statuses; this is usually an over-selection error.
 - For F.d.u. and F.d.d. sequence/association items, derive the correct order or mapping from context first, then compare all A-E variants and choose the single best option.
 - For u.f.d.f.d., u.i.d.f.d., u.f.c.d., c.d.d., and c.e., determine the single required letter exactly from context.
+- For single-answer items, `ANSWER` must contain exactly one letter. If several options look plausible, choose the one that matches the question wording most directly.
 - Do not use popularity, intuition, or outside medical knowledge when context is weak.
 - Follow the exact structured output format requested in the user prompt.
 - Never use unsupported claims like "cunostinte generale", "in general", or facts outside context.
@@ -84,7 +89,7 @@ _ANSWER_VALUE_KEYS = (
     "key",
 )
 _SINGLE_ANSWER_TYPE_RE = re.compile(
-    r"\b(?:u\.?i\.?d\.?f\.?d\.?|u\.?f\.?d\.?f\.?d\.?|u\.?f\.?c\.?d\.?|f\.?d\.?u\.?|f\.?d\.?d\.?|c\.?d\.?d\.?|c\.?e\.?)\b",
+    r"\b(?:u\.?i\.?d\.?f\.?d\.?|u\.?f\.?d\.?f\.?d\.?|u\.?f\.?c\.?d\.?|u\.?c\.?e\.?|f\.?d\.?u\.?|f\.?d\.?d\.?|c\.?d\.?d\.?|c\.?e\.?)\b",
     flags=re.IGNORECASE,
 )
 _MULTI_ANSWER_TYPE_RE = re.compile(
@@ -546,7 +551,8 @@ def _build_grila_prompt(item: dict[str, Any]) -> str:
     reasoning_rule = (
         "Mai intai evalueaza fiecare optiune A-E independent fata de context. "
         "Foloseste format structurat cu status pentru fiecare optiune. "
-        "Marcheaza TRUE doar daca suportul este explicit; altfel foloseste FALSE sau INSUFICIENT."
+        "Marcheaza TRUE doar daca suportul este explicit; altfel foloseste FALSE sau INSUFICIENT. "
+        "Dupa ce ai stabilit STATUS_A-E, construieste ANSWER strict din statusuri, fara litere suplimentare."
     )
     output_template = (
         "STATUS_A: TRUE/FALSE/INSUFFICIENT\n"
@@ -595,11 +601,15 @@ def _build_grila_prompt(item: dict[str, Any]) -> str:
             "ISSUE_FRAGMENT: <o singura litera A-E>\n"
             "ANSWER: <aceeasi litera>"
         )
-    elif re.search(r"\bu\.?a\.?s\.?c\.?c\.?e\.?\b", normalized_question):
+    elif _is_uascce_question(normalized_question):
         reasoning_rule = (
             "Evalueaza fiecare optiune A-E independent fata de context si marcheaza TRUE numai cand suportul este explicit. "
+            "u.a.s.c.c.e. cere literele variantelor FALSE/INCORECTE. "
+            "Pentru u.a.s.c.c.e., intrebarea cere variantele FALSE/INCORECTE. "
             "In ANSWER include DOAR literele variantelor marcate FALSE. "
-            "Nu include niciodata variante marcate TRUE sau INSUFICIENT."
+            "Nu include niciodata variante marcate TRUE sau INSUFICIENT. "
+            "Daca o varianta este doar nesustinuta de context, marcheaz-o INSUFFICIENT si NU o include in ANSWER. "
+            "Daca ANSWER ar contine A,B,C,D,E, re-evalueaza: de obicei ai confundat FALSE cu INSUFFICIENT."
         )
         output_template = (
             "STATUS_A: TRUE/FALSE/INSUFFICIENT\n"
@@ -607,12 +617,27 @@ def _build_grila_prompt(item: dict[str, Any]) -> str:
             "STATUS_C: TRUE/FALSE/INSUFFICIENT\n"
             "STATUS_D: TRUE/FALSE/INSUFFICIENT\n"
             "STATUS_E: TRUE/FALSE/INSUFFICIENT\n"
-            "ANSWER: <doar literele cu status FALSE, separate prin virgula, in ordine alfabetica>"
+            "ANSWER: <doar literele variantelor FALSE/INCORECTE, separate prin virgula, in ordine alfabetica>"
+        )
+    elif is_single_answer and _is_exception_single_question(normalized_question):
+        reasoning_rule = (
+            "Aceasta este o intrebare de exceptie/fals/incorect. "
+            "Verifica toate variantele A-E si identifica exact varianta FALSE/INCORECTA ceruta. "
+            "ANSWER trebuie sa fie exact o singura litera, iar litera aleasa trebuie sa aiba status FALSE."
+        )
+        output_template = (
+            "STATUS_A: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_B: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_C: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_D: TRUE/FALSE/INSUFFICIENT\n"
+            "STATUS_E: TRUE/FALSE/INSUFFICIENT\n"
+            "ANSWER: <o singura litera, varianta FALSE/EXCEPTIA>"
         )
     elif is_single_answer:
         reasoning_rule = (
             "Verifica toate variantele A-E si identifica exact varianta ceruta de tipul intrebarii. "
-            "Foloseste format structurat si marcheaza variantele nesustinute ca INSUFICIENT."
+            "Foloseste format structurat si marcheaza variantele nesustinute ca INSUFICIENT. "
+            "ANSWER trebuie sa fie exact o singura litera, chiar daca mai multe variante sunt TRUE/FALSE/INSUFFICIENT."
         )
         output_template = (
             "STATUS_A: TRUE/FALSE/INSUFFICIENT\n"
@@ -629,6 +654,8 @@ Raspunde strict in formatul:
 Nu repeta textul variantei, returneaza doar litera(ele) finala(e).{fdu_hint}
 Metoda obligatorie: {reasoning_rule}
 Regula de prudenta: daca suportul contextual pentru o optiune nu este explicit, nu o marca TRUE.
+Regula anti-supraselectie: nu include in ANSWER litere doar pentru ca sunt nesigure; INSUFFICIENT nu este raspuns.
+Regula de format: ultima linie trebuie sa fie exact `ANSWER: ` urmata doar de litera/literele finale.
 Format obligatoriu exact:
 {output_template}
 
@@ -649,7 +676,8 @@ Interpret them strictly as follows:
 R.I. (Raspunsuri Independente)
 - Each statement (A–E) is evaluated independently.
 - More than one statement may be correct.
-- Return all correct letters.
+- Return all and only TRUE/correct letters.
+- Do not return INSUFFICIENT letters.
 
 u.i.d.f.d. (una incorecta dintre cele date)
 - Exactly one statement is incorrect.
@@ -666,10 +694,13 @@ u.f.c.d. (una corecta dintre cele date)
 c.e. (care este exceptia)
 - All statements are correct except one.
 - Return the letter of the exception.
+- Usually this is the single FALSE/incorrect statement.
 
 u.a.s.c.c.e. (una sau unele sunt corecte)
 - One or more statements may be correct.
-- Return the false letters.
+- In this benchmark, return the FALSE/incorrect letters.
+- Never return TRUE letters.
+- Never return INSUFFICIENT letters.
 
 f.d.u. (fals dintre urmatoarele)
 - In acest benchmark se alege varianta corecta unica (A-E).
@@ -728,7 +759,24 @@ def _is_scfce_question(normalized_question: str) -> bool:
 def _is_uascce_question(normalized_question: str) -> bool:
     """Return whether question is u.a.s.c.c.e. multi-answer type."""
 
-    return bool(re.search(r"\bu\.?a\.?s\.?c\.?c\.?e\.?\b", normalized_question))
+    compact = re.sub(r"[^a-z]+", "", normalized_question)
+    return "uascce" in compact
+
+
+def _is_exception_single_question(normalized_question: str) -> bool:
+    """Return whether a single-answer question asks for the false/exception option."""
+
+    compact = re.sub(r"[^a-z]+", "", normalized_question)
+    return (
+        bool(re.search(r"\bc\.?e\.?\b", normalized_question))
+        or "uce" in compact
+        or "uidfd" in compact
+        or "ufdfd" in compact
+        or "exceptia" in normalized_question
+        or "falsa" in normalized_question
+        or "fals" in normalized_question
+        or "incorecta" in normalized_question
+    )
 
 
 def _extract_option_statuses(response: str) -> dict[str, str]:
@@ -739,11 +787,13 @@ def _extract_option_statuses(response: str) -> dict[str, str]:
         status = _extract_named_line(response, f"STATUS_{letter}").upper().strip(" .")
         if not status:
             status = _extract_named_line(response, f"STATUT_{letter}").upper().strip(" .")
-        status = (
-            status.replace("ADEVARAT", "TRUE")
-            .replace("FALS", "FALSE")
-            .replace("INSUFICIENT", "INSUFFICIENT")
-        )
+        status = status.replace("Ă", "A").replace("Â", "A")
+        if status in {"TRUE", "ADEVARAT"}:
+            status = STATUS_TRUE
+        elif status in {"FALSE", "FALS"}:
+            status = STATUS_FALSE
+        elif status in {"INSUFFICIENT", "INSUFICIENT"}:
+            status = "INSUFFICIENT"
         if status:
             statuses[letter] = status
     return statuses
@@ -812,7 +862,12 @@ def _benchmark_rejection_reason(item: dict[str, Any], response: str) -> str | No
         if len(predicted) != 1:
             return REJECTION_SINGLE_ANSWER_COUNT_MISMATCH
         chosen = next(iter(predicted))
-        if statuses.get(chosen) not in {STATUS_TRUE, STATUS_FALSE}:
+        chosen_status = statuses.get(chosen)
+        if _is_exception_single_question(normalized_question):
+            if chosen_status != STATUS_FALSE:
+                return REJECTION_STATUS_ANSWER_MISMATCH
+            return None
+        if chosen_status not in {STATUS_TRUE, STATUS_FALSE}:
             return REJECTION_SINGLE_ANSWER_STATUS_MISMATCH
         return None
 
