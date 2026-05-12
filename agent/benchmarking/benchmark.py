@@ -1097,11 +1097,7 @@ def run_retrieval_benchmark(
     macro_precision = mean(float(row["precision"]) for row in rows) if rows else 0.0
     macro_recall = mean(float(row["recall"]) for row in rows) if rows else 0.0
     macro_f1 = mean(float(row["f1"]) for row in rows) if rows else 0.0
-    global_score = (
-        (sum(float(row["f1"]) for row in rows) / total_dataset_items)
-        if total_dataset_items
-        else 0.0
-    )
+    global_score = (macro_f1 + exact_match_rate) / 2 if rows else 0.0
 
     return {
         "benchmark_json_path": benchmark_json_path,

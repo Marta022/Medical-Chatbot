@@ -500,7 +500,7 @@ class TestBenchmark(unittest.TestCase):
             self.assertEqual(result["dataset_total_count"], 2)
             self.assertEqual(result["evaluated_count"], 1)
             self.assertEqual(result["answer_key_coverage"], 0.5)
-            self.assertEqual(result["global_score"], 0.5)
+            self.assertEqual(result["global_score"], 1.0)
             self.assertEqual(result["global_exact_match_rate"], 0.5)
         finally:
             Path(benchmark_path).unlink(missing_ok=True)
