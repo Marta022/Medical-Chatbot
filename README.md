@@ -159,6 +159,42 @@ OpenWebUI default URL: `http://localhost:3000`
 Qdrant API: `http://localhost:6333`  
 Medical Chatbot API: `http://localhost:8000`
 
+### Kuzu Explorer
+
+For quick graph inspection and screenshots, use Kuzu Explorer against the persisted Kuzu database:
+
+```bash
+docker compose up -d kuzu-explorer
+```
+
+Open `http://localhost:8001` in the browser. The compose service mounts `knowledge/graph/kuzu_storage` as `/database`, opens `graph.kuzu`, and runs in `READ_ONLY` mode.
+
+Useful queries:
+
+```cypher
+MATCH (a:Entity)-[r]->(b:Entity)
+RETURN a, r, b
+LIMIT 100;
+```
+
+```cypher
+MATCH (e:Entity)-[r:MENTIONED_IN]->(c:SourceChunk)
+RETURN e, r, c
+LIMIT 100;
+```
+
+```cypher
+MATCH (a:Entity)-[r]->(b:Entity)
+RETURN label(r) AS relation, count(r) AS count
+ORDER BY count DESC;
+```
+
+If Explorer reports that the database is locked, stop any local Python/API process that has opened Kuzu, then restart Explorer:
+
+```bash
+docker compose restart kuzu-explorer
+```
+
 ### OpenWebUI -> API Integration
 
 Compose wiring now points OpenWebUI to the local adapter service:

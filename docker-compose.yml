@@ -75,6 +75,20 @@ services:
     networks:
       - medical-net
 
+  kuzu-explorer:
+    image: kuzudb/explorer:latest
+    container_name: medical-chatbot-kuzu-explorer
+    ports:
+      - "8001:8000"
+    environment:
+      KUZU_FILE: graph.kuzu
+      MODE: READ_ONLY
+    volumes:
+      - ./knowledge/graph/kuzu_storage:/database
+    restart: unless-stopped
+    networks:
+      - medical-net
+
   openwebui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: medical-chatbot-openwebui
