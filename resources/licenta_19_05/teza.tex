@@ -555,6 +555,8 @@ LlamaIndex & Framework RAG & Segmentarea semantică a documentelor și integrare
 \hline
 Kuzu & Bază de date grafică & Reprezentarea entităților medicale și a relațiilor dintre acestea \\
 \hline
+SQLite & Bază de date relațională embedded & Persistența mesajelor finale și a referințelor către fragmentele recuperate \\
+\hline
 OpenAI / Anthropic / Ollama & Furnizori LLM & Generarea răspunsurilor prin modele cloud sau locale \\
 \hline
 Docker Compose & Orchestrare containere & Pornirea coordonată a serviciilor aplicației \\
@@ -772,6 +774,12 @@ Construirea unui astfel de graf presupune identificarea entităților și a rela
 
 În cadrul proiectului realizat, utilizarea Kuzu are rolul de a susține componenta de graf de cunoștințe. Aceasta completează regăsirea vectorială printr-o reprezentare structurată a relațiilor dintre concepte. Astfel, Qdrant este utilizat pentru căutarea semantică pe fragmente de text, în timp ce Kuzu poate fi utilizat pentru interogări relaționale asupra entităților și conexiunilor extrase din documente.
 
+\section{Persistența operațională cu SQLite}
+
+SQLite este un motor de baze de date SQL embedded, fără proces server separat, care păstrează o bază de date completă într-un singur fișier local \cite{sqlite_doc}. Această caracteristică este adecvată pentru jurnalizarea operațională din proiect, deoarece aplicația poate scrie tranzacțional date despre conversații prin modulul standard Python \texttt{sqlite3}, fără introducerea unui serviciu suplimentar în infrastructura de rulare.
+
+Rolul SQLite este distinct de rolurile bazelor Qdrant și Kuzu. Qdrant păstrează reprezentările vectoriale și conținutul fragmentelor utilizabile pentru regăsire semantică, iar Kuzu susține modelarea relațiilor dintre entități. SQLite nu participă la selectarea contextului și nu funcționează ca memorie conversațională; el păstrează o evidență structurată a interacțiunilor procesate și a identificatorilor fragmentelor care au contribuit la răspunsul final. În implementarea curentă, utilizarea sa este configurabilă prin variabilele \texttt{INTERACTION\_DB\_ENABLED} și \texttt{INTERACTION\_DB\_PATH}, calea implicită fiind \texttt{data/app/interactions.db}.
+
 \section{Procesarea datelor și utilitare}
 
 \subsection{Extracția textului din documente PDF cu PyMuPDF}
@@ -878,6 +886,7 @@ Sistemul implementat este organizat ca o arhitectură modulară de tip agentic, 
     \item \texttt{rag} se ocupă de pregătirea și regăsirea contextului: segmentează documentele, generează embedding-uri și interogheaza baza vectorială pentru fragmente relevante;
     \item \texttt{knowledge} gestionează componenta de graf de cunoștințe, inclusiv extracția entităților medicale și reprezentarea relațiilor dintre acestea;
     \item \texttt{api} expune funcționalitatea sistemului prin endpoint-uri REST, astfel încât aplicația să poată fi folosită din interfețe externe;
+    \item \texttt{storage} persistă în SQLite interacțiunile finale și referințele fragmentelor recuperate, atunci când această funcționalitate este activată;
     \item \texttt{config} centralizează parametrii de configurare și șabloanele de prompt, pentru a menține comportamentul sistemului consecvent și ușor de ajustat.
 \end{itemize}
 Contractele de date dintre module sunt definite explicit în pachetul \texttt{models}, prin clase \texttt{dataclass} tipizate, completate de validări în punctele critice de intrare, pentru a menține consistența tipurilor pe întregul flux de execuție.
@@ -1319,6 +1328,60 @@ activată sau dezactivată în funcție de contextul de deployment:
 dezactivată în mediul de dezvoltare locală și activă în orice 
 configurație expusă extern.
 
+\section{Persistența interacțiunilor procesate}
+
+Pentru a permite inspectarea ulterioară a răspunsurilor returnate de sistem și a contextului care a contribuit la acestea, arhitectura include componenta \texttt{storage}. Aceasta utilizează baza SQLite \texttt{data/app/interactions.db} și creează două tabele relaționate: \texttt{interactions}, care descrie interacțiunea și rezultatul final, respectiv \texttt{retrieved\_chunk\_refs}, care descrie fragmentele recuperate pentru acea interacțiune.
+
+\begin{table}[H]
+\centering
+\caption{Schema tabelului \texttt{interactions}}
+\begin{tabular}{|p{4cm}|p{9.2cm}|}
+\hline
+\textbf{Câmp} & \textbf{Conținut stocat} \\
+\hline
+\texttt{id}, \texttt{created\_at} & Identificatorul unic al interacțiunii și momentul persistării. \\
+\hline
+\texttt{session\_id}, \texttt{endpoint} & Identificator opțional al sesiunii și sursa solicitării, de exemplu API sau CLI. \\
+\hline
+\texttt{user\_query} & Mesajul transmis de utilizator. \\
+\hline
+\texttt{assistant\_response} & Mesajul final returnat utilizatorului: răspunsul validat sau mesajul de blocare produs de guardrail. \\
+\hline
+\texttt{provider}, \texttt{model}, \texttt{retries} & Furnizorul și modelul care au produs răspunsul final, precum și numărul de reluări efectuate. \\
+\hline
+\texttt{guardrail\_valid}, \texttt{guardrail\_category}, \texttt{guardrail\_reason\_code} & Rezultatul verificării inițiale de siguranță. \\
+\hline
+\texttt{evaluator\_passed}, \texttt{evaluator\_score} & Rezultatul evaluării răspunsului generat; valorile lipsesc pentru cererile blocate înainte de generare. \\
+\hline
+\texttt{retrieval\_provenance}, \texttt{retrieval\_hit\_count} & Tipul regăsirii utilizate și numărul fragmentelor recuperate. \\
+\hline
+\end{tabular}
+\label{tab:interaction-storage}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Schema tabelului \texttt{retrieved\_chunk\_refs}}
+\begin{tabular}{|p{4cm}|p{9.2cm}|}
+\hline
+\textbf{Câmp} & \textbf{Conținut stocat} \\
+\hline
+\texttt{interaction\_id}, \texttt{rank} & Cheie externă spre \texttt{interactions.id} și poziția fragmentului în rezultatul de retrieval. Împreună formează cheia primară. \\
+\hline
+\texttt{chunk\_id}, \texttt{score} & Identificatorul fragmentului din baza vectorială și scorul de relevanță obținut. \\
+\hline
+\texttt{source}, \texttt{source\_file}, \texttt{page}, \texttt{section} & Metadate de proveniență utile pentru verificarea sursei fragmentului. \\
+\hline
+\end{tabular}
+\label{tab:retrieved-chunk-storage}
+\end{table}
+
+Tabelul \texttt{retrieved\_chunk\_refs} stochează doar identificatori, scoruri și metadate de proveniență. Textul integral al fragmentelor nu este duplicat în SQLite, deoarece acesta rămâne gestionat de Qdrant. Separarea reduce redundanța și permite asocierea unui răspuns cu sursele recuperate folosind identificatorul \texttt{chunk\_id}.
+
+Accesarea bazei de date este realizată prin clasa \texttt{InteractionStore}. Pentru endpoint-urile \texttt{/chat}, \texttt{/v1/chat/completions} și \texttt{/v1/api/chat}, stratul API apelează operația de persistare după obținerea obiectului final \texttt{OrchestratorResponse}. Același mecanism este utilizat de interfața în linie de comandă pornită prin \texttt{python run.py chat}. Dacă funcționalitatea este dezactivată prin configurare, niciun acces la SQLite nu este efectuat. Dacă apare o eroare la scriere, aceasta este înregistrată în jurnal, însă răspunsul deja validat este returnat utilizatorului, astfel încât persistența să nu indisponibilizeze fluxul conversațional.
+
+În cazul în care evaluatorul solicită o reluare sau schimbarea furnizorului LLM, baza păstrează răspunsul final returnat utilizatorului, modelul efectiv folosit la ultima generare și numărul reluărilor. Variantele intermediare respinse de evaluator nu sunt persistate. Cererile blocate de guardrail sunt, în schimb, păstrate împreună cu motivul blocării, fără referințe de retrieval sau date de evaluare inexistente. În rularea containerizată, fișierul bazei este montat în directorul \texttt{data/app}, astfel încât evidența să poată fi păstrată între repornirile serviciului.
+
 
 \chapter{Interpretarea rezultatelor}
 
@@ -1327,11 +1390,35 @@ configurație expusă extern.
 Modulul de benchmark --- implementat în \texttt{agent/benchmarking/benchmark.py} --- este distinct față de modulul de evaluare prezentat în secțiunea~\ref{sec:evaluare}. Modulul de evaluare face parte din pipeline-ul de răspuns al sistemului și validează calitatea unui singur răspuns generat în timp real. Modulul de benchmark operează în afara acestui flux: rulează un set standardizat de întrebări pe mai multe modele LLM simultan, în condiții identice, cu scopul de a produce metrici comparabile între configurații diferite. 
 
 
-\subsection{Parsarea și normalizarea datelor}
+\section{Datele indexate în Qdrant}
 
-Agentul pornește de la două surse de intrare: setul de întrebări de tip grilă în format JSON și cheia de răspuns asociată. Grilele medicale din dataset prezintă variații semnificative de structură: unele marchează răspunsurile corecte ca șir de caractere simplu, altele ca listă de litere, iar altele prin marcaj boolean pe fiecare opțiune în parte.
+În colecția Qdrant utilizată de aplicație sunt indexate date structurate din fișierele \texttt{disease\_database.json} și \texttt{dataset\_sheet1.csv}, precum și fragmente textuale provenite din cele trei capitole medicale \texttt{cap1\_revizuit.md}, \texttt{cap2\_revizuit.md} și \texttt{cap3\_revizuit.md}.
 
-Pentru a gestiona aceste variații în mod uniform, etapa de încărcare normalizează fiecare item la schema internă \texttt{\{id, intrebare, choices\}}, cu opțiuni A--E uniforme și identificatori strict numerici. Același tratament se aplică și cheii de răspuns, normalizată la maparea \texttt{id -> set de litere}. Această normalizare este esențială deoarece permite o evaluare \textit{set-based} în locul uneia \textit{text-based}: compararea se face între mulțimi de litere, nu între șiruri de caractere, ceea ce elimină erorile cauzate de variații minore de formatare în răspunsul modelului (spații suplimentare, majuscule inconsistente, virgule sau paranteze extra).
+\begin{table}[H]
+\centering
+\caption{Sursele de date indexate în Qdrant}
+\label{tab:surse-ingestie}
+\small
+\begin{tabular}{|p{4.2cm}|p{2.3cm}|p{6.5cm}|}
+\hline
+\textbf{Fișier} & \textbf{Tip / dimensiune} & \textbf{Conținut și rol în sistem} \\
+\hline
+\texttt{disease\_database.json} & JSON, 47 afecțiuni în 4 categorii & Date structurate despre afecțiuni, simptome, tratament, complicații și prevenție, provenite dintr-un dataset disponibil pe platforma Kaggle. \\
+\hline
+\texttt{dataset\_sheet1.csv} & CSV, 153 înregistrări & Date tabelare despre afecțiuni, simptome și recomandări generale, provenite dintr-un dataset disponibil pe platforma Kaggle. \\
+\hline
+\texttt{cap1\_revizuit.md} & Markdown & Capitolul \textit{Semiologie generală}, centrat pe febră, hipertermie și evaluarea acestora. \\
+\hline
+\texttt{cap2\_revizuit.md} & Markdown & Capitolul \textit{Semiologie ORL şi oftalmologică}, incluzând structuri și semne clinice oculare și ORL. \\
+\hline
+\texttt{cap3\_revizuit.md} & Markdown & Capitolul \textit{Semiologia țesutului subcutanat}, incluzând hidratarea, deshidratarea și edemul. \\
+\hline
+\end{tabular}
+\end{table}
+
+Cele trei capitole Markdown provin din manualul scanat \textit{Semiologie medicală. Note de curs -- elemente de semiologie generală, respiratorie, cardiovasculară, digestivă, renourinară}, de Dr. Dorin Dragoş, publicat la Editura Universitară „Carol Davila”, Bucureşti, în anul 2013. Titlul, autorul, editura și anul sunt vizibile pe prima pagină a fișierului sursă \texttt{DORIN-CURS\_SEM2\_searchable.pdf}. Fragmente din toate cele trei capitole se regăsesc în colecția Qdrant utilizată în aplicație.
+
+Fișierele structurate \texttt{disease\_database.json} și \texttt{dataset\_sheet1.csv} au fost preluate din platforma Kaggle și completează corpusul de curs cu informații sintetice despre afecțiuni și simptome. Astfel, baza vectorială reunește date medicale structurate provenite din Kaggle și fragmente de semiologie provenite din suportul universitar de curs.
 
 \subsection{Detectarea tipului de grilă și generarea prompturilor}
 

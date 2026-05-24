@@ -13,7 +13,7 @@ from agent.orchestrator.citations import (
     build_citation_rows,
 )
 from config.eval_config import EVAL_CONFIG, EvalConfig
-from config.prompts import LOW_CONFIDENCE_MESSAGE, build_context_block
+from config.prompts import LOW_CONFIDENCE_MESSAGE, REJECTED_RESPONSE_MESSAGE, build_context_block
 from config.settings import BASE_SYSTEM_PROMPT, SETTINGS
 from llm.llm_router import llm_ask_request
 from models import EvaluatorResult, LLMRequest, LLMResponse, RetrievalResult
@@ -119,8 +119,11 @@ class ReasoningEngine:
                 break
 
         retries = max((attempt + 1) - 1, 0)
+        is_accepted = last_eval is not None and last_eval.passed
         final_response = last_response.content if last_response else None
-        if final_response is not None:
+        if final_response is not None and not is_accepted:
+            final_response = REJECTED_RESPONSE_MESSAGE
+        elif final_response is not None:
             final_response = append_retrieved_chunks_block(final_response, retrieval_result)
             if SETTINGS.retrieval_mode == "hybrid":
                 citations = build_citation_rows(retrieval_result)

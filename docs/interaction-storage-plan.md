@@ -1,7 +1,7 @@
 # Plan: stocarea interactiunilor si a chunk-urilor returnate
 
 Date: 2026-05-24  
-Status: Planned  
+Status: Completed - Etapele 1-6 validated (2026-05-24)  
 Scope: persistenta operationala pentru raspunsurile chatbotului si trasabilitatea contextului RAG
 
 ## 1. Obiectiv
@@ -181,7 +181,7 @@ Reguli:
 
 ## 7. Etape de implementare
 
-### Etapa 1: contract si configurare
+### Etapa 1: contract si configurare - DONE (2026-05-24)
 
 Obiectiv: definirea limitei functionale si a activarii opt-in.
 
@@ -199,11 +199,11 @@ INTERACTION_DB_PATH=data/app/interactions.db
 
 Criterii de acceptare:
 
-- setarile se incarca cu valori implicite valide;
-- aplicatia porneste fara fisier SQLite creat anterior;
-- cu persistenta dezactivata, fluxul existent nu se schimba.
+- [x] setarile se incarca cu valori implicite valide;
+- [x] aplicatia porneste fara fisier SQLite creat anterior;
+- [x] cu persistenta dezactivata, fluxul existent nu se schimba.
 
-### Etapa 2: repository SQLite si schema
+### Etapa 2: repository SQLite si schema - DONE (2026-05-24)
 
 Obiectiv: un modul izolat care poate initializa si scrie datele.
 
@@ -218,12 +218,12 @@ Actiuni:
 
 Criterii de acceptare:
 
-- prima salvare creeaza schema automat;
-- o interactiune cu doua hit-uri produce un rand in `interactions` si doua randuri in `retrieved_chunk_refs`;
-- un raspuns blocat este salvat fara randuri copil;
-- daca insertul referintelor esueaza, nu ramane o interactiune partial salvata.
+- [x] prima salvare creeaza schema automat;
+- [x] o interactiune cu doua hit-uri produce un rand in `interactions` si doua randuri in `retrieved_chunk_refs`;
+- [x] un raspuns blocat este salvat fara randuri copil;
+- [x] daca insertul referintelor esueaza, nu ramane o interactiune partial salvata.
 
-### Etapa 3: integrarea in API
+### Etapa 3: integrarea in API - DONE (2026-05-24)
 
 Obiectiv: salvarea rezultatelor generate in traseul utilizat de OpenWebUI.
 
@@ -237,12 +237,12 @@ Actiuni:
 
 Criterii de acceptare:
 
-- fiecare cerere reusita pe `/chat` produce exact o interactiune;
-- fiecare cerere reusita pe `/v1/chat/completions` produce exact o interactiune;
-- endpoint-ul `/v1/api/chat` produce tot exact o interactiune;
-- formatul raspunsurilor API ramane neschimbat.
+- [x] fiecare cerere reusita pe `/chat` produce exact o interactiune;
+- [x] fiecare cerere reusita pe `/v1/chat/completions` produce exact o interactiune;
+- [x] endpoint-ul `/v1/api/chat` produce tot exact o interactiune;
+- [x] formatul raspunsurilor API ramane neschimbat.
 
-### Etapa 4: integrarea optionala in CLI
+### Etapa 4: integrarea optionala in CLI - DONE (2026-05-24)
 
 Obiectiv: aceeasi trasabilitate pentru demonstratii rulate prin `python run.py chat`.
 
@@ -254,11 +254,11 @@ Actiuni:
 
 Criterii de acceptare:
 
-- fiecare intrebare procesata din CLI produce o interactiune;
-- comanda `exit`/`quit` nu produce interactiune;
-- CLI functioneaza normal cand persistenta este dezactivata.
+- [x] fiecare intrebare procesata din CLI produce o interactiune;
+- [x] comanda `exit`/`quit` nu produce interactiune;
+- [x] CLI functioneaza normal cand persistenta este dezactivata.
 
-### Etapa 5: Docker si documentatie
+### Etapa 5: Docker si documentatie - DONE (2026-05-24)
 
 Obiectiv: baza sa ramana disponibila dupa restart in mediul de demonstratie.
 
@@ -273,10 +273,10 @@ Actiuni:
 
 Criterii de acceptare:
 
-- fisierul SQLite persista dupa restartarea containerului API;
-- documentatia nu sugereaza stocarea datelor clinice reale.
+- [x] fisierul SQLite persista dupa restartarea containerului API;
+- [x] documentatia nu sugereaza stocarea datelor clinice reale.
 
-### Etapa 6: validare si probe
+### Etapa 6: validare si probe - DONE (2026-05-24)
 
 Obiectiv: confirmarea ca integrarea nu afecteaza raspunsurile si retrieval-ul.
 
@@ -292,10 +292,10 @@ Teste necesare:
 
 Verificari manuale:
 
-1. Pornirea API cu SQLite activ.
-2. Trimiterea unei intrebari prin OpenWebUI sau `curl`.
-3. Interogarea tabelelor si confirmarea ca raspunsul si `chunk_id`-urile corespund payload-ului RAG.
-4. Restartarea serviciului si confirmarea persistentei fisierului.
+1. [x] Pornirea API cu SQLite activ.
+2. [x] Trimiterea unei intrebari prin endpoint-ul API `/chat`.
+3. [x] Interogarea tabelelor si confirmarea ca raspunsul si `chunk_id`-urile corespund payload-ului RAG.
+4. [x] Restartarea serviciului si confirmarea persistentei fisierului.
 
 ## 8. Cazuri speciale de comportament
 

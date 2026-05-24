@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from agent.reasoning.engine import ReasoningDependencies, ReasoningEngine, ReasoningInput
 from config.eval_config import EvalConfig
+from config.prompts import REJECTED_RESPONSE_MESSAGE
 from config.settings import SETTINGS, AppSettings
 from models import EvaluatorResult, LLMRequest, LLMResponse, RetrievalHit, RetrievalResult
 
@@ -102,6 +103,67 @@ class TestReasoningEngine(unittest.TestCase):
 
         self.assertEqual(len(messages), 2)
         self.assertIn("Revise your answer to address: needs_more_context.", messages[1])
+
+    def test_rejected_response_after_retry_budget_is_replaced_with_safe_message(self) -> None:
+        deps = ReasoningDependencies(
+            retrieve=lambda _q, _k, _f: RetrievalResult(
+                hits=[RetrievalHit(title="t1", text="t1 body", score=0.9, source="unit")]
+            ),
+            llm_call=lambda request: LLMResponse(
+                content="unsafe final draft",
+                provider=request.provider or "openai",
+                model="unit",
+            ),
+            evaluator=lambda _q, _r, _c: EvaluatorResult(
+                passed=False,
+                score=0.0,
+                reasons=["unsafe_advice"],
+                retry_recommended=True,
+                retry_strategy="switch_llm",
+            ),
+        )
+        eval_config = EvalConfig(max_retries=1, provider_fallback_order=("openai", "ollama"))
+
+        result = ReasoningEngine(deps=deps, eval_config=eval_config).run(
+            ReasoningInput(query="test", top_k=1)
+        )
+
+        self.assertEqual(result.response, REJECTED_RESPONSE_MESSAGE)
+        self.assertEqual(result.retries, 1)
+        self.assertFalse(result.evaluator.passed)
+        self.assertNotIn("Most similar chunks:", result.response)
+
+    def test_refusal_with_context_stops_after_first_attempt_and_uses_safe_message(self) -> None:
+        calls = {"llm": 0}
+
+        def llm_call(request: LLMRequest) -> LLMResponse:
+            calls["llm"] += 1
+            return LLMResponse(
+                content="I don't know based on the available data.",
+                provider=request.provider or "openai",
+                model="unit",
+            )
+
+        deps = ReasoningDependencies(
+            retrieve=lambda _q, _k, _f: RetrievalResult(
+                hits=[RetrievalHit(title="t1", text="t1 body", score=0.9, source="unit")]
+            ),
+            llm_call=llm_call,
+            evaluator=lambda _q, _r, _c: EvaluatorResult(
+                passed=False,
+                score=0.3,
+                reasons=["refused_with_context"],
+                retry_recommended=False,
+            ),
+        )
+
+        result = ReasoningEngine(deps=deps, eval_config=EvalConfig(max_retries=3)).run(
+            ReasoningInput(query="test", top_k=1)
+        )
+
+        self.assertEqual(calls["llm"], 1)
+        self.assertEqual(result.retries, 0)
+        self.assertEqual(result.response, REJECTED_RESPONSE_MESSAGE)
 
     def test_hybrid_mode_injects_filters_and_citations(self) -> None:
         captured_filters: list[dict[str, str] | None] = []

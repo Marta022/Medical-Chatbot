@@ -55,6 +55,7 @@ def evaluate_response(
 
     adaptive_prompt: str | None = None
     retry_strategy = "adjust_prompt"
+    retry_recommended = not passed
     if not passed:
         primary_failure = failure_types[0] if failure_types else UNKNOWN_FAILURE
         adaptive_prompt = build_adaptive_prompt(
@@ -65,12 +66,15 @@ def evaluate_response(
         )
         if any(failure in SWITCH_LLM_FAILURES for failure in failure_types):
             retry_strategy = "switch_llm"
+        elif FailureType.REFUSED_WITH_CONTEXT in failure_types:
+            # Do not pressure a medical model to answer after it reports insufficient support.
+            retry_recommended = False
 
     return EvaluatorResult(
         passed=passed,
         score=round(score, 4),
         reasons=reasons,
-        retry_recommended=not passed,
+        retry_recommended=retry_recommended,
         failure_types=failure_types,
         adaptive_prompt=adaptive_prompt,
         retry_strategy=retry_strategy,

@@ -66,7 +66,7 @@ class TestCLI(unittest.TestCase):
 
     def test_eval_command_smoke(self) -> None:
         completed = subprocess.run(
-            [sys.executable, "run.py", "eval"],
+            [sys.executable, "run.py", "eval", "--no-benchmark"],
             capture_output=True,
             text=True,
             check=False,
@@ -153,7 +153,7 @@ class TestCLI(unittest.TestCase):
         self.assertTrue(kwargs["include_structured_sources"] is False)
 
     def test_eval_benchmark_disables_guardrail_by_default(self) -> None:
-        argv = ["run.py", "eval", "--benchmark"]
+        argv = ["run.py", "eval"]
         with patch.object(sys, "argv", argv):
             with patch("run.ensure_startup_valid"):
                 with patch(
@@ -166,7 +166,7 @@ class TestCLI(unittest.TestCase):
         self.assertFalse(benchmark_mock.call_args.kwargs["use_guardrail"])
 
     def test_eval_benchmark_can_enable_guardrail_via_flag(self) -> None:
-        argv = ["run.py", "eval", "--benchmark", "--benchmark-use-guardrail"]
+        argv = ["run.py", "eval", "--benchmark-use-guardrail"]
         with patch.object(sys, "argv", argv):
             with patch("run.ensure_startup_valid"):
                 with patch(
@@ -200,7 +200,7 @@ class TestCLI(unittest.TestCase):
             output_path = handle.name
         Path(output_path).unlink(missing_ok=True)
 
-        argv = ["run.py", "eval", "--benchmark", "--benchmark-output", output_path]
+        argv = ["run.py", "eval", "--benchmark-output", output_path]
         with patch.object(sys, "argv", argv):
             with patch("run.ensure_startup_valid"):
                 with patch(

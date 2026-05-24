@@ -32,6 +32,15 @@ class _StubOrchestrator:
         )
 
 
+class _RecordingStore:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, object]] = []
+
+    def save_interaction(self, **kwargs: object) -> str:
+        self.calls.append(kwargs)
+        return "interaction-openai"
+
+
 def _stub_ingest(_json_path: str, _csv_path: str, _chunking_strategy: str = "section") -> int:
     return 0
 
@@ -47,12 +56,13 @@ def _stub_to_json(value: object) -> object:
 
 
 class TestApiOpenAIAdapter(unittest.TestCase):
-    def _client(self):
+    def _client(self, interaction_store: object | None = None):
         deps = ApiDependencies(
             orchestrator_factory=_StubOrchestrator,
             ingest=_stub_ingest,
             run_eval=_stub_eval,
             to_json_compatible=_stub_to_json,
+            interaction_store=interaction_store,
         )
         return create_app(dependencies=deps).test_client()
 
@@ -87,6 +97,33 @@ class TestApiOpenAIAdapter(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         payload = response.get_json()
         self.assertEqual(payload["error"]["message"], "messages must be a list")
+
+    def test_v1_chat_completions_persists_once_with_session_id(self) -> None:
+        store = _RecordingStore()
+        response = self._client(store).post(
+            "/v1/chat/completions",
+            json={
+                "session_id": "chat-session",
+                "messages": [{"role": "user", "content": "Salut"}],
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(store.calls), 1)
+        self.assertEqual(store.calls[0]["endpoint"], "/v1/chat/completions")
+        self.assertEqual(store.calls[0]["session_id"], "chat-session")
+        self.assertEqual(store.calls[0]["request"].query, "Salut")
+
+    def test_ollama_chat_delegation_persists_once_under_ollama_endpoint(self) -> None:
+        store = _RecordingStore()
+        response = self._client(store).post(
+            "/v1/api/chat",
+            json={"messages": [{"role": "user", "content": "Salut"}]},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(store.calls), 1)
+        self.assertEqual(store.calls[0]["endpoint"], "/v1/api/chat")
 
 
 if __name__ == "__main__":

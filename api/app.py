@@ -24,7 +24,7 @@ from config.api_config import API_SETTINGS, ApiSettings
 from config.logging_config import new_correlation_id, setup_logging
 from config.settings import SETTINGS
 from knowledge.graph.gitnexus import build_gitnexus_payload_safe
-from models import QueryRequest
+from models import OrchestratorResponse, QueryRequest
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +106,40 @@ def _build_retrieval_filters(payload: dict[str, Any]) -> dict[str, str] | None:
     if "graph_weight" in payload:
         filters["__graph_weight"] = str(payload.get("graph_weight", ""))
     return filters or None
+
+
+def _optional_session_id(payload: dict[str, Any]) -> str | None:
+    """Extract an optional session identifier without changing prompt behavior."""
+
+    value = payload.get("session_id")
+    if value is None:
+        return None
+    normalized = str(value).strip()
+    return normalized or None
+
+
+def _persist_interaction_safe(
+    app: Flask,
+    *,
+    query_request: QueryRequest,
+    result: OrchestratorResponse,
+    endpoint: str,
+    session_id: str | None,
+) -> None:
+    """Persist audit data when configured without blocking a validated response."""
+
+    store = _deps(app).interaction_store
+    if store is None:
+        return
+    try:
+        store.save_interaction(
+            request=query_request,
+            response=result,
+            endpoint=endpoint,
+            session_id=session_id,
+        )
+    except Exception:
+        logger.exception("Interaction persistence failed for endpoint '%s'.", endpoint)
 
 
 def create_app(
@@ -191,6 +225,13 @@ def create_app(
 
         orchestrator = _deps(app).orchestrator_factory()
         result = orchestrator.run(query_request)
+        _persist_interaction_safe(
+            app,
+            query_request=query_request,
+            result=result,
+            endpoint=request.path,
+            session_id=_optional_session_id(payload),
+        )
         return jsonify(_deps(app).to_json_compatible(result))
 
     @app.post("/ingest")
@@ -311,6 +352,13 @@ def create_app(
 
         orchestrator = _deps(app).orchestrator_factory()
         result = orchestrator.run(query_request)
+        _persist_interaction_safe(
+            app,
+            query_request=query_request,
+            result=result,
+            endpoint=request.path,
+            session_id=_optional_session_id(payload),
+        )
 
         completion_id = f"chatcmpl-{uuid.uuid4().hex[:24]}"
         created = int(time.time())

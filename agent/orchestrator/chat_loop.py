@@ -18,12 +18,38 @@ from agent.orchestrator.orchestrator import Orchestrator
 from config.logging_config import new_correlation_id
 from config.settings import SETTINGS
 from models import OrchestratorResponse, QueryRequest
+from storage import InteractionStore
 
 logger = logging.getLogger(__name__)
 EXIT_COMMANDS = {"exit", "quit", ":q"}
 RETRIEVED_CHUNKS_LABEL = "Chunk-uri similare gasite:"
 ROMANIAN_CONTEXT_LABEL = "Context folosit (in romana):"
 RESPONSE_SEPARATOR = "=" * 80
+CLI_ENDPOINT = "cli"
+
+
+def _build_interaction_store() -> InteractionStore | None:
+    """Build optional CLI audit storage from application settings."""
+
+    if not SETTINGS.interaction_db_enabled:
+        return None
+    return InteractionStore(SETTINGS.interaction_db_path)
+
+
+def _persist_interaction_safe(
+    store: InteractionStore | None,
+    *,
+    request: QueryRequest,
+    result: OrchestratorResponse,
+) -> None:
+    """Persist CLI audit data without disrupting the interactive response."""
+
+    if store is None:
+        return
+    try:
+        store.save_interaction(request=request, response=result, endpoint=CLI_ENDPOINT)
+    except Exception:
+        logger.exception("Interaction persistence failed for CLI chat.")
 
 
 def run_chat_loop(
@@ -34,6 +60,7 @@ def run_chat_loop(
 
     query_top_k = top_k if top_k is not None else SETTINGS.default_top_k
     orchestrator = Orchestrator()
+    interaction_store = _build_interaction_store()
     while True:
         query = input("You: ").strip()
         if not query:
@@ -45,6 +72,7 @@ def run_chat_loop(
         new_correlation_id()
         request = QueryRequest(query=query, top_k=query_top_k, filters=filters)
         result: OrchestratorResponse = orchestrator.run(request)
+        _persist_interaction_safe(interaction_store, request=request, result=result)
 
         if not result.guardrail.is_valid:
             logger.info(result.guardrail.message)

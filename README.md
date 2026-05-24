@@ -53,6 +53,8 @@ DATASET_JSON_PATH=data/dataset/disease_database.json
 DATASET_CSV_PATH=data/dataset/dataset_sheet1.csv
 LLM_TXT_PATH=llm.txt
 RETRIEVAL_MIN_SCORE=0.2
+INTERACTION_DB_ENABLED=true
+INTERACTION_DB_PATH=data/app/interactions.db
 ```
 
 ## CLI Usage
@@ -97,18 +99,16 @@ python run.py ingest --markdown-path output/document.md --pdf-only
 
 ### Evaluation & Benchmark
 
-Quick evaluator smoke check (no benchmark file):
+Full retrieval benchmark against the grile dataset (default behavior; writes metrics to an output file):
 
 ```bash
 python run.py eval
 ```
 
-Full retrieval benchmark against the grile dataset (writes metrics to an output file):
+Quick evaluator smoke check without running the benchmark:
 
 ```bash
-python run.py eval \
-    --benchmark \
-    --benchmark-output output/output_v20_40o.txt
+python run.py eval --no-benchmark
 ```
 
 Useful optional flags:
@@ -211,6 +211,36 @@ curl http://localhost:8000/v1/models
 If API key auth is enabled:
 - set `API_REQUIRE_KEY=true` and `API_KEY=<your-secret>` in `.env`
 - configure the same key in OpenWebUI for the OpenAI provider
+
+### Interaction Audit Storage
+
+Optional SQLite audit storage records final chat interactions and references to the
+retrieved chunks used for each response:
+
+- `Qdrant` stores document chunks and embeddings for retrieval.
+- `Kuzu` stores Graph-RAG entities and relations.
+- `SQLite` stores user queries, final responses, evaluation metadata, and returned
+  `chunk_id` references. It does not duplicate retrieved chunk text.
+
+Enable local audit storage in `.env`:
+
+```env
+INTERACTION_DB_ENABLED=true
+INTERACTION_DB_PATH=data/app/interactions.db
+```
+
+The API chat endpoints and `python run.py chat` write to the database when enabled.
+Compose mounts `data/app` for both `api` and `app`, so `interactions.db` remains on
+the host across container recreation.
+
+Inspect the stored interactions locally with Python:
+
+```bash
+python -c "import sqlite3; db=sqlite3.connect('data/app/interactions.db'); print(db.execute('SELECT created_at, endpoint, user_query, assistant_response FROM interactions ORDER BY created_at DESC LIMIT 5').fetchall()); db.close()"
+```
+
+This audit store is intended for development and demonstration data only. Do not
+persist identifiable clinical or patient data in it.
 
 ## Graph-RAG and GitNexus
 

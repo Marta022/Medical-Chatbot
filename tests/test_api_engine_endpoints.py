@@ -59,6 +59,20 @@ class _CaptureOrchestrator:
         )
 
 
+class _RecordingStore:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, object]] = []
+
+    def save_interaction(self, **kwargs: object) -> str:
+        self.calls.append(kwargs)
+        return "interaction-api"
+
+
+class _RaisingStore:
+    def save_interaction(self, **_kwargs: object) -> str:
+        raise OSError("database unavailable")
+
+
 def _stub_ingest(_json_path: str, _csv_path: str, _chunking_strategy: str = "section") -> int:
     return 7
 
@@ -88,6 +102,45 @@ class TestApiEngineEndpoints(unittest.TestCase):
         payload = response.get_json()
         self.assertEqual(payload["provider"], "stub-provider")
         self.assertIn("answer:", payload["response"])
+
+    def test_chat_endpoint_persists_final_result_and_session_id(self) -> None:
+        store = _RecordingStore()
+        deps = ApiDependencies(
+            orchestrator_factory=_StubOrchestrator,
+            ingest=_stub_ingest,
+            run_eval=_stub_eval,
+            to_json_compatible=_stub_to_json,
+            interaction_store=store,
+        )
+        client = create_app(dependencies=deps).test_client()
+
+        response = client.post(
+            "/chat",
+            json={"query": "Ce este gripa?", "session_id": " session-7 "},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(store.calls), 1)
+        call = store.calls[0]
+        self.assertEqual(call["endpoint"], "/chat")
+        self.assertEqual(call["session_id"], "session-7")
+        self.assertEqual(call["request"].query, "Ce este gripa?")
+        self.assertEqual(call["response"].response, "answer:Ce este gripa?")
+
+    def test_chat_endpoint_returns_result_when_persistence_fails(self) -> None:
+        deps = ApiDependencies(
+            orchestrator_factory=_StubOrchestrator,
+            ingest=_stub_ingest,
+            run_eval=_stub_eval,
+            to_json_compatible=_stub_to_json,
+            interaction_store=_RaisingStore(),
+        )
+        client = create_app(dependencies=deps).test_client()
+
+        response = client.post("/chat", json={"query": "Ce este gripa?"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("answer:", response.get_json()["response"])
 
     def test_chat_endpoint_rejects_invalid_query(self) -> None:
         deps = ApiDependencies(

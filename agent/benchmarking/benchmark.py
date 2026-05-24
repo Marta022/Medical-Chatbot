@@ -14,8 +14,8 @@ from config.eval_config import EVAL_CONFIG
 from config.settings import SETTINGS
 from models import EvaluatorResult, GuardrailResult, LLMRequest, RetrievalHit
 
-DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH = "data/dataset/primele_10_grile_pag2_curatate.json"
-DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH = "data/dataset/primele_10_grile_pag2_answer_key.txt"
+DEFAULT_RETRIEVAL_BENCHMARK_JSON_PATH = "data/dataset/benchmark_questions.json"
+DEFAULT_RETRIEVAL_BENCHMARK_ANSWER_KEY_PATH = "data/dataset/benchmark_responses.json"
 DEFAULT_BENCHMARK_LANGUAGE = "ro"
 DEFAULT_BENCHMARK_TOP_K = 3
 RETRIEVAL_POOL_MULTIPLIER = 3

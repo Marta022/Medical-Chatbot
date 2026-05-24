@@ -46,7 +46,7 @@ class TestEvaluator(unittest.TestCase):
         self.assertIn(FailureType.REFUSED_WITH_CONTEXT.value, result.reasons)
         self.assertIn(FailureType.REFUSED_WITH_CONTEXT, result.failure_types)
         self.assertFalse(result.passed)
-        self.assertTrue(result.retry_recommended)
+        self.assertFalse(result.retry_recommended)
 
     def test_unsafe_advice_uses_switch_llm_strategy(self) -> None:
         result = evaluate_response(

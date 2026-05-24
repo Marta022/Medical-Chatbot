@@ -26,6 +26,10 @@ LOW_CONFIDENCE_MESSAGE = (
     "Nu am suficiente informatii relevante pentru a raspunde cu siguranta. "
     "Te rog consulta un medic sau reformuleaza intrebarea."
 )
+REJECTED_RESPONSE_MESSAGE = (
+    "Nu pot formula un raspuns sigur pe baza informatiilor disponibile. "
+    "Consulta un medic sau farmacist pentru recomandari medicale sigure."
+)
 PDF_MARKDOWN_CLEANUP_SYSTEM_PROMPT = (
     "You are a medical-document formatting assistant. "
     "Convert extracted PDF page text into clean Markdown while preserving the original content as closely as possible. "

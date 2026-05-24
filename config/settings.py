@@ -51,6 +51,7 @@ DEFAULT_GRAPH_TRAVERSAL_DEPTH = 1
 DEFAULT_HYBRID_VECTOR_WEIGHT = 1.0
 DEFAULT_HYBRID_GRAPH_WEIGHT = 0.9
 DEFAULT_GITNEXUS_BASE_URL = "http://localhost:8088"
+DEFAULT_INTERACTION_DB_PATH = "data/app/interactions.db"
 DEFAULT_SYSTEM_PROMPT = "You are an AI medical assistant. Use only provided context."
 INGEST_COMMAND = "ingest"
 CHAT_COMMAND = "chat"
@@ -102,6 +103,8 @@ class AppSettings:
     hybrid_graph_weight: float = DEFAULT_HYBRID_GRAPH_WEIGHT
     gitnexus_enabled: bool = False
     gitnexus_base_url: str = DEFAULT_GITNEXUS_BASE_URL
+    interaction_db_enabled: bool = False
+    interaction_db_path: str = DEFAULT_INTERACTION_DB_PATH
 
 
 def load_settings() -> AppSettings:
@@ -166,6 +169,8 @@ def load_settings() -> AppSettings:
         hybrid_graph_weight=env_float("HYBRID_GRAPH_WEIGHT", DEFAULT_HYBRID_GRAPH_WEIGHT),
         gitnexus_enabled=env_bool("GITNEXUS_ENABLED", False),
         gitnexus_base_url=os.getenv("GITNEXUS_BASE_URL", DEFAULT_GITNEXUS_BASE_URL).strip(),
+        interaction_db_enabled=env_bool("INTERACTION_DB_ENABLED", False),
+        interaction_db_path=os.getenv("INTERACTION_DB_PATH", DEFAULT_INTERACTION_DB_PATH).strip(),
     )
 
 
@@ -255,6 +260,8 @@ def validate_startup(
         errors.append("HYBRID_VECTOR_WEIGHT must be >= 0.")
     if current.hybrid_graph_weight < 0:
         errors.append("HYBRID_GRAPH_WEIGHT must be >= 0.")
+    if current.interaction_db_enabled and not current.interaction_db_path:
+        errors.append("INTERACTION_DB_PATH is required when INTERACTION_DB_ENABLED=true.")
     prompt_path = Path(current.llm_txt_path)
     if not prompt_path.exists():
         errors.append(f"Prompt file not found at '{current.llm_txt_path}'.")

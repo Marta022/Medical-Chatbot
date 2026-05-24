@@ -16,10 +16,13 @@ services:
       ALLOW_MODEL_DOWNLOAD: ${ALLOW_MODEL_DOWNLOAD:-true}
       RETRIEVAL_MIN_SCORE: ${RETRIEVAL_MIN_SCORE:-0.2}
       DEFAULT_TOP_K: ${DEFAULT_TOP_K:-3}
+      INTERACTION_DB_ENABLED: ${INTERACTION_DB_ENABLED:-false}
+      INTERACTION_DB_PATH: ${INTERACTION_DB_PATH:-data/app/interactions.db}
     stdin_open: true
     tty: true
     volumes:
       - ./data/dataset:/app/data/dataset:ro
+      - ./data/app:/app/data/app
       - hf_cache:/root/.cache/huggingface
     depends_on:
       - qdrant
@@ -50,12 +53,15 @@ services:
       API_MAX_QUERY_CHARS: ${API_MAX_QUERY_CHARS:-2000}
       API_MAX_MESSAGES: ${API_MAX_MESSAGES:-32}
       API_MAX_TOP_K: ${API_MAX_TOP_K:-10}
+      INTERACTION_DB_ENABLED: ${INTERACTION_DB_ENABLED:-false}
+      INTERACTION_DB_PATH: ${INTERACTION_DB_PATH:-data/app/interactions.db}
       FLASK_ENV: development
     ports:
       - "8000:8000"
     volumes:
       - .:/app
       - ./data/dataset:/app/data/dataset:ro
+      - ./data/app:/app/data/app
       - hf_cache:/root/.cache/huggingface
     depends_on:
       - qdrant

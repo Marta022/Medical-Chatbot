@@ -25,6 +25,8 @@ class TestConfigAndPrompts(unittest.TestCase):
 
     def test_load_settings_reads_defaults(self) -> None:
         os.environ.pop("DEFAULT_TOP_K", None)
+        os.environ.pop("INTERACTION_DB_ENABLED", None)
+        os.environ.pop("INTERACTION_DB_PATH", None)
         settings = load_settings()
         self.assertGreater(settings.default_top_k, 0)
         self.assertTrue(settings.dataset_json_path.endswith("disease_database.json"))
@@ -33,6 +35,17 @@ class TestConfigAndPrompts(unittest.TestCase):
         self.assertGreater(settings.semantic_chunk_max_chars, 0)
         self.assertGreater(settings.retrieval_rerank_top_k, 0)
         self.assertGreaterEqual(settings.entity_min_confidence, 0)
+        self.assertFalse(settings.interaction_db_enabled)
+        self.assertEqual(settings.interaction_db_path, "data/app/interactions.db")
+
+    def test_load_settings_reads_interaction_db_configuration(self) -> None:
+        os.environ["INTERACTION_DB_ENABLED"] = "true"
+        os.environ["INTERACTION_DB_PATH"] = "output/audit/interactions.db"
+
+        settings = load_settings()
+
+        self.assertTrue(settings.interaction_db_enabled)
+        self.assertEqual(settings.interaction_db_path, "output/audit/interactions.db")
 
     def test_prompt_helpers_return_expected_content(self) -> None:
         self.assertTrue(prompts.get_base_system_prompt())
@@ -72,6 +85,19 @@ class TestConfigAndPrompts(unittest.TestCase):
         settings = AppSettings(kuzu_db_path="")
         errors = validate_startup(command="eval", settings=settings)
         self.assertTrue(any("KUZU_DB_PATH is required." in item for item in errors))
+
+    def test_validate_startup_requires_interaction_db_path_only_when_enabled(self) -> None:
+        disabled_errors = validate_startup(
+            command="eval",
+            settings=AppSettings(interaction_db_enabled=False, interaction_db_path=""),
+        )
+        enabled_errors = validate_startup(
+            command="eval",
+            settings=AppSettings(interaction_db_enabled=True, interaction_db_path=""),
+        )
+
+        self.assertFalse(any("INTERACTION_DB_PATH is required" in item for item in disabled_errors))
+        self.assertTrue(any("INTERACTION_DB_PATH is required" in item for item in enabled_errors))
 
     def test_validate_startup_rejects_invalid_relation_min_confidence(self) -> None:
         settings = AppSettings(relation_min_confidence=1.5)
