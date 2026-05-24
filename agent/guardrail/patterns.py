@@ -13,10 +13,15 @@ EMERGENCY_PATTERN_GROUPS: dict[str, list[str]] = {
     "breathing": [
         "nu pot respira",
         "nu pot sa respir",
+        "nu poate respira",
+        "nu poate sa respire",
+        "nu mai respira",
         "respir greu",
+        "respira greu",
         "respiratie foarte grea",
         "dificultati de respiratie",
         "sufoc",
+        "se sufoca",
     ],
     "neurological": [
         "accident vascular",

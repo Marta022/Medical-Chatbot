@@ -13,6 +13,8 @@ from agent.benchmarking.benchmark import (
     _build_benchmark_context_block,
     _build_grila_prompt,
     _build_option_queries,
+    _build_review_retry_message,
+    _extract_benchmark_prediction,
     _extract_option_letters,
     _is_uascce_question,
     _requires_single_answer,
@@ -151,6 +153,23 @@ class TestBenchmark(unittest.TestCase):
         self.assertIn("Optiunea B: b", queries[2])
         self.assertEqual(len(queries), 5)
 
+    def test_build_review_retry_message_targets_missing_answer_letters(self) -> None:
+        message = _build_review_retry_message(
+            previous_response="STATUS_A: TRUE\nANSWER:",
+            rejection_reason="missing_answer_letters",
+        )
+        self.assertIn("missing_answer_letters", message)
+        self.assertIn("Nu lasa ANSWER gol", message)
+
+    def test_build_review_retry_message_targets_status_answer_mismatch(self) -> None:
+        message = _build_review_retry_message(
+            previous_response="STATUS_A: TRUE\nANSWER: B",
+            rejection_reason="status_answer_mismatch",
+        )
+        self.assertIn("status_answer_mismatch", message)
+        self.assertIn("contradictie intre STATUS_A-E si ANSWER", message)
+        self.assertIn("u.a.s.c.c.e. -> FALSE", message)
+
     def test_rerank_benchmark_hits_prefers_option_aligned_hit(self) -> None:
         item = {
             "id": 530,
@@ -280,6 +299,60 @@ class TestBenchmark(unittest.TestCase):
             "STATUT_D: FALS\nSTATUT_E: FALS\nRASPUNS: B, D, E"
         )
         self.assertIsNone(_benchmark_rejection_reason(item, response))
+
+    def test_extract_benchmark_prediction_derives_uascce_answer_when_answer_empty(
+        self,
+    ) -> None:
+        item = {
+            "id": 103,
+            "intrebare": "R.I. starea de hidratare, u.a.s.c.c.e.",
+            "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+        }
+        response = (
+            "STATUS_A: TRUE\nSTATUS_B: TRUE\nSTATUS_C: FALSE\n"
+            "STATUS_D: TRUE\nSTATUS_E: FALSE\nANSWER:"
+        )
+        self.assertEqual(_extract_benchmark_prediction(item, response), {"C", "E"})
+
+    def test_extract_benchmark_prediction_derives_standard_ri_true_answers_when_empty(
+        self,
+    ) -> None:
+        item = {
+            "id": 104,
+            "intrebare": "R.I. Febra si frisonul",
+            "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+        }
+        response = (
+            "STATUS_A: FALSE\nSTATUS_B: TRUE\nSTATUS_C: INSUFFICIENT\n"
+            "STATUS_D: TRUE\nSTATUS_E: FALSE\nANSWER:"
+        )
+        self.assertEqual(_extract_benchmark_prediction(item, response), {"B", "D"})
+
+    def test_extract_benchmark_prediction_derives_single_exception_only_when_unique(
+        self,
+    ) -> None:
+        item = {
+            "id": 590,
+            "intrebare": "Manifestarile neuropsihice pot include, c.e.:",
+            "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+        }
+        response = (
+            "STATUS_A: TRUE\nSTATUS_B: TRUE\nSTATUS_C: FALSE\n"
+            "STATUS_D: TRUE\nSTATUS_E: TRUE\nANSWER:"
+        )
+        self.assertEqual(_extract_benchmark_prediction(item, response), {"C"})
+
+    def test_extract_benchmark_prediction_does_not_override_explicit_answer(self) -> None:
+        item = {
+            "id": 521,
+            "intrebare": "u.a.s.c.c.e. Q",
+            "choices": {"A": "a", "B": "b", "C": "c", "D": "d", "E": "e"},
+        }
+        response = (
+            "STATUS_A: FALSE\nSTATUS_B: FALSE\nSTATUS_C: TRUE\n"
+            "STATUS_D: TRUE\nSTATUS_E: TRUE\nANSWER: C"
+        )
+        self.assertEqual(_extract_benchmark_prediction(item, response), {"C"})
 
     def test_benchmark_rejection_reason_handles_uascce_with_trailing_dot(self) -> None:
         item = {
@@ -676,6 +749,64 @@ class TestBenchmark(unittest.TestCase):
             self.assertEqual(result["rows"][0]["retrieved_chunks"][0]["chunk_id"], "chunk-1")
             self.assertEqual(result["rows"][0]["retrieved_chunks"][0]["text"], "chunk body")
             self.assertEqual(result["rows"][0]["retrieved_chunks"][0]["score"], 0.9321)
+        finally:
+            Path(benchmark_path).unlink(missing_ok=True)
+            Path(key_path).unlink(missing_ok=True)
+
+    def test_run_retrieval_benchmark_uses_targeted_retry_guidance(self) -> None:
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".json", encoding="utf-8"
+        ) as bench_handle:
+            json.dump(
+                [
+                    {
+                        "id": 612,
+                        "intrebare": "R.I. Q retry, u.a.s.c.c.e.",
+                        "A": "a",
+                        "B": "b",
+                        "C": "c",
+                        "D": "d",
+                        "E": "e",
+                    }
+                ],
+                bench_handle,
+                ensure_ascii=False,
+            )
+            benchmark_path = bench_handle.name
+
+        with tempfile.NamedTemporaryFile(
+            "w", delete=False, suffix=".txt", encoding="utf-8"
+        ) as key_handle:
+            key_handle.write("612: A\n")
+            key_path = key_handle.name
+
+        response_type = type("Response", (), {})
+        first_response = response_type()
+        first_response.content = (
+            "STATUS_A: INSUFFICIENT\nSTATUS_B: INSUFFICIENT\nSTATUS_C: INSUFFICIENT\n"
+            "STATUS_D: INSUFFICIENT\nSTATUS_E: INSUFFICIENT\nANSWER:"
+        )
+        second_response = response_type()
+        second_response.content = (
+            "STATUS_A: FALSE\nSTATUS_B: TRUE\nSTATUS_C: TRUE\n"
+            "STATUS_D: TRUE\nSTATUS_E: TRUE\nANSWER: A"
+        )
+
+        try:
+            with patch("rag.retrieval.retriever.retrieve_top_similar") as retrieve_mock:
+                with patch("llm.llm_router.llm_ask_request") as llm_mock:
+                    retrieve_mock.return_value.hits = []
+                    llm_mock.side_effect = [first_response, second_response]
+                    result = run_retrieval_benchmark(
+                        benchmark_json_path=benchmark_path,
+                        answer_key_path=key_path,
+                    )
+
+            self.assertEqual(result["rows"][0]["predicted_answers"], ["A"])
+            self.assertEqual(llm_mock.call_count, 2)
+            retry_request = llm_mock.call_args_list[1].args[0]
+            self.assertIn("missing_answer_letters", retry_request.user_message)
+            self.assertIn("Nu lasa ANSWER gol", retry_request.user_message)
         finally:
             Path(benchmark_path).unlink(missing_ok=True)
             Path(key_path).unlink(missing_ok=True)

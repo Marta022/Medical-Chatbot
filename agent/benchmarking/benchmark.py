@@ -48,6 +48,55 @@ REJECTION_SINGLE_ANSWER_STATUS_MISMATCH = "single_answer_status_mismatch"
 REJECTION_ALL_OPTIONS_SELECTED = "all_options_selected"
 REJECTION_NO_DERIVED_ANSWERS = "no_derived_answers"
 REJECTION_STATUS_ANSWER_MISMATCH = "status_answer_mismatch"
+REVIEW_RETRY_REASON_MESSAGES = {
+    REJECTION_MISSING_ANSWER_LETTERS: (
+        "Ultima linie ANSWER este goala sau nu contine litere A-E. "
+        "Completeaza obligatoriu `ANSWER:` cu litera/literele finale. "
+        "Nu lasa ANSWER gol."
+    ),
+    REJECTION_STATUS_ANSWER_MISMATCH: (
+        "Exista contradictie intre STATUS_A-E si ANSWER. "
+        "Rescrie raspunsul astfel incat ANSWER sa contina exact literele derivate "
+        "din STATUS_A-E pentru tipul intrebarii: R.I. -> TRUE, u.a.s.c.c.e. -> FALSE, "
+        "exceptie/fals/incorect -> varianta FALSE."
+    ),
+    REJECTION_SINGLE_ANSWER_COUNT_MISMATCH: (
+        "Intrebarea cere exact o singura litera. Alege o singura varianta A-E si "
+        "pune doar acea litera in ANSWER."
+    ),
+    REJECTION_SINGLE_ANSWER_STATUS_MISMATCH: (
+        "Intrebarea cere un raspuns unic, iar litera aleasa trebuie sa aiba status "
+        "TRUE sau FALSE conform tipului intrebarii, nu INSUFFICIENT."
+    ),
+    REJECTION_ALL_OPTIONS_SELECTED: (
+        "Ai selectat toate variantele A-E. Re-evalueaza statusurile; in acest "
+        "benchmark selectarea tuturor variantelor este tratata ca supraselectie."
+    ),
+    REJECTION_NO_DERIVED_ANSWERS: (
+        "Statusurile nu produc nicio litera finala. Re-evalueaza optiunile fata "
+        "de context si completeaza ANSWER conform tipului intrebarii."
+    ),
+    REJECTION_MISSING_OR_INVALID_VARIANT: (
+        "Campul OPTION/VARIANTA lipseste sau nu contine o singura litera A-E. "
+        "Completeaza OPTION si ANSWER cu aceeasi litera."
+    ),
+    REJECTION_ANSWER_VARIANT_MISMATCH: (
+        "OPTION/VARIANTA si ANSWER nu coincid. Rescrie astfel incat OPTION si "
+        "ANSWER sa contina aceeasi litera."
+    ),
+    REJECTION_DERIVED_VALUE_VARIANT_MISMATCH: (
+        "Ordinea/asocierile reconstruite nu corespund variantei alese. "
+        "Compara din nou derivarea cu variantele A-E si alege litera potrivita."
+    ),
+    REJECTION_MISSING_OR_INVALID_FRAGMENT: (
+        "Campul ISSUE_FRAGMENT lipseste sau nu contine o singura litera A-E. "
+        "Completeaza ISSUE_FRAGMENT si ANSWER cu aceeasi litera."
+    ),
+    REJECTION_ANSWER_FRAGMENT_MISMATCH: (
+        "ISSUE_FRAGMENT si ANSWER nu coincid. Rescrie astfel incat ambele campuri "
+        "sa indice aceeasi litera."
+    ),
+}
 BENCHMARK_SYSTEM_PROMPT = """
 You are solving Romanian medical multiple-choice benchmark items using ONLY the retrieved context.
 
@@ -735,6 +784,27 @@ def _build_single_answer_repair_prompt(
     )
 
 
+def _build_review_retry_message(
+    *,
+    previous_response: str,
+    rejection_reason: str | None,
+) -> str:
+    """Build targeted retry guidance for a rejected benchmark response."""
+
+    base_message = REVIEW_RETRY_MESSAGE.format(previous_response=previous_response)
+    if not rejection_reason:
+        return base_message
+
+    reason_message = REVIEW_RETRY_REASON_MESSAGES.get(rejection_reason)
+    if not reason_message:
+        return f"{base_message}\nMotiv respingere: {rejection_reason}."
+    return (
+        f"{base_message}\n"
+        f"Motiv respingere: {rejection_reason}.\n"
+        f"Corectie specifica: {reason_message}"
+    )
+
+
 def _is_sequence_question(normalized_question: str) -> bool:
     """Return whether question requests a temporal-order answer."""
 
@@ -811,6 +881,38 @@ def _derive_answers_from_statuses(
     return {letter for letter, status in statuses.items() if status == STATUS_TRUE}
 
 
+def _extract_benchmark_prediction(item: dict[str, Any], response: str) -> set[str]:
+    """Extract answer letters, falling back to STATUS_A..E when ANSWER is empty."""
+
+    predicted = _extract_option_letters(response)
+    if predicted:
+        return predicted
+
+    normalized_question = _normalize_romanian_text(item["intrebare"])
+    if (
+        _is_sequence_question(normalized_question)
+        or _is_mapping_question(normalized_question)
+        or _is_scfce_question(normalized_question)
+    ):
+        return set()
+
+    statuses = _extract_option_statuses(response)
+    if not statuses:
+        return set()
+
+    if _benchmark_requires_single_answer(item):
+        target_status = (
+            STATUS_FALSE if _is_exception_single_question(normalized_question) else STATUS_TRUE
+        )
+        derived = {letter for letter, status in statuses.items() if status == target_status}
+        return derived if len(derived) == 1 else set()
+
+    return _derive_answers_from_statuses(
+        normalized_question=normalized_question,
+        statuses=statuses,
+    )
+
+
 def _benchmark_rejection_reason(item: dict[str, Any], response: str) -> str | None:
     """Return structured rejection reason when response is invalid for benchmark policy."""
 
@@ -819,7 +921,7 @@ def _benchmark_rejection_reason(item: dict[str, Any], response: str) -> str | No
     if _FORBIDDEN_REASONING_RE.search(response):
         return REJECTION_FORBIDDEN_REASONING
 
-    predicted = _extract_option_letters(response)
+    predicted = _extract_benchmark_prediction(item, response)
     if not predicted:
         return REJECTION_MISSING_ANSWER_LETTERS
 
@@ -998,15 +1100,16 @@ def run_retrieval_benchmark(
             previous_response = ""
             last_rejection_reason: str | None = None
             for attempt in range(max_attempts):
+                retry_message = _build_review_retry_message(
+                    previous_response=previous_response,
+                    rejection_reason=last_rejection_reason,
+                )
                 request = LLMRequest(
                     system_prompt=BENCHMARK_SYSTEM_PROMPT,
                     user_message=(
                         prompt
                         if attempt == 0
-                        else (
-                            f"{prompt}\n\n"
-                            f"{REVIEW_RETRY_MESSAGE.format(previous_response=previous_response)}"
-                        )
+                        else f"{prompt}\n\n{retry_message}"
                     ),
                     context_block=context_block,
                     temperature=0.0,
@@ -1018,7 +1121,7 @@ def run_retrieval_benchmark(
                 if rejection_reason is not None:
                     last_rejection_reason = rejection_reason
                     continue
-                if _extract_option_letters(response):
+                if _extract_benchmark_prediction(item, response):
                     return response, reranked_hits, None
             return previous_response, reranked_hits, last_rejection_reason
 
@@ -1041,7 +1144,7 @@ def run_retrieval_benchmark(
             retrieved_chunks = _serialize_retrieved_chunks(retrieved_hits)
         else:
             model_response = ask_fn(prompt)
-        predicted = _extract_option_letters(model_response)
+        predicted = _extract_benchmark_prediction(item, model_response)
         single_answer_retry_used = False
         if _benchmark_requires_single_answer(item) and len(predicted) != 1:
             single_answer_retry_used = True
@@ -1056,7 +1159,7 @@ def run_retrieval_benchmark(
                 retrieved_chunks = _serialize_retrieved_chunks(retrieved_hits)
             else:
                 repaired_response = ask_fn(repair_prompt)
-            repaired_predicted = _extract_option_letters(repaired_response)
+            repaired_predicted = _extract_benchmark_prediction(item, repaired_response)
             if len(repaired_predicted) == 1:
                 model_response = repaired_response
                 predicted = repaired_predicted

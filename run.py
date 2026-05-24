@@ -87,6 +87,8 @@ def _safe_model_suffix() -> str:
 
     if SETTINGS.llm_provider == "openai":
         raw = SETTINGS.openai_model
+    elif SETTINGS.llm_provider == "anthropic":
+        raw = SETTINGS.anthropic_model
     elif SETTINGS.llm_provider == "ollama":
         raw = SETTINGS.ollama_model
     else:

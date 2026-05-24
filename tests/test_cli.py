@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -176,6 +177,21 @@ class TestCLI(unittest.TestCase):
 
         benchmark_mock.assert_called_once()
         self.assertTrue(benchmark_mock.call_args.kwargs["use_guardrail"])
+
+    def test_next_benchmark_output_path_uses_anthropic_model_suffix(self) -> None:
+        settings = replace(
+            run.SETTINGS,
+            llm_provider="anthropic",
+            anthropic_model="claude-sonnet-4-20250514",
+            qwen_model="qwen3.5",
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch.object(run, "SETTINGS", settings):
+                with patch("run.Path", wraps=Path) as path_mock:
+                    path_mock.side_effect = lambda value: Path(temp_dir) / value
+                    output_path = run._next_benchmark_output_path()
+
+        self.assertTrue(output_path.endswith("output_v1_claude-sonnet-4-20250514.txt"))
 
     def test_eval_benchmark_writes_json_output_file(self) -> None:
         with tempfile.NamedTemporaryFile(

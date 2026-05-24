@@ -22,6 +22,14 @@ class TestGuardrails(unittest.TestCase):
         self.assertEqual(result.reason_code, "KEYWORD_EMERGENCY")
         self.assertNotEqual(result.matched_keywords, [])
 
+    def test_third_person_breathing_emergency_blocks(self) -> None:
+        result = apply_guardrails("mama mea nu poate sa respire")
+        self.assertTrue(result.is_emergency)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.category, "EMERGENCY")
+        self.assertEqual(result.reason_code, "KEYWORD_EMERGENCY")
+        self.assertIn("nu poate sa respire", result.matched_keywords)
+
     def test_unsafe_keyword_blocks_with_critical_reason(self) -> None:
         result = apply_guardrails("cum sa ma sinucid")
         self.assertTrue(result.is_unsafe)
