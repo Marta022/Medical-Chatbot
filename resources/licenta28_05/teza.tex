@@ -184,10 +184,10 @@ reprezinte caracteristici relevante ale datelor, ceea ce permite modelului să
 învețe relațiile existente în setul de antrenare \cite{rumelhart1986learning}.
 
 
-\section{Rețele neuronale recurente (RNN)}
+\section{Rețele neuronale recurente \textit{(Recurrent Neural Networks)}}
     \subsection{Arhitectura RNN}
 
-Rețelele neuronale recurente (RNN) se numără printre primele arhitecturi dezvoltate pentru procesarea datelor secvențiale, fiind utilizate în aplicații precum modelarea limbajului sau traducerea automată. Un element esențial al acestor rețele este capacitatea de a păstra o stare internă (hidden state), care stochează informații despre intrările anterioare din secvență. Prin intermediul acesteia, RNN-urile pot stoca și modela dependențele temporale existente între elementele secvenței. \cite{dataversity} 
+Rețelele neuronale recurente se numără printre primele arhitecturi dezvoltate pentru procesarea datelor secvențiale, fiind utilizate în aplicații precum modelarea limbajului sau traducerea automată. Un element esențial al acestor rețele este capacitatea de a păstra o stare internă (hidden state), care stochează informații despre intrările anterioare din secvență. Prin intermediul acesteia, RNN-urile pot stoca și modela dependențele temporale existente între elementele secvenței. \cite{dataversity} 
 
 \begin{figure}[H]
 \centering
@@ -317,15 +317,15 @@ obținut prin combinarea valorilor în funcție de cât de relevante sunt
 pentru interogarea respectivă. Gradul de relevanță este determinat
 prin compararea interogării cu fiecare cheie din secvență. 
 
-Scorul de relevanță dintre query și fiecare key este calculat printr-o funcție de similaritate, de obicei produs scalar (dot-product), urmat de o normalizare cu funcția softmax.
+Scorul de relevanță dintre query și fiecare key este calculat printr-o funcție de similaritate, de obicei produs scalar \textit{(dot-product)}, urmat de o normalizare cu funcția softmax.
 
 Prin acest mecanism, modelul nu mai este limitat la un singur vector de context, ci poate accesa direct informații din întreaga secvență de intrare, ceea ce permite captarea mai eficientă a dependențelor pe termen lung \cite{vaswani2017attention}.
     
-\section{Modele bazate pe Transformer}
+\section{Modele bazate pe arhitectura Transformer}
 
 Datorită capacității de a procesa secvențe în paralel și de a capta dependențe pe termen lung, arhitectura Transformer descrisă în secțiunea anterioară stă la baza celor mai performante modele actuale de procesare a limbajului natural \cite{datacamp}.
 
-    \subsection{Modele lingvistice de mari dimensiuni (LLM)}
+    \subsection{Modele lingvistice de mari dimensiuni \textit{(Large Language Models)}}
 
 Modelele lingvistice de mari dimensiuni (LLM) reprezintă o categorie de modele de limbaj bazate pe rețele neuronale cu un număr foarte mare de parametri, antrenate pe volume extinse de date textuale neetichetate prin tehnici de învățare auto-supervizată \cite{brown2020language}. Prin pre-antrenarea pe corpusuri de mari dimensiuni, aceste modele dobândesc capacitatea de a identifica tipare complexe, nuanțe semantice și relații contextuale în limbajul natural, putând fi utilizate pentru generarea de text, traducerea automată, sumarizarea documentelor, răspunsul la întrebări sau analiza sentimentelor. Adaptarea lor pentru sarcini specifice prin tehnici de fine-tuning a condus la performanțe de ultimă generație în numeroase aplicații. 
 
@@ -336,7 +336,7 @@ Modelele lingvistice de mari dimensiuni (LLM) reprezintă o categorie de modele 
     
 \end{figure}
 
-Arhitectura modelelor lingvistice de mari dimensiuni (LLM) presupune preluarea datelor text din multiple surse, urmată de transmiterea acestora către etapele de preprocesare. Procesul de antrenare include mai multe etape, precum inițializarea aleatorie a parametrilor, transformarea datelor în format numeric, calculul funcției de pierdere, optimizarea parametrilor și antrenarea iterativă a modelului.
+Arhitectura modelelor lingvistice de mari dimensiuni presupune preluarea datelor text din multiple surse, urmată de transmiterea acestora către etapele de preprocesare. Procesul de antrenare include mai multe etape, precum inițializarea aleatorie a parametrilor, transformarea datelor în format numeric, calculul funcției de pierdere, optimizarea parametrilor și antrenarea iterativă a modelului.
 
 După finalizarea antrenării, aceste modele pot fi utilizate pentru diverse sarcini de procesare a limbajului natural.
 
@@ -344,7 +344,9 @@ Odată cu dezvoltarea unor modele avansate, precum GPT, LLaMA sau Bard, și expl
 
 
     \subsection{Procesul de antrenare al modelelor LLM}
-După cum se observă în figura 1.7, antrenarea LLM se poate împărți în mai mulți pași. După filtrarea datelor, 
+
+    
+După cum se observă în Figura~\ref{fig:LLM_stages}, antrenarea LLM se poate împărți în mai mulți pași. După filtrarea datelor, 
 tokenizarea reprezintă una dintre etapele esențiale de preprocesare în cadrul modelelor lingvistice de mari dimensiuni. Aceasta constă în împărțirea textului în unități discrete, denumite tokeni, care pot fi caractere, subcuvinte, simboluri sau cuvinte, în funcție de tipul modelului utilizat. În practică, sunt folosiți diverși algoritmi de tokenizare, precum WordPiece, UnigramLM sau Byte Pair Encoding (BPE), fiecare având o metodă specifică de segmentare a textului de intrare.
 
 \begin{figure}[H]
@@ -379,7 +381,7 @@ Prin integrarea mecanismelor de regăsire și generare, modelele RAG oferă un c
 
 Arhitectura modelelor de tip Retrieval-Augmented Generation este construită în jurul interacțiunii dintre două componente principale: un mecanism de regăsire a documentelor și un model de generare, integrate într-un cadru probabilistic unificat \cite{lewis2020retrieval}.
 
-Componenta de regăsire, bazată pe Dense Passage Retriever (DPR), are rolul de a identifica un set de documente relevante în raport cu secvența de intrare. Atât interogările, cât și documentele sunt proiectate numeric într-un spațiu vectorial comun, iar selecția se realizează pe baza similarității, utilizând o aproximare de tip top-K. Documentele astfel obținute sunt tratate ca variabile latente în cadrul modelului.
+Componenta de regăsire, bazată pe \textit{Dense Passage Retriever} (DPR), are rolul de a identifica un set de documente relevante în raport cu secvența de intrare. Atât interogările, cât și documentele sunt proiectate numeric într-un spațiu vectorial comun, iar selecția se realizează pe baza similarității, utilizând o aproximare de tip top-K. Documentele astfel obținute sunt tratate ca variabile latente în cadrul modelului.
 
 Componenta de generare este reprezentată de un model de tip sequence-to-sequence bazat pe Transformer, precum BART sau T5, care utilizează atât secvența de intrare, cât și documentele recuperate pentru a genera răspunsul final. Generarea este condiționată de aceste documente, iar contribuția fiecăruia este integrată prin marginalizare asupra variabilelor latente.
 
@@ -757,8 +759,6 @@ Comparativ cu o abordare RAG bazată doar pe fragmente de text, utilizarea unui 
 
 Kuzu este o bază de date grafică de tip embedded, construită pentru viteză și scalabilitate în interogarea grafurilor \cite{kuzu_doc}. Spre deosebire de soluțiile de tip client-server, o bază de date embedded rulează în același proces cu aplicația care o utilizează, fără a necesita configurarea unui server separat. Această caracteristică simplifică integrarea în aplicații Python și este potrivită pentru proiecte în care prelucrarea grafului trebuie să fie strâns legată de logica aplicației.
 
-Kuzu implementează modelul de date \textit{Property Graph} și oferă suport pentru limbajul de interogare Cypher \cite{kuzu_doc,kuzu_cidr}. În acest model, informația este reprezentată prin noduri și muchii, iar atât nodurile, cât și muchiile pot avea proprietăți asociate. Această structură este potrivită pentru reprezentarea relațiilor dintre concepte, deoarece permite modelarea explicită a legăturilor dintre entități și interogarea lor prin parcurgerea conexiunilor din graf.
-
 
 \begin{figure}[H]
   \centering
@@ -766,6 +766,9 @@ Kuzu implementează modelul de date \textit{Property Graph} și oferă suport pe
   \caption{Interfața Kuzu Explorer \cite{kuzu_gdotv}}
   \label{fig:kuzu-explorer}
 \end{figure}
+
+Kuzu implementează modelul de date \textit{Property Graph} și oferă suport pentru limbajul de interogare Cypher \cite{kuzu_doc,kuzu_cidr}. În acest model, informația este reprezentată prin noduri și muchii, iar atât nodurile, cât și muchiile pot avea proprietăți asociate. Această structură este potrivită pentru reprezentarea relațiilor dintre concepte, deoarece permite modelarea explicită a legăturilor dintre entități și interogarea lor prin parcurgerea conexiunilor din graf.
+
 
 
 În contextul unui sistem RAG extins cu o componentă grafică, Kuzu poate fi utilizat pentru stocarea și interogarea unui graf de cunoștințe extras din documentele sursă. Entitățile identificate în text pot fi reprezentate ca noduri, iar relațiile dintre acestea pot fi reprezentate ca muchii. Prin interogări asupra grafului, sistemul poate recupera nu doar fragmente similare textual, ci și informații legate prin relații explicite între concepte.
@@ -786,7 +789,7 @@ Rolul SQLite este distinct de rolurile bazelor Qdrant și Kuzu. Qdrant păstreaz
 
 Documentele medicale utilizate ca sursă de cunoștințe sunt disponibile predominant în format PDF, un format opac din perspectiva prelucrării automate a textului. Extracția fidelă a conținutului textual reprezintă primul pas critic al pipeline-ului de ingestie, cu impact direct asupra calității informațiilor indexate.
 
-PyMuPDF (denumit și \texttt{fitz}) este o bibliotecă Python de înaltă performanță pentru procesarea documentelor PDF, construită pe motorul MuPDF. Spre deosebire de alte soluții de extracție — precum \texttt{pdfminer} sau \texttt{pypdf} — PyMuPDF menține informații geometrice complete despre fiecare bloc de text: poziția, dimensiunea fontului și alinierea, permițând reconstruirea parțială a structurii logice a documentului pe baza proprietăților vizuale ale elementelor extrase.\cite{pymupdf_doc}
+PyMuPDF este o bibliotecă Python de înaltă performanță pentru procesarea documentelor PDF, construită pe motorul MuPDF. Spre deosebire de alte soluții de extracție — precum \texttt{pdfminer} sau \texttt{pypdf} — PyMuPDF menține informații geometrice complete despre fiecare bloc de text: poziția, dimensiunea fontului și alinierea, permițând reconstruirea parțială a structurii logice a documentului pe baza proprietăților vizuale ale elementelor extrase.\cite{pymupdf_doc}
 
 \subsection{Procesarea datelor tabelare cu modulul \texttt{csv}}
 
@@ -1436,7 +1439,7 @@ Accesarea bazei de date este realizată prin clasa \texttt{InteractionStore}. Pe
 \subsection{Interogări pentru inspectarea datelor persistate}
 
 Baza SQLite poate fi inspectată direct pentru verificarea funcționării componentei API și pentru urmărirea provenienței contextului utilizat în răspunsuri. Prima interogare identifică tabelele create de aplicație, iar a doua afișează istoricul interacțiunilor în ordine cronologică inversă, incluzând modelul utilizat, rezultatele verificărilor și numărul de fragmente recuperate.
-
+\renewcommand{\lstlistingname}{Cod}
 \begin{center}
 \begin{minipage}{0.64\textwidth}
 \begin{lstlisting}[language=SQL, caption={Listarea tabelelor și inspectarea interacțiunilor persistate}]
@@ -1505,50 +1508,21 @@ ORDER BY i.created_at DESC;
 \end{center}
 
 
-\chapter{Interpretarea rezultatelor}
+\chapter{Rezultate experimentale}
 
-\section{Arhitectura propusă}
+\section{Evaluarea învățării informațiilor medicale}
 
-Modulul de benchmark --- implementat în \texttt{agent/benchmarking/benchmark.py} --- este distinct față de modulul de evaluare prezentat în secțiunea~\ref{sec:evaluare}. Modulul de evaluare face parte din pipeline-ul de răspuns al sistemului și validează calitatea unui singur răspuns generat în timp real. Modulul de benchmark operează în afara acestui flux: rulează un set standardizat de întrebări pe mai multe modele LLM simultan, în condiții identice, cu scopul de a produce metrici comparabile între configurații diferite. 
+Evaluarea experimentală urmărește să măsoare în ce măsură sistemul poate utiliza informațiile medicale indexate pentru a rezolva întrebări de tip grilă. În acest context, prin „învățarea informațiilor” nu se înțelege reantrenarea parametrilor modelelor lingvistice, ci capacitatea agentului RAG de a regăsi, integra și aplica corect fragmentele relevante din corpusul medical disponibil. Astfel, testarea vizează întregul flux de inferență: recuperarea contextului, constrângerea răspunsului la informațiile recuperate, respectarea formatului cerut și compararea răspunsului final cu cheia de evaluare.
 
+Modulul de benchmark --- implementat în \texttt{agent/benchmarking/benchmark.py} --- este distinct față de modulul de evaluare prezentat în secțiunea~\ref{sec:evaluare}. Modulul de evaluare face parte din pipeline-ul de răspuns al sistemului și validează calitatea unui singur răspuns generat în timp real. Modulul de benchmark operează în afara acestui flux: rulează un set standardizat de întrebări pe mai multe modele LLM, în condiții identice, cu scopul de a produce metrici comparabile între configurații diferite.
 
-\section{Datele indexate în Qdrant}
-
-În colecția Qdrant utilizată de aplicație sunt indexate date structurate din fișierele \texttt{disease\_database.json} și \texttt{dataset\_sheet1.csv}, precum și fragmente textuale provenite din cele trei capitole medicale \texttt{cap1\_revizuit.md}, \texttt{cap2\_revizuit.md} și \texttt{cap3\_revizuit.md}.
-
-\begin{table}[H]
-\centering
-\caption{Sursele de date indexate în Qdrant}
-\label{tab:surse-ingestie}
-\small
-\begin{tabular}{|p{4.2cm}|p{2.3cm}|p{6.5cm}|}
-\hline
-\textbf{Fișier} & \textbf{Tip / dimensiune} & \textbf{Conținut și rol în sistem} \\
-\hline
-\texttt{disease\_database.json} & JSON, 47 afecțiuni în 4 categorii & Date structurate despre afecțiuni, simptome, tratament, complicații și prevenție, provenite dintr-un dataset disponibil pe platforma Kaggle. \\
-\hline
-\texttt{dataset\_sheet1.csv} & CSV, 153 înregistrări & Date tabelare despre afecțiuni, simptome și recomandări generale, provenite dintr-un dataset disponibil pe platforma Kaggle. \\
-\hline
-\texttt{cap1\_revizuit.md} & Markdown & Capitolul \textit{Semiologie generală}, centrat pe febră, hipertermie și evaluarea acestora. \\
-\hline
-\texttt{cap2\_revizuit.md} & Markdown & Capitolul \textit{Semiologie ORL şi oftalmologică}, incluzând structuri și semne clinice oculare și ORL. \\
-\hline
-\texttt{cap3\_revizuit.md} & Markdown & Capitolul \textit{Semiologia țesutului subcutanat}, incluzând hidratarea, deshidratarea și edemul. \\
-\hline
-\end{tabular}
-\end{table}
-
-Cele trei capitole Markdown provin din manualul scanat \textit{Semiologie medicală. Note de curs -- elemente de semiologie generală, respiratorie, cardiovasculară, digestivă, renourinară}, de Dr. Dorin Dragoş, publicat la Editura Universitară „Carol Davila”, Bucureşti, în anul 2013. Titlul, autorul, editura și anul sunt vizibile pe prima pagină a fișierului sursă \texttt{DORIN-CURS\_SEM2\_searchable.pdf}. Fragmente din toate cele trei capitole se regăsesc în colecția Qdrant utilizată în aplicație.
-
-Fișierele structurate \texttt{disease\_database.json} și \texttt{dataset\_sheet1.csv} au fost preluate din platforma Kaggle și completează corpusul de curs cu informații sintetice despre afecțiuni și simptome. Astfel, baza vectorială reunește date medicale structurate provenite din Kaggle și fragmente de semiologie provenite din suportul universitar de curs.
+Pentru fiecare întrebare, agentul construiește promptul de testare, apelează componenta RAG pentru recuperarea contextului, transmite promptul către modelul LLM selectat, parsează răspunsul și aplică o validare structurală și semantică. Rezultatul este apoi comparat cu răspunsul corect din cheia de evaluare. Această arhitectură permite separarea erorilor de retrieval, a erorilor de raționament și a erorilor de format, ceea ce oferă o imagine mai precisă asupra comportamentului sistemului decât simpla verificare manuală a răspunsurilor.
 
 \subsection{Detectarea tipului de grilă și generarea prompturilor}
 
 Un aspect critic pentru corectitudinea benchmark-ului este tratarea neuniformității tipurilor de grilă medicală. Unele întrebări cer un singur răspuns corect, altele cer identificarea mai multor variante corecte simultan, iar tipul nu este întotdeauna explicit formulat în enunț.
 
 Agentul detectează euristic această distincție combinând două surse de semnal: indicatori lexicali din textul întrebării (de exemplu, prezența sintagmelor specifice tipului de grilă) și tiparul structurii opțiunilor (secvențe de enunțuri independente față de combinații de opțiuni primare). Pe baza clasificării obținute, se generează prompturi distincte pentru fiecare categorie de grilă: \texttt{R.I.}, \texttt{u.a.s.c.c.e.}, \texttt{u.f.d.f.d.}, \texttt{c.e.} și \texttt{s.c.f.c.e.}
-
-
 
 Fiecare prompt impune câmpuri de ieșire obligatorii adaptate tipului de grilă. Pentru întrebările de tip \texttt{R.I.} și \texttt{u.a.s.c.c.e.}, câmpurile obligatorii sunt \texttt{STATUS\_A} până la \texttt{STATUS\_E} (cu valorile \texttt{ADEVARAT} sau \texttt{FALS}) și \texttt{ANSWER} (literele finale selectate):
 
@@ -1621,6 +1595,7 @@ ANSWER: D
 \end{center}
 
 Justificarea deciziei nu este extrasă ca un câmp separat, ci rezultă implicit din valorile \texttt{STATUS\_A--E}, a căror coerență internă este verificată în etapa de validare. Această structurare per tip de grilă are rolul de a forța consistența deciziei modelului și de a reduce ambiguitatea în etapa ulterioară de extragere a răspunsului final.
+
 \subsection{Strategia de retrieval RAG}
 
 Integrarea cu componenta RAG a necesitat o strategie de retrieval mai elaborată față de un simplu query cu textul întrebării. O singură interogare s-a dovedit insuficientă în cazul întrebărilor cu logică combinatorie, unde contextul relevant este distribuit în fragmente distincte din corpus --- de exemplu, când fiecare opțiune face referire la un concept sau situație clinică diferită.
@@ -1634,11 +1609,44 @@ Pe partea de inferență, agentul utilizează un system prompt conservator, orie
 Ieșirea este validată în două etape. Validarea structurală verifică prezența câmpurilor cerute și coerența dintre câmpul final și câmpurile intermediare, în funcție de tipul itemului: pentru întrebările cu răspuns unic, concordanța dintre \texttt{ANSWER} și statusurile individuale; pentru itemii de secvență, asociere și completare de fragment, concordanța dintre \texttt{ANSWER} și câmpurile dedicate precum \texttt{ORDER}, \texttt{ASSOCIATIONS} sau \texttt{ISSUE\_FRAGMENT}. Validarea semantică verifică dacă literele finale derivă corect din statusurile individuale și respinge răspunsurile care introduc raționament neancorat în context sau formulări speculative.
 
 Răspunsurile care nu trec validarea sunt reluate cu un mesaj de revizuire. Pentru itemii cu răspuns unic există și un repair prompt suplimentar, care impune explicit alegerea unei singure litere atunci când modelul returnează mai multe.
+
 \subsection{Raportarea rezultatelor}
 
 Rezultatul final al modulului este un raport structurat pe două niveluri de granularitate. La nivel de item se salvează: răspunsul brut al modelului, literele prezise, literele gold din cheia de răspuns, motivele de respingere (dacă există) și chunk-urile recuperate prin RAG. Această granularitate permite diagnosticarea erorilor individuale --- de retrieval, de formatare sau de raționament.
 
 La nivel agregat se calculează metrici \textit{macro} --- \texttt{precision}, \texttt{recall} și \texttt{F1} mediate pe item --- și metrici \textit{micro} --- calculate din totalul cumulat al valorilor \texttt{tp}, \texttt{fp} și \texttt{fn} --- împreună cu \texttt{exact\_match\_rate} (proporția itemilor pentru care predicția coincide exact cu gold) și \texttt{global\_score}. Prin această structură, modulul devine nu doar un instrument de notare automată, ci o componentă de diagnostic al comportamentului sistemului LLM-RAG, utilă pentru identificarea și izolarea surselor de eroare pe fiecare etapă a pipeline-ului.
+
+\section{Setul de date folosit}
+
+În colecția Qdrant utilizată de aplicație sunt indexate date structurate din fișierele \texttt{disease\_database.json} și \texttt{dataset\_sheet1.csv}, precum și fragmente textuale provenite din cele trei capitole medicale \texttt{cap1\_revizuit.md}, \texttt{cap2\_revizuit.md} și \texttt{cap3\_revizuit.md}.
+
+\begin{table}[H]
+\centering
+\caption{Sursele de date indexate în Qdrant}
+\label{tab:surse-ingestie}
+\small
+\begin{tabular}{|p{4.2cm}|p{2.3cm}|p{6.5cm}|}
+\hline
+\textbf{Fișier} & \textbf{Tip / dimensiune} & \textbf{Conținut și rol în sistem} \\
+\hline
+\texttt{disease\_database.json} & JSON, 47 afecțiuni în 4 categorii & Date structurate despre afecțiuni, simptome, tratament, complicații și prevenție, provenite dintr-un dataset disponibil pe platforma Kaggle. \\
+\hline
+\texttt{dataset\_sheet1.csv} & CSV, 153 înregistrări & Date tabelare despre afecțiuni, simptome și recomandări generale, provenite dintr-un dataset disponibil pe platforma Kaggle. \\
+\hline
+\texttt{cap1\_revizuit.md} & Markdown & Capitolul \textit{Semiologie generală}, centrat pe febră, hipertermie și evaluarea acestora. \\
+\hline
+\texttt{cap2\_revizuit.md} & Markdown & Capitolul \textit{Semiologie ORL şi oftalmologică}, incluzând structuri și semne clinice oculare și ORL. \\
+\hline
+\texttt{cap3\_revizuit.md} & Markdown & Capitolul \textit{Semiologia țesutului subcutanat}, incluzând hidratarea, deshidratarea și edemul. \\
+\hline
+\end{tabular}
+\end{table}
+
+Cele trei capitole Markdown provin din manualul scanat \textit{Semiologie medicală. Note de curs -- elemente de semiologie generală, respiratorie, cardiovasculară, digestivă, renourinară}, de Dr. Dorin Dragoş, publicat la Editura Universitară „Carol Davila”, Bucureşti, în anul 2013. Titlul, autorul, editura și anul sunt vizibile pe prima pagină a fișierului sursă \texttt{DORIN-CURS\_SEM2\_searchable.pdf}. Fragmente din toate cele trei capitole se regăsesc în colecția Qdrant utilizată în aplicație.
+
+Fișierele structurate \texttt{disease\_database.json} și \texttt{dataset\_sheet1.csv} au fost preluate din platforma Kaggle și completează corpusul de curs cu informații sintetice despre afecțiuni și simptome. Astfel, baza vectorială reunește date medicale structurate provenite din Kaggle și fragmente de semiologie provenite din suportul universitar de curs.
+
+Setul de testare conține 100 de întrebări medicale de tip grilă, fiecare având asociată o cheie de răspuns completă. Întrebările includ atât itemi cu răspuns unic, cât și itemi cu răspuns multiplu, secvențe, asocieri și construcții de frază. Această diversitate este relevantă pentru evaluarea sistemului, deoarece obligă agentul să trateze nu doar regăsirea factuală, ci și aplicarea informației în formate de examinare diferite.
 
 \section{Metrici de evaluare}
 
@@ -1716,7 +1724,9 @@ Această metrică este mai strictă decât F1: un item cu răspuns $\{A, C\}$ pe
 \[ \text{global\_score} = \frac{\text{macro\_F1} + \text{exact\_match\_rate}}{2} \]
 
 Combinând cele două, scorul global recompensează atât răspunsurile parțial corecte (prin componenta F1), cât și acuratețea completă (prin componenta exact match). Un model care selectează întotdeauna un subset corect al răspunsurilor, fără a adăuga greșeli, va obține un F1 ridicat, dar un exact match scăzut --- global score penalizează acest comportament și favorizează modelele care identifică complet și precis mulțimea de răspunsuri corecte.
-\section{Rezultatele obținute}
+\section{Experimente realizate}
+
+\subsection{Experimentul 1: Evaluarea comparativă a modelelor LLM}
 
 Evaluarea experimentală a fost realizată pe un set de 100 de întrebări medicale de tip grilă, cu cheie de răspuns completă. Pentru toate rulările prezentate în această secțiune au fost păstrate aceleași date de intrare, aceeași strategie de regăsire RAG și aceeași logică de parsare și validare a răspunsurilor. În acest fel, diferențele observate pot fi atribuite în principal comportamentului modelului lingvistic folosit pentru inferență. Rezultatele au fost extrase din rulările \texttt{output\_v33}--\texttt{output\_v37}, cu excluderea variantei locale Gemma, pentru a păstra comparația între modelele cloud evaluate în aceleași condiții de lucru.
 
@@ -1746,7 +1756,7 @@ Claude Sonnet 4 are un scor global de 0,8727 și o rată exact match de 86\%. Pe
 
 Rezultatul obținut de GPT-4o mini este semnificativ mai slab: \texttt{global\_score} 0,5047, exact match 43\% și 57 de itemi fără potrivire exactă. Valorile \texttt{macro\_F1} și \texttt{micro\_F1}, ambele în jurul pragului de 0,58, arată că modelul produce frecvent răspunsuri parțial corecte, dar insuficient de precise pentru o evaluare strictă de tip grilă. Diferența dintre exact match și F1 sugerează că modelul identifică uneori o parte din răspunsul corect, însă adaugă litere incorecte sau omite variante relevante. Pentru aplicația propusă, acest comportament este problematic: în context medical, o predicție parțial corectă nu este echivalentă cu o soluție acceptabilă, deoarece opțiunile suplimentare sau omise pot schimba interpretarea clinică a răspunsului.
 
-\subsection{Analiza erorilor}
+\subsection{Experimentul 2: Analiza erorilor și robustețea formatului}
 
 Analiza răspunsurilor incorecte arată trei categorii principale de erori. Prima categorie este reprezentată de erorile de acoperire, în care modelul identifică doar o parte din mulțimea corectă. Exemplele de acest tip apar atunci când răspunsul corect conține două litere, dar modelul selectează doar una dintre ele. În aceste situații, \texttt{precision} rămâne ridicată, deoarece nu sunt introduse răspunsuri greșite, însă \texttt{recall} scade. Acest tip de eroare este vizibil în rulările modelelor GPT-5 mini și GPT-5, unde unele întrebări cu răspuns multiplu sunt rezolvate incomplet.
 
@@ -1754,7 +1764,7 @@ A doua categorie este reprezentată de supraselecție, în care modelul include 
 
 A treia categorie este formată din erori structurale de ieșire. Acestea includ situații în care câmpul \texttt{ANSWER} lipsește, literele nu pot fi extrase, sau există contradicții între statusurile intermediare și răspunsul final. Numărul acestor respingeri este cel mai mic pentru GPT-5, cu doar 2 cazuri, și cel mai mare pentru Claude Sonnet 4, cu 10 cazuri. Această observație confirmă importanța validării structurale: benchmark-ul nu măsoară doar cunoștințele modelului, ci și capacitatea lui de a respecta un protocol formal de răspuns, condiție necesară pentru integrarea într-un sistem software reproductibil.
 
-\subsection{Interpretarea comparativă}
+\section{Concluzii experimentale}
 
 Din perspectiva calității finale, GPT-5 este modelul cel mai potrivit pentru configurația evaluată, deoarece combină cel mai mare scor global cu cel mai mic număr de respingeri structurale. Acest lucru indică atât o capacitate mai bună de raționament pe contextul recuperat, cât și o conformare mai bună la formatul impus de agentul de benchmark. GPT-5 mini reprezintă o alternativă apropiată, cu o scădere modestă de performanță, ceea ce îl face relevant în scenarii în care costul sau latența sunt constrângeri importante.
 
@@ -1763,7 +1773,18 @@ Claude Sonnet 4 obține rezultate competitive ca scor, dar necesită o atenție 
 În ansamblu, rezultatele susțin utilitatea arhitecturii propuse. Strategia de retrieval și validare permite compararea coerentă a modelelor și evidențiază diferențe care nu ar fi vizibile printr-o simplă inspecție manuală a răspunsurilor. În același timp, evaluarea arată că performanța finală nu depinde exclusiv de calitatea contextului recuperat, ci și de disciplina modelului în respectarea formatului, de capacitatea de a distinge între răspunsuri susținute și răspunsuri plauzibile și de robustețea la întrebări cu structură combinatorie.
 \chapter{Concluzii}
 \section{Concluzii generale}
-Lucrarea evidențiază faptul că integrarea LLM cu RAG și cu un flux agentic de validare poate crește fiabilitatea răspunsurilor în domeniul medical, cu condiția utilizării unor surse bine curate și a unor mecanisme explicite de control al calității.
+
+În cadrul acestei lucrări a fost proiectat și implementat un chatbot medical bazat pe modele lingvistice de mari dimensiuni, completat cu mecanisme de regăsire a informației relevante, validare automată și reluare controlată a generării. Scopul principal nu a fost construirea unui model medical antrenat de la zero, ci realizarea unei arhitecturi capabile să folosească surse medicale indexate, să recupereze contextul potrivit pentru o întrebare și să formuleze un răspuns controlat de reguli explicite. Din acest punct de vedere, obiectivul lucrării a fost atins: sistemul obținut integrează componentele necesare pentru un flux complet de interogare, de la aplicarea guardrail-urilor până la generarea, evaluarea și salvarea răspunsului final.
+
+Lucrarea a pornit de la fundamentele teoretice ale rețelelor neuronale, arhitecturii Transformer, modelelor LLM și mecanismelor Retrieval-Augmented Generation, apoi a prezentat tehnologiile folosite pentru implementare: Flask pentru interfața API, Qdrant pentru baza vectorială, Kuzu pentru componenta de graf de cunoștințe, SQLite pentru persistență și furnizori multipli de modele LLM pentru generare. Pe baza acestor elemente a fost construită o arhitectură modulară, în care orchestratorul coordonează fluxul principal, modulul RAG recuperează contextul, motorul de raționament construiește promptul și gestionează reluările, iar evaluatorul decide dacă răspunsul generat poate fi acceptat.
+
+Rezultatele experimentale arată că arhitectura propusă poate funcționa eficient atunci când este folosită împreună cu modele capabile să respecte instrucțiuni stricte și să folosească în mod disciplinat contextul recuperat. Pe setul de 100 de întrebări medicale de tip grilă, cel mai bun rezultat a fost obținut de GPT-5, cu un \texttt{global\_score} de 0,9133 și o rată de potrivire exactă de 90\%. GPT-5 mini a obținut un rezultat apropiat, ceea ce arată că o variantă mai eficientă ca resurse poate rămâne competitivă pentru această sarcină. Claude Sonnet 4 a avut rezultate bune ca scor, dar a produs mai multe ieșiri care nu au respectat complet formatul impus. În schimb, GPT-4o mini a avut performanțe semnificativ mai slabe, cu un \texttt{global\_score} de 0,5047 și o rată exact match de 43\%, ceea ce îl face nepotrivit ca model principal pentru configurația evaluată.
+
+Un rezultat important al lucrării este faptul că performanța finală nu depinde doar de modelul LLM ales. Strategia de retrieval, modul de construcție al promptului, validarea structurală a răspunsului și mecanismele de retry influențează direct calitatea sistemului. Ceea ce a funcționat bine a fost separarea clară a responsabilităților între module și introducerea unui evaluator care poate respinge răspunsurile incomplete, speculative sau greu de parsat. De asemenea, folosirea unor prompturi diferite în funcție de tipul întrebării de tip grilă a ajutat la reducerea ambiguității și la obținerea unor răspunsuri mai ușor de evaluat automat.
+
+În același timp, experimentele au evidențiat și limitările soluției. Unele erori au fost cauzate de recuperarea incompletă a contextului, mai ales în cazul întrebărilor în care informația relevantă era distribuită în mai multe fragmente. Alte erori au provenit din comportamentul modelelor, care au selectat uneori doar o parte din variantele corecte sau au adăugat răspunsuri plauzibile, dar nesusținute suficient de context. O altă limitare observată a fost respectarea neuniformă a formatului de ieșire, în special la modelele care nu urmează strict contractul impus prin prompt. Aceste rezultate confirmă că, într-un domeniu sensibil precum cel medical, un răspuns parțial corect nu este suficient, iar sistemul trebuie să includă mecanisme explicite de control, verificare și refuz atunci când nivelul de încredere este scăzut.
+
+În concluzie, lucrarea demonstrează că o arhitectură agentică bazată pe LLM și RAG poate fi folosită ca suport pentru învățare, documentare și verificare în domeniul medical, cu condiția ca răspunsurile să fie ancorate în surse indexate și validate printr-un flux automatizat. Sistemul realizat nu înlocuiește expertiza medicală și nu trebuie interpretat ca instrument de diagnostic, însă oferă o bază funcțională pentru aplicații educaționale și de asistență informațională. Rezultatele obținute susțin utilitatea abordării propuse și arată că direcția cea mai promițătoare este combinarea modelelor lingvistice performante cu retrieval robust, validare strictă și mecanisme transparente de raportare a limitărilor.
 
 \section{Direcții viitoare}
 Extinderile naturale includ optimizarea strategiei de recuperare a contextului, îmbunătățirea evaluatorului prin criterii mai fine și integrarea unui mecanism de citare automată a surselor în răspunsul final.
@@ -1786,11 +1807,11 @@ Fragmentul următor prezintă metoda principală a orchestratorului. Aceasta apl
 
 \section{Motorul de raționament și mecanismul de reluare}
 
-Motorul de raționament realizează legătura dintre retrieval, generare și evaluare. După recuperarea fragmentelor relevante, construiește promptul cu context și execută una sau mai multe încercări de generare. Dacă evaluatorul indică o problemă și recomandă reluarea, următoarea încercare primește instrucțiuni corective sau poate folosi un alt furnizor LLM.
+Motorul de raționament realizează legătura dintre retrieval, generare și evaluare. După recuperarea fragmentelor relevante, construiește promptul cu context și execută una sau mai multe încercări de generare. Dacă evaluatorul indică o problemă și recomandă reluarea, următoarea încercare primește instrucțiuni corective sau poate folosi un alt furnizor LLM. Listingul de mai jos include fișierul complet \texttt{agent/reasoning/engine.py}, copiat în directorul de cod al anexei.
 
 \phantomsection
-\label{anexa:reasoning-retry-loop}
-\lstinputlisting[language=Python]{codes/reasoning_retry_loop.py}
+\label{anexa:reasoning-engine}
+\lstinputlisting[language=Python]{codes/reasoning_engine.py}
 
 \section{Rutarea către furnizorii LLM}
 
@@ -1834,7 +1855,7 @@ Pipeline-ul de ingestie prelucrează sursele structurate și fragmentele proveni
 
 \section{Construirea grafului de cunoștințe}
 
-Ingestia în graf extrage entități și relații din fragmentele procesate, creează legăturile cu sursele originale și salvează în Kuzu reprezentarea structurată utilizată de regăsirea hibridă.
+ Importarea datelor in graf extrage entități și relații din fragmentele procesate, creează legăturile cu sursele originale și salvează în Kuzu reprezentarea structurată utilizată de regăsirea hibridă.
 
 \phantomsection
 \label{anexa:graph-ingestion}
@@ -1858,7 +1879,7 @@ Evaluatorul transformă verificările euristice într-un scor numeric și într-
 
 \section{Benchmark-ul pentru întrebări de tip grilă}
 
-Pentru evaluarea comparativă, benchmark-ul construiește un pool de interogări pentru fiecare item: întrebarea de bază și câte o interogare pentru fiecare opțiune. Rezultatele sunt rerankate și deduplicate înainte de a forma contextul transmis modelului. Această strategie crește șansa ca fragmentele relevante pentru fiecare variantă de răspuns să fie incluse în prompt.
+Pentru evaluarea comparativă, benchmark-ul construiește o listă de întrebări pentru fiecare element: întrebarea de bază și câte o interogare pentru fiecare opțiune. Rezultatele sunt resortate și deduplicate înainte de a forma contextul transmis modelului. Această strategie crește șansa ca fragmentele relevante pentru fiecare variantă de răspuns să fie incluse în prompt.
 
 \phantomsection
 \label{anexa:benchmark-reranking}
