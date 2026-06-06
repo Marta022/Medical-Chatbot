@@ -1,0 +1,137 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: medical-chatbot:local
+    container_name: medical-chatbot-app
+    command: ["python", "run.py", "chat"]
+    env_file:
+      - .env
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-medical_docs}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      ALLOW_MODEL_DOWNLOAD: ${ALLOW_MODEL_DOWNLOAD:-true}
+      RETRIEVAL_MIN_SCORE: ${RETRIEVAL_MIN_SCORE:-0.2}
+      DEFAULT_TOP_K: ${DEFAULT_TOP_K:-3}
+      INTERACTION_DB_ENABLED: ${INTERACTION_DB_ENABLED:-false}
+      INTERACTION_DB_PATH: ${INTERACTION_DB_PATH:-data/app/interactions.db}
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./data/dataset:/app/data/dataset:ro
+      - ./data/app:/app/data/app
+      - hf_cache:/root/.cache/huggingface
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+    networks:
+      - medical-net
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: medical-chatbot:local
+    container_name: medical-chatbot-api
+    command: ["flask", "--app", "api.app:create_app", "run", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    env_file:
+      - .env
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-medical_docs}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      ALLOW_MODEL_DOWNLOAD: ${ALLOW_MODEL_DOWNLOAD:-true}
+      RETRIEVAL_MIN_SCORE: ${RETRIEVAL_MIN_SCORE:-0.2}
+      DEFAULT_TOP_K: ${DEFAULT_TOP_K:-3}
+      API_ENABLED: ${API_ENABLED:-true}
+      API_REQUIRE_KEY: ${API_REQUIRE_KEY:-false}
+      API_KEY: ${API_KEY:-}
+      API_MAX_QUERY_CHARS: ${API_MAX_QUERY_CHARS:-2000}
+      API_MAX_MESSAGES: ${API_MAX_MESSAGES:-32}
+      API_MAX_TOP_K: ${API_MAX_TOP_K:-10}
+      INTERACTION_DB_ENABLED: ${INTERACTION_DB_ENABLED:-false}
+      INTERACTION_DB_PATH: ${INTERACTION_DB_PATH:-data/app/interactions.db}
+      FLASK_ENV: development
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./data/dataset:/app/data/dataset:ro
+      - ./data/app:/app/data/app
+      - hf_cache:/root/.cache/huggingface
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+    networks:
+      - medical-net
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: medical-chatbot-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+    networks:
+      - medical-net
+
+  kuzu-explorer:
+    image: kuzudb/explorer:latest
+    container_name: medical-chatbot-kuzu-explorer
+    ports:
+      - "8001:8000"
+    environment:
+      KUZU_FILE: graph.kuzu
+      MODE: READ_ONLY
+    volumes:
+      - ./knowledge/graph/kuzu_storage:/database
+    restart: unless-stopped
+    networks:
+      - medical-net
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: medical-chatbot-openwebui
+    ports:
+      - "3001:8080"
+    environment:
+      OPENAI_API_BASE_URL: http://api:8000/v1
+      OPENAI_API_KEY: ${API_KEY:-}
+    volumes:
+      - openwebui_data:/app/backend/data
+    restart: unless-stopped
+    depends_on:
+      - api
+    networks:
+      - medical-net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: medical-chatbot-ollama
+    profiles:
+      - local-llm
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - medical-net
+
+volumes:
+  qdrant_data:
+  openwebui_data:
+  ollama_data:
+  hf_cache:
+
+networks:
+  medical-net:
+    driver: bridge

@@ -1,0 +1,1467 @@
+﻿
+\documentclass[12pt, a4paper, oneside, romanian]{teza-upb}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\usepackage{babel}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric}
+
+\usepackage[
+  bookmarks,
+  bookmarksopen=true,
+  pdftitle={Chatbot medical},
+  linktocpage]{hyperref}
+
+
+\singlespacing
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cod colorat
+\usepackage{listings}
+ 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	language=Matlab,
+ %   backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+\lstset{style=mystyle}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\author{Miron Marta-Florentina}
+
+\title{Sistem de tip chatbot medical folosind tehnici RAG È™i LLM}
+
+
+\facultatea{Facultatea de Electronic?, Telecomunica?ii È™i Tehnologia Informa?iei}
+\tiplucrare{licen??}
+%\tiplucrare{dizerta?ie}
+\domeniu{Electronic?, Telecomunica?ii È™i Tehnologia Informa?iei}
+\catedra{Telecomunica?ii}
+\campus{Leu} 
+\program{Electronic? Aplicat?}
+\titlulobtinut{Inginer}
+%\titlulobtinut{Master}
+\director{Prof. dr. ing. Bogdan-Emanuel Ionescu\\Drd. Lucian Gruia, Ciklum} 
+
+\submissionmonth{Iunie} 
+\submissionyear{2026} 
+
+\beforepreface
+\listoffigures
+\listoftables
+\abbreviations{ 
+  RNN = Re?ea Neuronal? Recurent?\\
+  LLM = Large Language Model\\
+  RAG = Retrieval-Augmented Generation\\
+  NLP = Natural Language Processing\\
+  API = Application Programming Interface
+  
+}
+%\preface{}
+\afterpreface 
+
+\chapter*{Introducere}
+\section{Motiva?ia alegerii temei}
+
+Interesul meu pentru inteligen?a artificiala a ap?rut ?nc? din timpul liceului, c?nd, ?n cadrul orelor de Informatic?, au fost discutate pentru prima dat? schimb?rile pe care aceste tehnologii le-ar putea produce ?n societate È™i pe pia?a muncii. La acel moment, subiectul p?rea mai degrab? unul teoretic si cu putin impact in viitorul apropiat. Cu toate acestea, pe m?sur? ce tehnologia a evoluat, ideile despre sisteme capabile s? dep?È™easc? performan?ele umane ?n anumite domenii, precum jocul de È™ah sau analiza datelor, au ?nceput s? devin? realitate.
+
+ÃŽn prezent, evolu?ia rapid? a inteligen?ei artificiale confirm? faptul c? aceste transform?ri nu mai apar?in unui viitor ?ndep?rtat, ci fac deja parte din realitatea cotidian?. Tocmai aceast? dezvoltare accelerat? a reprezentat una dintre principalele motiva?ii pentru alegerea temei detaliate ?n r?ndurile urm?toare. Interesul pentru ?n?elegerea modelelor moderne de inteligen?? artificial? È™i dorin?a de a folosi aceste tehnologii la ?mbun?t??irea procesului de ?nv??are din surse responsabile È™i sigure au condus spre ideea dezvolt?rii unui chatbot.
+
+Alegerea domeniului medical reprezint? un caz particular de aplicabilitate a solu?iei propuse, aceasta fiind conceput? scalabil, ?nc?t s? poat? fi adaptat? È™i extins? cu uÈ™urin?? pentru prelucrarea È™i folosirea altor tipuri de documente. ÃŽn plus, domeniul medical este unul sensibil ?n ceea ce priveÈ™te utilizarea inteligen?ei artificiale ca suport pentru informare È™i documentare, motiv pentru care proiectarea unui astfel de sistem necesit? o abordare orientat? c?tre limitarea riscului de furnizare a unor informa?ii eronate sau verificate insuficient.
+
+Aceast? tem? ?mbin? dou? direc?ii de interes majore: pe de o parte, studiul sistemelor conversa?ionale È™i al proces?rii limbajului natural, iar pe de alt? parte, aplicarea acestora ?ntr-un domeniu de interes real, ?n care accesul rapid la informa?ie poate sprijini procesul de ?nv??are, documentare È™i verificare pentru studen?i, cadre didactice È™i profesioniÈ™ti din domeniul medical.
+
+
+\section{Scopul È™i obiectivele lucr?rii}
+
+Aceast? lucrare ?È™i propune proiectarea È™i implementarea unui chatbot medical bazat pe modele lingvistice de mari dimensiuni, asistat de mecanisme de reg?sire a informa?iei relevante din surse validate.
+
+Obiectivele principale ale lucr?rii sunt:
+\begin{itemize}
+    \item analizarea fundamentelor teoretice necesare: re?ele neuronale, arhitectura Transformer, LLM È™i RAG;
+    \item proiectarea unei arhitecturi agentice capabile s? decid? c?nd este necesar? reg?sirea de context È™i cum este construit promptul final;
+    \item implementarea unui flux robust de r?spuns, care include validarea automat? a rezultatului È™i mecanisme de reluare (\textit{retry});
+    \item evaluarea comparativ? a mai multor modele LLM È™i furnizori, ?n func?ie de calitatea r?spunsului È™i stabilitate;
+    \item eviden?ierea limit?rilor actuale È™i formularea unor direc?ii de extindere pentru utilizare practic? ?n domeniul medical.
+\end{itemize}
+
+\section{Sumarul lucr?rii}
+
+Teza este structurat? ?n 4 capitole principale:
+\begin{itemize}
+    \item Capitolul 1 (Fundamente teoretice) prezint? conceptele de baz? necesare ?n?elegerii lucr?rii, incluz?nd arhitectura Transformer, modelele lingvistice de mari dimensiuni È™i mecanismele de tip Retrieval-Augmented Generation, dar È™i modelele ce stau la baza Inteligen?ei Artificiale.
+    \item Capitolul 2 cuprinde prezentarea detaliat? a tehnologiilor folosite ?n proiect.
+    \item Capitolul 3 descrie arhitectura proiectului È™i ?mp?r?irea ?n agen?i.
+    \item Capitolul 4 con?ine prezentarea rezultatelor È™i compara?ia acestora ?n func?ie de modelul LLM folosit.
+\end{itemize}
+
+
+\cleardoublepage
+\chapter{Fundamente teoretice}
+
+\section{Re?ele neuronale artificiale}
+    \subsection{Structura unei re?ele neuronale}
+
+ÃŽnv??area profund? se bazeaz? pe construirea unor niveluri succesive de reprezentare a datelor, fiecare nivel extr?g?nd caracteristici tot mai abstracte din informa?ia de intrare. Aceste reprezent?ri sunt organizate ?n straturi È™i sunt ?nv??ate prin intermediul re?elelor neuronale artificiale, o clas? de modele utilizate pentru identificarea rela?iilor complexe È™i neliniare din date.
+
+O re?ea neuronal? artificial? poate fi privit? ca un aproximator de func?ii, fiind alc?tuit? dintr-un strat de intrare, unul sau mai multe straturi ascunse È™i un strat de ieÈ™ire. Fiecare strat este format din unit??i de calcul numite neuroni artificiali, conecta?i ?ntre ei prin intermediul unor ponderi.
+
+Fiecare neuron calculeaz? o combina?ie liniar? a valorilor de intrare, realizat? prin ?nmul?irea acestora cu ponderile asociate conexiunilor. Rezultatul ob?inut este transmis unei func?ii de activare, care introduce neliniaritate ?n model È™i determin? ieÈ™irea neuronului. ÃŽn primul strat ascuns, datele provin direct din stratul de intrare, iar ?n straturile urm?toare informa?ia este transmis? de la stratul precedent. \cite{curs_IA}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figuri/retea_neuronala.png}
+    \caption{Arhitectura unei re?ele neuronale \cite{curs_IA}}
+    \label{fig:retea-neuronala}
+\end{figure}
+
+
+    \subsection{Algoritmul de antrenare: Gradient Descent È™i Backpropagation}
+
+    
+Ponderile ini?iale ale modelului nu sunt, ?n general, optime, motiv pentru care se utilizeaz? tehnici de antrenare pentru ajustarea acestora ?n func?ie de setul de date de antrenare.
+
+
+Scopul unui algoritm de ?nv??are automat? este reducerea erorii de generalizare
+a modelului. Aceast? eroare reprezint? diferen?a dintre predic?iile modelului È™i
+valorile reale ale datelor provenite din distribu?ia real? a fenomenului analizat
+È™i este cunoscut? ?n literatur? sub denumirea de risc.
+
+ÃŽn mod ideal, antrenarea unui model ar presupune minimizarea erorii de predic?ie pe ?ntreaga distribu?ie real? a datelor. ÃŽn practic? ?ns?, aceast? distribu?ie nu este cunoscut?, iar modelul are acces doar la un set finit de exemple de antrenare. Din acest motiv, optimizarea modelului se realizeaz? prin minimizarea erorii medii calculate pe setul de date disponibil, proces cunoscut sub denumirea de minimizarea riscului empiric.
+
+Astfel, ?n locul riscului real se minimizeaz? riscul empiric, care reprezint?
+media erorilor calculate pentru exemplele din setul de antrenare. Procesul de
+antrenare bazat pe aceast? idee este cunoscut sub denumirea de \textit{empirical
+risk minimization}.
+
+DeÈ™i aceast? abordare permite formularea problemei de ?nv??are ca o problem?
+de optimizare, ea poate conduce la fenomenul de supra?nv??are
+(\textit{overfitting}), ?n special ?n cazul modelelor cu capacitate mare.
+ÃŽn astfel de situa?ii, modelul poate ?nv??a foarte bine datele de antrenare,
+dar performan?a sa pe date noi poate fi redus?.
+
+ÃŽn practica modern? a ?nv???rii profunde, optimizarea modelelor se realizeaz?
+de obicei prin metode bazate pe algoritmul \textit{gradient descent}, care
+permite actualizarea iterativ? a parametrilor modelului ?n direc?ia reducerii
+func?iei de pierdere \cite{goodfellow2016}.
+
+Calculul gradientului necesar pentru actualizarea parametrilor unei re?ele
+neuronale este realizat prin algoritmul \textit{backpropagation}. Acest algoritm
+ajusteaz? ?n mod iterativ ponderile conexiunilor din re?ea astfel ?nc?t
+diferen?a dintre ieÈ™irea produs? de model È™i valoarea dorit? s? fie c?t mai mic?.
+Procesul presupune propagarea erorii de la stratul de ieÈ™ire c?tre straturile
+anterioare ale re?elei, determin?nd contribu?ia fiec?rui parametru la eroarea
+total?. ÃŽn urma acestor actualiz?ri, neuronii din straturile ascunse ajung s?
+reprezinte caracteristici relevante ale datelor, ceea ce permite modelului s?
+?nve?e rela?iile existente ?n setul de antrenare \cite{rumelhart1986learning}.
+
+
+\section{Re?ele neuronale recurente (RNN)}
+    \subsection{Arhitectura RNN}
+
+Re?elele neuronale recurente (RNN) se num?r? printre primele arhitecturi dezvoltate pentru procesarea datelor secven?iale, fiind utilizate ?n aplica?ii precum modelarea limbajului sau traducerea automat?. Un element esen?ial al acestor re?ele este capacitatea de a p?stra o stare intern? (hidden state), care stocheaz? informa?ii despre intr?rile anterioare din secven??. Prin intermediul acesteia, RNN-urile pot stoca È™i modela dependen?ele temporale existente ?ntre elementele secven?ei. \cite{dataversity} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figuri/RNN.png}
+\caption{Arhitectura unei re?ele neuronale recurente \cite{jurafsky2023}}
+\label{fig:rnn}
+\end{figure}
+
+Starea intern? a re?elei este actualizat? la fiecare pas temporal ?n func?ie de
+intrarea curent? È™i de valoarea st?rii ascunse din pasul anterior. ÃŽn acest mod,
+ieÈ™irea modelului nu depinde doar de datele curente, ci È™i de informa?iile
+procesate anterior. Astfel, re?eaua poate p?stra un anumit context al secven?ei,
+care influen?eaz? predic?iile realizate la paÈ™ii urm?tori.
+
+DeÈ™i introducerea acestei dimensiuni temporale $h_t$ poate face arhitectura s? par?
+mai complex? dec?t re?elele neuronale clasice de tip feedforward, mecanismul
+de calcul r?m?ne similar. La fiecare pas temporal, modelul primeÈ™te vectorul
+de intrare È™i starea ascuns? din momentul precedent, iar pe baza acestora
+calculeaz? noua stare intern? a re?elei. Conexiunile recurente dintre st?rile
+ascunse permit modelului s? utilizeze informa?iile din trecut pentru a produce
+ieÈ™irea corespunz?toare intr?rii curente \cite{jurafsky2023}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figuri/RNN_desfasurat.png}
+    \caption{Arhitectura RNN desf?È™urat? \cite{jurafsky2023}}
+    \label{fig:rnn-desfasurat}
+\end{figure}
+
+
+    \subsection{Limit?ri ale RNN}
+
+Antrenarea re?elelor neuronale recurente poate fi dificil?
+?n cazul aplica?iilor care necesit? utilizarea unor informa?ii aflate la
+o distan?? mare ?n cadrul secven?ei. DeÈ™i, teoretic, RNN-urile au acces
+la ?ntreaga secven?? anterioar?, informa?ia codificat? ?n st?rile ascunse
+tinde s? fie mai degrab? local?, fiind mai relevant? pentru cele mai
+recente elemente ale secven?ei È™i pentru deciziile luate recent.
+
+ÃŽn mod ideal, o re?ea ar trebui s? fie capabil? s? p?streze informa?ii
+aflate la distan?? ?n secven?? p?n? ?n momentul ?n care acestea devin
+relevante, proces?nd ?n acelaÈ™i timp corect elementele intermediare.
+ÃŽn practic? ?ns?, straturile ascunse È™i ponderile asociate acestora sunt
+nevoite s? ?ndeplineasc? simultan dou? roluri: s? furnizeze informa?ii
+utile pentru decizia curent? È™i, ?n acelaÈ™i timp, s? actualizeze È™i s?
+transmit? mai departe informa?iile necesare pentru deciziile viitoare.
+
+O alt? dificultate apare ?n timpul procesului de antrenare, atunci c?nd eroarea trebuie propagat? ?napoi prin mai mul?i paÈ™i temporali.
+ÃŽn aceast? situa?ie, gradientul func?iei cost este supus unor multiplic?ri
+repetate, determinate de lungimea secven?ei. Ca urmare, valorile
+gradientului pot sc?dea progresiv p?n? aproape de zero, fenomen
+cunoscut sub denumirea de \textit{vanishing gradient}. 
+        \subsubsection{Problema vanishing gradient}
+
+Aceast? problem? apare ?n special ?n cazul re?elelor neuronale recurente, unde procesul de antrenare implic? propagarea erorii prin mai mul?i paÈ™i temporali. ÃŽn timpul
+\textit{backpropagation through time}, gradientul este multiplicat
+?n mod repetat cu aceleaÈ™i ponderi ale re?elei. Dac? valorile acestor
+ponderi sunt mici, gradientul poate sc?dea rapid spre zero,
+ceea ce face dificil? actualizarea eficient? a parametrilor
+re?elei pentru informa?ii aflate la distan?? ?n secven??. \cite{jurafsky2023}
+    \subsection{Modele ?mbun?t??ite: LSTM È™i GRU}
+
+Pentru a dep?È™i limit?rile re?elelor neuronale recurente clasice, au fost
+propuse arhitecturi mai complexe, dintre care cea mai utilizat? este
+\textit{Long Short-Term Memory} (LSTM), introdus? de Hochreiter È™i
+Schmidhuber ?n 1997 \cite{hochreiter1997long}. Re?elele LSTM abordeaz?
+problema gestion?rii contextului prin separarea a dou? procese
+esen?iale: eliminarea informa?iilor care nu mai sunt relevante È™i
+p?strarea informa?iilor utile pentru deciziile ulterioare. Spre
+deosebire de arhitecturile RNN clasice, ?n care modul de gestionare a
+contextului este implicit, LSTM permite re?elei s? ?nve?e automat cum
+s? controleze fluxul informa?iei de-a lungul secven?ei.
+
+Pentru a realiza acest lucru, LSTM utilizeaz? unit??i neuronale
+specializate care includ mecanisme de tip \textit{gates} (por?i),
+responsabile pentru controlul fluxului de informa?ie care intr? È™i
+iese din celula de memorie.
+
+Por?ile (\textit{gates}) dintr-o re?ea LSTM au rolul de a controla
+fluxul de informa?ie ?n cadrul celulei de memorie. Fiecare poart?
+utilizeaz? un strat de tip \textit{feedforward} urmat de o func?ie de
+activare sigmoid, care produce valori cuprinse ?ntre 0 È™i 1. Aceste
+valori determin? ?n ce m?sur? informa?ia este transmis? mai departe
+sau eliminat?, permi??nd re?elei s? p?streze doar informa?iile
+relevante pentru procesarea ulterioar?.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figuri/Comparatie structura.png}
+\caption{Arhitectura neuronului utilizat ?n re?ele feedforward,
+Re?ele Neuronale Recurente (RNN) È™i re?ele Long Short-Term Memory (LSTM) \cite{jurafsky2023}}
+    \label{fig:comparatie-rnn-lstm}
+\end{figure}
+
+\section{Arhitectura Transformer}
+
+Termenul Transformer a fost introdus pentru prima dat? ?n articolul â€žAttention Is All You Needâ€ \cite{vaswani2017attention} publicat ?n 2017 de c?tre Vaswani È™i colaboratorii s?i, ?n care autorii propun un model bazat exclusiv pe mecanismul de self-attention pentru procesarea secven?elor, f?r? utilizarea
+recuren?ei specifice re?elelor neuronale recurente. Spre deosebire de arhitecturile bazate pe re?ele neuronale recurente,
+care proceseaz? datele ?n mod secven?ial, modelul Transformer permite
+analizarea simultan? a tuturor elementelor unei secven?e. Aceast?
+abordare faciliteaz? paralelizarea calculelor È™i permite capturarea
+dependen?elor dintre elemente aflate la distan?? ?n secven??.
+
+    \subsection{Structura encoderâ€“decoder}
+
+La baza Transformerelor st? o arhitectur? de tip encoder-decoder. Acest tip de arhitectur? este utilizat pentru a transforma o secven?? de intrare ?ntr-o secven?? de ieÈ™ire, fiind frecvent ?nt?lnit? ?n aplica?ii precum traducerea automat? \cite{sutskever2014sequence}.
+
+
+Modelul este alc?tuit din dou? componente principale. Encoderul primeÈ™te secven?a de intrare È™i o proceseaz? element cu element, construind treptat o reprezentare intern? a acesteia. La finalul proces?rii, informa?ia este sintetizat? ?ntr-un vector de context, care con?ine informa?ia esen?ial? despre ?ntreaga secven?? de intrare.
+
+Acest vector de context este transmis c?tre decoder, care genereaz? secven?a de ieÈ™ire pas cu pas. La fiecare pas, decoderul utilizeaz? at?t informa?ia din vectorul de context, c?t È™i elementele generate anterior, pentru a produce urm?torul element din secven??.
+Un avantaj important al acestei arhitecturi este flexibilitatea ?n ceea ce priveÈ™te lungimea secven?elor: num?rul de elemente din intrare poate fi diferit de cel din ieÈ™ire. Encoderul È™i decoderul sunt antrenate ?mpreun?, astfel ?nc?t modelul s? ?nve?e rela?ia dintre secven?ele de intrare È™i cele de ieÈ™ire \cite{goodfellow2016}.
+
+TotuÈ™i, ?n variantele clasice bazate pe re?ele neuronale recurente, ?ntreaga informa?ie a secven?ei de intrare este comprimat? ?ntr-un singur vector de context. Aceast? limitare poate duce la pierderi de informa?ie, ?n special ?n cazul secven?elor lungi, deoarece modelul nu poate p?stra eficient toate detaliile relevante.
+
+Pentru a rezolva aceast? problem?, au fost introduse ulterior mecanisme de tip attention, care permit modelului s? acceseze direct diferite p?r?i ale secven?ei de intrare ?n timpul gener?rii rezultatului \cite{bahdanau2015neural}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figuri/encoder_decoder_ai.png}
+    \caption{Arhitectura encoder-decoder \cite{vaswani2017attention}}
+\end{figure}
+
+    \subsection{Mecanismul self-attention}
+    
+Mecanismul de \textit{attention} poate fi privit ca un mod prin care
+modelul decide asupra c?ror elemente din secven?? trebuie s? se
+concentreze. Acesta primeÈ™te o interogare (\textit{query}) È™i un set
+de perechi cheieâ€“valoare (\textit{keyâ€“value}), iar rezultatul este
+ob?inut prin combinarea valorilor ?n func?ie de c?t de relevante sunt
+pentru interogarea respectiv?. Gradul de relevan?? este determinat
+prin compararea interog?rii cu fiecare cheie din secven??. 
+
+Scorul de relevan?? dintre query È™i fiecare key este calculat printr-o func?ie de similaritate, de obicei produs scalar (dot-product), urmat de o normalizare cu func?ia softmax.
+
+Prin acest mecanism, modelul nu mai este limitat la un singur vector de context, ci poate accesa direct informa?ii din ?ntreaga secven?? de intrare, ceea ce permite captarea mai eficient? a dependen?elor pe termen lung \cite{vaswani2017attention}.
+    
+\section{Modele bazate pe Transformer}
+
+Datorit? capacit??ii de a procesa secven?e ?n paralel È™i de a capta dependen?e pe termen lung, arhitectura Transformer descris? ?n sec?iunea anterioar? st? la baza celor mai performante modele actuale de procesare a limbajului natural \cite{datacamp}.
+
+    \subsection{Modele lingvistice de mari dimensiuni (LLM)}
+
+Modelele lingvistice de mari dimensiuni (LLM) reprezint? o categorie de modele de limbaj bazate pe re?ele neuronale cu un num?r foarte mare de parametri, antrenate pe volume extinse de date textuale neetichetate prin tehnici de ?nv??are auto-supervizat? \cite{brown2020language}. Prin pre-antrenarea pe corpusuri de mari dimensiuni, aceste modele dob?ndesc capacitatea de a identifica tipare complexe, nuan?e semantice È™i rela?ii contextuale ?n limbajul natural, put?nd fi utilizate pentru generarea de text, traducerea automat?, sumarizarea documentelor, r?spunsul la ?ntreb?ri sau analiza sentimentelor. Adaptarea lor pentru sarcini specifice prin tehnici de fine-tuning a condus la performan?e de ultim? genera?ie ?n numeroase aplica?ii. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuri/antrenare_llm.png}
+    \caption{Procesul de antrenare al modelelor LLM \cite{llm_review_2024}}
+    
+\end{figure}
+
+Arhitectura modelelor lingvistice de mari dimensiuni (LLM) presupune preluarea datelor text din multiple surse, urmat? de transmiterea acestora c?tre etapele de preprocesare. Procesul de antrenare include mai multe etape, precum ini?ializarea aleatorie a parametrilor, transformarea datelor ?n format numeric, calculul func?iei de pierdere, optimizarea parametrilor È™i antrenarea iterativ? a modelului.
+
+Dup? finalizarea antren?rii, aceste modele pot fi utilizate pentru diverse sarcini de procesare a limbajului natural.
+
+Odat? cu dezvoltarea unor modele avansate, precum GPT, LLaMA sau Bard, È™i explorarea capacit??ilor acestora ?n diverse aplica?ii, LLM-urile au devenit un domeniu esen?ial È™i extrem de activ ?n cercetarea actual?. ÃŽn acest context, evaluarea performan?ei È™i a fiabilit??ii acestor modele reprezint? o direc?ie important? de studiu. \cite{llm_review_2024}.
+
+
+    \subsection{Procesul de antrenare al modelelor LLM}
+Dup? cum se observ? ?n figura 1.7, antrenarea LLM se poate ?mp?r?i ?n mai mul?i paÈ™i. Dup? filtrarea datelor, 
+tokenizarea reprezint? una dintre etapele esen?iale de preprocesare ?n cadrul modelelor lingvistice de mari dimensiuni. Aceasta const? ?n ?mp?r?irea textului ?n unit??i discrete, denumite tokeni, care pot fi caractere, subcuvinte, simboluri sau cuvinte, ?n func?ie de tipul modelului utilizat. ÃŽn practic?, sunt folosi?i diverÈ™i algoritmi de tokenizare, precum WordPiece, UnigramLM sau Byte Pair Encoding (BPE), fiecare av?nd o metod? specific? de segmentare a textului de intrare.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figuri/LLM_stages.png}
+    \caption{Pipeline complet LLM \cite{llm_review_2024}}
+    
+\end{figure}
+
+Dup? etapa de preprocesare, datele sunt transformate ?ntr-o form? numeric? È™i utilizate ?n procesul de antrenare al modelului. Acesta include ini?ializarea parametrilor, calculul func?iei de pierdere, optimizarea parametrilor È™i antrenarea iterativ?, p?n? la convergen?a modelului. Prin acest proces, modelul ?nva?? s? identifice tipare È™i rela?ii complexe ?n limbajul natural.
+
+\section{Retrieval-Augmented Generation (RAG)}
+
+Modelele lingvistice de mari dimensiuni pre-antrenate au demonstrat capacitatea de a stoca cunoÈ™tin?e factuale ?n parametrii lor È™i de a ob?ine performan?e ridicate atunci c?nd sunt adaptate (fine-tuned) pentru sarcini specifice de procesare a limbajului natural. Cu toate acestea, capacitatea lor de a accesa È™i de a utiliza ?n mod precis aceste cunoÈ™tin?e este limitat?, ceea ce conduce la performan?e inferioare ?n cazul sarcinilor care necesit? informa?ii detaliate È™i actualizate.
+
+De asemenea, dificultatea de a furniza surse clare pentru informa?iile generate, precum È™i de a actualiza cunoÈ™tin?ele interne ale modelului, reprezint? provoc?ri importante ?n utilizarea acestor modele. ÃŽn acest context, au fost propuse abord?ri care integreaz? mecanisme de acces la surse externe de informa?ie, prin utilizarea unei memorii non-parametrice.
+
+
+
+\subsection{Conceptul de Retrieval-Augmented Generation}
+
+O astfel de abordare este reprezentat? de modelele de tip Retrieval-Augmented Generation (RAG), care combin? memoria parametric? a modelului, ?nv??at? ?n timpul antren?rii, cu o memorie extern?, bazat? pe reg?sirea documentelor relevante. Aceast? combina?ie permite ?mbun?t??irea procesului de generare a r?spunsurilor, ?n special ?n sarcinile care necesit? acces la informa?ii suplimentare.
+
+ÃŽn aceast? paradigm?, modelul nu se bazeaz? exclusiv pe cunoÈ™tin?ele stocate ?n parametrii s?i, ci utilizeaz? un mecanism de reg?sire pentru a identifica informa?ii relevante dintr-o baz? de date. Documentele recuperate sunt apoi utilizate ca surs? suplimentar? de context ?n procesul de generare a r?spunsului.
+
+Aceast? abordare contribuie la ?mbun?t??irea performan?ei ?n sarcini care necesit? acces la cunoÈ™tin?e detaliate sau actualizate È™i reduce riscul de generare a unor informa?ii eronate, fenomen cunoscut sub denumirea de halucina?ii. ÃŽn plus, RAG permite separarea cunoÈ™tin?elor de model de datele utilizate, facilit?nd actualizarea informa?iilor f?r? a fi necesar? reantrenarea complet? a modelului.
+
+Prin integrarea mecanismelor de reg?sire È™i generare, modelele RAG ofer? un cadru flexibil pentru rezolvarea sarcinilor de procesare a limbajului natural, ?n special ?n aplica?ii care necesit? acces la baze de cunoÈ™tin?e extinse \cite{lewis2020retrieval} sau la proceduri interne.
+
+
+\subsection{Arhitectura Retrieval-Augmented Generation}
+
+Arhitectura modelelor de tip Retrieval-Augmented Generation este construit? ?n jurul interac?iunii dintre dou? componente principale: un mecanism de reg?sire a documentelor È™i un model de generare, integrate ?ntr-un cadru probabilistic unificat \cite{lewis2020retrieval}.
+
+Componenta de reg?sire, bazat? pe Dense Passage Retriever (DPR), are rolul de a identifica un set de documente relevante ?n raport cu secven?a de intrare. At?t interog?rile, c?t È™i documentele sunt proiectate numeric ?ntr-un spa?iu vectorial comun, iar selec?ia se realizeaz? pe baza similarit??ii, utiliz?nd o aproximare de tip top-K. Documentele astfel ob?inute sunt tratate ca variabile latente ?n cadrul modelului.
+
+Componenta de generare este reprezentat? de un model de tip sequence-to-sequence bazat pe Transformer, precum BART sau T5, care utilizeaz? at?t secven?a de intrare, c?t È™i documentele recuperate pentru a genera r?spunsul final. Generarea este condi?ionat? de aceste documente, iar contribu?ia fiec?ruia este integrat? prin marginalizare asupra variabilelor latente.
+
+ÃŽn practic?, aceast? integrare se realizeaz? printr-o aproximare top-K, care poate fi aplicat? fie la nivelul ?ntregii secven?e generate, fie la nivelul fiec?rui token. ÃŽn primul caz, se presupune c? acelaÈ™i document este responsabil pentru ?ntreaga secven?? de ieÈ™ire, ?n timp ce ?n al doilea caz, diferite documente pot contribui la generarea fiec?rui token.
+
+Un aspect esen?ial al acestei arhitecturi ?l reprezint? antrenarea comun? a componentelor de reg?sire È™i generare, ?ntr-un mod end-to-end. Aceast? strategie permite optimizarea simultan? a selec?iei documentelor È™i a procesului de generare, astfel ?nc?t informa?iile recuperate s? fie c?t mai relevante pentru r?spunsul final.
+
+Prin utilizarea documentelor externe ca surs? de context, arhitectura RAG permite modelului s? acceseze informa?ii suplimentare ?n timpul inferen?ei, f?r? a depinde exclusiv de cunoÈ™tin?ele stocate ?n parametrii s?i \cite{lewis2020retrieval}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuri/rag_arch.png}
+    \caption{Arhitectura modelului RAG \cite{gao2023retrieval}}
+    
+\end{figure}
+
+\subsection{M?surarea similarit??ii}
+\label{sec:similaritate}
+
+At?t interogarea utilizatorului, c?t È™i fragmentele de text extrase din documente sunt transformate ?n reprezent?ri numerice, denumite embeddings. Acestea sunt proiectate ?ntr-un spa?iu vectorial, ?n care se evalueaz? gradul de similaritate semantic? dintre interogare È™i fiecare fragment de text.
+
+Similaritatea sau distan?a dintre aceste reprezent?ri poate fi calculat? utiliz?nd diferite m?suri, alegerea acestora reprezent?nd un hiperparametru al sistemului. Cele mai utilizate metode includ similaritatea cosinus, produsul scalar, distan?a euclidian? È™i distan?a Manhattan.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width= 0.8\textwidth]{figuri/Distance.png}
+    \caption{Vizualizarea ?n 2D a embedding-urilor Word2Vec, eviden?iind gruparea semantic? a cuvintelor similare (adaptat dup? \cite{mikolov2013word2vec})}
+    
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Similaritatea cosinus} m?soar? unghiul dintre doi vectori ?n spa?iul vectorial, fiind definit? ca:
+
+\begin{equation}
+\text{sim}_{cos}(P, Q) = \frac{P \cdot Q}{\|P\| \|Q\|}
+\end{equation}
+
+Valorile apropiate de 1 indic? similaritate semantic? ridicat?, cele apropiate de 0 â€” similaritate redus?, iar valorile negative semnaleaz? o orientare opus?. Uneori se prefer? distan?a cosinus, complementul fa?? de 1 al similarit??ii:
+
+\begin{equation}
+d_{cos}(P, Q) = 1 - \text{sim}_{cos}(P, Q)
+\end{equation}
+
+    \item \textbf{Distan?a euclidian?} ($L_2$) cuantific? distan?a geometric? direct? dintre doi vectori, derivat? din teorema lui Pitagora:
+
+\begin{equation}
+d_{L_2}(P, Q) = \sqrt{\sum_{i=1}^{d} (P_i - Q_i)^2}
+\end{equation}
+
+Cu c?t valoarea este mai mic?, cu at?t similaritatea dintre reprezent?ri este mai ridicat?.
+
+    \item \textbf{Distan?a Manhattan} ($L_1$) calculeaz? suma diferen?elor absolute ale componentelor, model?nd deplasarea restric?ionat? la direc?ii ortogonale â€” analog? naviga?iei pe o re?ea stradal?:
+
+\begin{equation}
+d_{L_1}(P, Q) = \sum_{i=1}^{d} |P_i - Q_i|
+\end{equation}
+
+    \item \textbf{Produsul scalar} exprim? similaritatea ca sum? a produselor componentelor corespunz?toare:
+
+\begin{equation}
+P \cdot Q = \sum_{i=1}^{d} P_i Q_i
+\end{equation}
+
+Spre deosebire de similaritatea cosinus, rezultatul depinde at?t de direc?ia, c?t È™i de magnitudinea vectorilor, ceea ce ?l face util ?n scenarii unde amplitudinea reprezent?rilor este relevant?. \cite{levy2024similarity}
+
+\end{itemize}
+\subsection{Avantaje È™i limit?ri ale RAG}
+
+Modelele de tip Retrieval-Augmented Generation ofer? avantaje semnificative fa?? de
+modelele lingvistice clasice. Principalul beneficiu const? ?n capacitatea de a accesa
+informa?ii externe ?n timpul inferen?ei, ceea ce reduce riscul de generare a unor
+afirma?ii factuale eronate È™i permite producerea unor r?spunsuri mai bine fundamentate
+?n sarcinile ce necesit? cunoÈ™tin?e detaliate sau actualizate.
+
+Un alt avantaj important ?l reprezint? separarea memoriei parametrice de cea
+non-parametric?: informa?iile pot fi actualizate prin modificarea bazei de documente,
+f?r? a fi necesar? reantrenarea modelului. Aceasta confer? sistemelor RAG o
+flexibilitate ridicat? ?n contexte cu date ?n continu? schimbare. \cite{lewis2020retrieval}
+
+Cu toate acestea, arhitectura RAG introduce È™i o serie de limit?ri. Performan?a
+sistemului depinde direct de calitatea componentei de reg?sire: documentele
+nerelevante selectate propag? erori ?n r?spunsul final. Totodat?, modul ?n care
+textul surs? este fragmentat influen?eaz? semnificativ relevan?a rezultatelor â€”
+o segmentare necorespunz?toare poate conduce la pierderea contextului semantic
+sau la recuperarea unor informa?ii incomplete \cite{gao2023retrieval}. ÃŽn plus,
+integrarea etapei de reg?sire introduce un cost computa?ional suplimentar fa??
+de modelele generative clasice, cresc?nd laten?a sistemului.
+
+\section{Modele agentice È™i extinderea RAG}
+
+Integrarea mecanismelor agentice ?n sistemele bazate pe Retrieval-Augmented Generation 
+extinde fluxul clasic de procesare prin introducerea unor etape explicite de planificare 
+È™i decizie. Spre deosebire de arhitecturile RAG tradi?ionale, ?n care modelul reg?seÈ™te 
+informa?ii È™i genereaz? un r?spuns ?ntr-un singur pas, sistemele agentice pot selecta 
+dinamic sursele relevante, pot rafina iterativ interog?rile È™i pot adapta strategia de 
+r?spuns ?n func?ie de obiectivul urm?rit.
+
+Agentic AI desemneaz? o clas? de sisteme de inteligen?? artificial? capabile s? ac?ioneze 
+autonom pentru atingerea unor obiective complexe, cu supraveghere uman? minim?. Aceste 
+sisteme combin? capacit??ile generative ale modelelor lingvistice de mari dimensiuni (LLM) 
+cu mecanisme de planificare, utilizare a instrumentelor externe È™i adaptare la feedback-ul 
+din mediul de execu?ie. \cite{ibm_agentic}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figuri/agentic.png}
+    \caption{Arhitectura unui sistem Agentic AI \cite{dextralabs}}
+\end{figure}
+
+\subsection{Generative AI vs Agentic AI}
+
+Distinc?ia dintre sistemele generative È™i cele agentice poate fi surprins? prin modul 
+?n care fiecare categorie se raporteaz? la sarcini È™i la interac?iunea cu mediul.
+
+Modelele generative clasice (Generative AI) opereaz? reactiv: primesc o intrare de la 
+utilizator È™i produc un r?spuns ?ntr-un singur pas de inferen??, f?r? a putea planifica 
+ac?iuni ulterioare sau a interac?iona cu surse externe. Capacit??ile lor sunt limitate 
+la cunoÈ™tin?ele dob?ndite ?n etapa de antrenare.
+
+Sistemele agentice (Agentic AI), ?n schimb, adopt? o abordare proactiv? È™i iterativ?. 
+Acestea sunt capabile s? descompun? un obiectiv complex ?n subobiective, s? selecteze 
+È™i s? invoce instrumente externe (baze de date, API-uri, motoare de c?utare), s? 
+evalueze rezultatele intermediare È™i s? ?È™i ajusteze planul de ac?iune ?n consecin??. 
+Acest ciclu de percep?ieâ€“ra?ionamentâ€“ac?iune le confer? un grad de autonomie 
+calitativ superior fa?? de modelele generative tradi?ionale. \cite{wang2024survey}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|p{3.5cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Criteriu} & \textbf{Generative AI} & \textbf{Agentic AI} \\
+\hline
+Mod de operare & Reactiv â€” genereaz? un r?spuns la o intrare dat? & Proactiv â€” planific? È™i execut? ac?iuni pentru atingerea unui obiectiv \\
+\hline
+Memorie & Limitat? la fereastra de context curent? & Persistent? â€” poate stoca È™i accesa informa?ii ?ntre sesiuni \\
+\hline
+Acces la resurse externe & Nu interac?ioneaz? cu surse externe & Poate invoca API-uri, baze de date, motoare de c?utare \\
+\hline
+Planificare & Absent? â€” r?spunde ?ntr-un singur pas de inferen?? & Prezent? â€” descompune obiective complexe ?n subobiective \\
+\hline
+Autonomie & Redus? â€” necesit? interven?ie uman? la fiecare pas & Ridicat? â€” poate ac?iona cu supraveghere minim? \\
+\hline
+Adaptabilitate & Static? fa?? de mediul de execu?ie & Dinamic? â€” ajusteaz? comportamentul pe baza feedback-ului \\
+\hline
+Caz de utilizare tipic & Generare de text, rezumare, traducere & Automatizare de fluxuri complexe, agen?i de cercetare \\
+\hline
+\end{tabular}
+\caption{Compara?ie ?ntre sistemele Generative AI È™i Agentic AI}
+\label{tab:gen_vs_agentic}
+\end{table}
+
+
+
+\cleardoublepage
+\chapter{Prezentarea tehnologiilor folosite}
+
+\begin{table}[h]
+\centering
+\caption{Rolul principalelor tehnologii utilizate ?n proiect}
+\begin{tabular}{|p{3cm}|p{4cm}|p{6cm}|}
+\hline
+\textbf{Tehnologie} & \textbf{Categorie} & \textbf{Rol ?n proiect} \\
+\hline
+Python & Limbaj de programare & Implementarea logicii aplica?iei, a modulelor RAG, guardrails, evaluare È™i orchestrare \\
+\hline
+Flask & Framework web & Expunerea endpoint-urilor REST È™i compatibilitatea cu clien?i conversa?ionali \\
+\hline
+Qdrant & Baz? de date vectorial? & Stocarea embedding-urilor È™i reg?sirea semantic? a fragmentelor relevante \\
+\hline
+LlamaIndex & Framework RAG & Segmentarea semantic? a documentelor È™i integrarea cu fluxul de indexare \\
+\hline
+Kuzu & Baz? de date grafic? & Reprezentarea entit??ilor medicale È™i a rela?iilor dintre acestea \\
+\hline
+OpenAI / Anthropic / Ollama & Furnizori LLM & Generarea r?spunsurilor prin modele cloud sau locale \\
+\hline
+Docker Compose & Orchestrare containere & Pornirea coordonat? a serviciilor aplica?iei \\
+\hline
+unittest / coverage.py & Testare & Validarea componentelor È™i m?surarea acoperirii testelor \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Limbajul de programare}
+
+Python reprezint? limbajul de programare ales pentru implementarea acestui sistem,
+datorit? ecosistemului extins de biblioteci specializate ?n domeniul inteligen?ei
+artificiale È™i al proces?rii limbajului natural \cite{srinath2017python, llm_review_2024}. ÃŽn contextul unui
+chatbot medical bazat pe o arhitectur? RAG augmentat? cu un knowledge graph,
+Python ofer? integr?ri native cu principalele framework-uri relevante: biblioteca
+\texttt{llama-index} asigur? orchestrarea pipeline-ului de reg?sire È™i generare,
+\texttt{kuzu} gestioneaz? stocarea È™i interogarea grafului de cunoÈ™tin?e medicale
+ca baz? de date graf autonom?, elimin?nd necesitatea unui server dedicat, iar
+\texttt{openai} È™i \texttt{anthropic} permit integrarea furnizorilor de servicii
+LLM f?r? efort suplimentar de integrare. Suportul extins pentru procesarea
+documentelor, gestionarea datelor tabelare È™i apelurile HTTP asincrone permite
+construirea unui pipeline de ingestie complet f?r? a recurge la limbaje auxiliare.
+
+Implementarea utilizeaz? Python 3.11, versiune care aduce ?mbun?t??iri m?surabile
+de performan?? fa?? de versiunile anterioare â€” cu p?n? la 60\% mai rapid ?n anumite
+scenarii de execu?ie, conform documenta?iei oficiale \cite{python311} â€” precum È™i
+mesaje de eroare semnificativ ?mbun?t??ite, care faciliteaz? depanarea pipeline-ului
+de procesare. Utilizarea instrumentelor standardizate pentru gestionarea mediilor
+virtuale, precum \texttt{venv}, simplific? reproducerea exact?
+a configura?iei software È™i reduce riscul incompatibilit??ilor ?ntre versiunile
+bibliotecilor.
+
+
+
+\section{Interfa?a API}
+
+\subsection{Interfe?e REST È™i framework-ul Flask}
+
+Interfe?ele de tip REST (\textit{Representational State Transfer}) reprezint? un stil arhitectural utilizat pentru dezvoltarea serviciilor web. Acestea se bazeaz? pe c?teva principii esen?iale, precum caracterul \textit{stateless}, utilizarea resurselor identificate prin URI-uri È™i folosirea metodelor HTTP standard (GET, POST, PUT, DELETE), fiecare av?nd o semnifica?ie bine definit? \cite{fielding2000rest}.
+
+Principiul \textit{stateless} presupune c? fiecare cerere transmis? c?tre server este independent? È™i con?ine toate informa?iile necesare proces?rii, f?r? ca serverul s? p?streze informa?ii despre cererile anterioare. Aceast? abordare simplific? gestionarea cererilor È™i contribuie la scalabilitatea sistemului.
+
+Resursele aplica?iei sunt identificate prin URI-uri (Uniform Resource Identifiers), care reprezint? adrese unice utilizate pentru accesarea acestora. De exemplu, un endpoint precum \texttt{/v1/chat/completions} permite trimiterea cererilor c?tre sistemul de tip chatbot implementat ?n cadrul aplica?iei.
+
+Un avantaj important al arhitecturii REST ?l reprezint? separarea clar? ?ntre client È™i server, ceea ce permite dezvoltarea, modificarea È™i scalarea independent? a celor dou? componente.
+
+Pentru implementarea interfe?ei REST, ?n cadrul proiectului a fost utilizat framework-ul Flask. Acesta este un micro-framework web pentru Python, caracterizat prin simplitate È™i flexibilitate \cite{flask_doc}. Spre deosebire de framework-urile de tip \textit{full-stack}, Flask nu impune o structur? rigid? de proiect, oferind posibilitatea integr?rii selective a componentelor necesare.
+
+ÃŽn cadrul aplica?iei dezvoltate, Flask este utilizat pentru a expune func?ionalit??ile chatbot-ului sub forma unor endpoint-uri HTTP. Aceast? abordare permite integrarea facil? cu alte aplica?ii sau interfe?e grafice È™i asigur? o separare clar? ?ntre logica intern? a sistemului (procesare, RAG, guardrails) È™i interfa?a de comunicare.
+
+\subsection{Interfa?a conversa?ional? OpenWebUI}
+
+OpenWebUI este o aplica?ie web open-source specializat? pentru aplica?iile de tip chatbot, utilizat? ?n cadrul proiectului ca interfa?? grafic? a agentului conversa?ional. \cite{openwebui_doc}. Spre deosebire de 
+componentele dezvoltate ?n cadrul lucr?rii, OpenWebUI reprezint? o solu?ie 
+extern? reutilizat?, integrat? prin mecanismul de compatibilitate cu API-ul 
+OpenAI â€” backend-ul expune endpoint-urile \texttt{/v1/chat/completions} È™i 
+\texttt{/v1/models}, pe care OpenWebUI le utilizeaz? f?r? a necesita adapt?ri 
+suplimentare.
+
+Integrarea se realizeaz? prin Docker Compose, unde serviciul OpenWebUI este 
+configurat s? comunice cu serviciul \texttt{api} prin re?eaua intern? Docker, 
+folosind variabila \texttt{OPENAI\_API\_BASE\_URL} pentru a indica adresa 
+backend-ului. Aceast? abordare demonstreaz? interoperabilitatea sistemului cu 
+clien?i existen?i compatibili cu protocolul OpenAI, f?r? a impune un frontend 
+specific. Backend-ul func?ioneaz? independent de OpenWebUI, fiind accesibil 
+È™i prin interfa?a CLI sau prin apeluri directe c?tre API-ul REST.
+
+\section{Tehnologiile RAG: vectori, segmentare È™i c?utare semantic?}
+
+\subsection{Baza de date vectorial? Qdrant}
+
+Atunci c?nd un sistem trebuie s? identifice cele mai relevante informa?ii 
+dintr-o colec?ie mare de documente reprezentate sub form? de vectori numerici, 
+compararea direct? a unei interog?ri cu fiecare vector devine ineficient? din punct de vedere computa?ional. 
+Bazele de date vectoriale abordeaz? aceast? problem? prin utilizarea unor algoritmi de tip 
+\textit{Approximate Nearest Neighbor} (ANN), care permit identificarea rapid? a celor mai apropia?i vectori, 
+accept?nd un compromis controlat ?ntre precizie È™i vitez? \cite{malkov2018hnsw}.
+
+Algoritmii ANN nu garanteaz? g?sirea exact? a celui mai apropiat vecin, ?ns? ofer? rezultate foarte apropiate 
+?ntr-un timp semnificativ mai redus, ceea ce ?i face adecva?i pentru aplica?ii ?n timp real, precum sistemele 
+de tip RAG (Retrieval-Augmented Generation).
+
+Qdrant este o baz? de date vectorial? de ?nalt? performan??, proiectat? pentru stocarea È™i reg?sirea eficient? 
+a vectorilor de embedding \cite{qdrant_doc}. Aceasta utilizeaz? algoritmul 
+\textit{Hierarchical Navigable Small World} (HNSW), care organizeaz? vectorii ?ntr-o structur? de tip graf ierarhic.
+
+ÃŽn cadrul acestui graf, fiecare vector este conectat la al?i vectori similari prin leg?turi, form?nd mai multe niveluri. 
+Nivelurile superioare sunt mai rare È™i permit o navigare rapid? ?n spa?iul vectorial, ?n timp ce nivelurile inferioare 
+sunt mai dense È™i permit rafinarea precis? a rezultatelor. C?utarea ?ncepe de la nivelurile superioare È™i coboar? treptat 
+c?tre nivelurile inferioare, apropiindu-se progresiv de vectorii cei mai relevan?i.
+
+Aceast? strategie permite ob?inerea unor performan?e ridicate, cu o complexitate aproximativ logaritmic? 
+?n raport cu dimensiunea colec?iei, fiind potrivit? pentru scenarii ?n care timpul de r?spuns este critic.
+
+Fiecare element stocat ?n Qdrant este asociat cu un vector de embedding È™i un set de metadate structurate 
+(\textit{payload}). Aceste metadate pot include informa?ii precum sursa documentului, pagina sau sec?iunea de origine, 
+fiind utile pentru justificarea È™i citarea r?spunsurilor generate de sistem.
+
+ÃŽn plus, Qdrant permite combinarea c?ut?rii vectoriale cu filtrarea pe baza metadatelor, ceea ce face posibil? 
+restr?ngerea c?ut?rii la anumite subseturi de documente f?r? a afecta semnificativ performan?a \cite{qdrant_doc}.
+
+\subsection{Generarea embedding-urilor}
+
+Embedding-urile reprezint? proiec?ii ale textului ?n spa?ii vectoriale de ?nalt? dimensionalitate, ?n care distan?a dintre vectori reflect? gradul de similaritate semantic? dintre textele corespunz?toare. Spre deosebire de reprezent?rile simbolice clasice â€” precum bag-of-words sau TF-IDF â€” embedding-urile dense capteaz? rela?ii semantice È™i de context 
+?ntr-o reprezentare numeric? continu?, permi??nd compararea conceptual? a textelor chiar È™i ?n absen?a termenilor comuni \cite{mikolov2013word2vec}.
+
+Primele modele de embedding operau la nivel de cuv?nt (Word2Vec), asign?nd fiec?rui cuv?nt un vector fix, independent de context. Odat? cu apari?ia arhitecturii Transformer È™i a modelelor preantrenate de tip BERT \cite{devlin2018bert}, a devenit posibil? generarea de reprezent?ri contextuale, ?n care vectorul unui cuv?nt variaz? ?n func?ie de propozi?ia din care face parte. Extinderea natural? a acestei abord?ri la nivel de propozi?ie sau paragraf a condus la modelele de tip Sentence-BERT (SBERT) \cite{reimers2019sbert}, care antreneaz? perechi de re?ele neuronale bazate pe BERT pentru a produce embedding-uri de propozi?ie direct comparabile prin similaritate cosinus.
+
+Din punct de vedere geometric, embedding-urile sunt comparate prin similaritate cosinus (definit? ?n sec?iunea~\ref{sec:similaritate}), unde valori apropiate de 1 indic? proximitate semantic? ridicat?. ÃŽn practic?, normalizarea L2 transform? fiecare vector la norm? unitar?, astfel ?nc?t produsul scalar devine echivalent cu similaritatea cosinus, simplific?nd calculele din etapa de retrieval È™i stabiliz?nd compararea ?ntre fragmente provenite din documente diferite \cite{levy2024similarity}.
+
+Generarea embedding-urilor este sensibil? la granularitatea textului: dac? fragmentele sunt prea scurte, vectorii capteaz? insuficient context; dac? sunt prea lungi, vectorul agreg? teme multiple È™i scade precizia reg?sirii. Din acest motiv, segmentarea documentului È™i vectorizarea trebuie tratate complementar, nu ca etape independente.\cite{levy2024similarity}
+
+De asemenea, embedding-urile dense completeaz?, dar nu ?nlocuiesc mecanismele lexicale: ele exceleaz? pe parafraz? È™i sinonimie, ?ns? pot rata termeni tehnici rari sau forme foarte specifice. ÃŽntr-un sistem medical, aceast? limitare justific? combinarea scorului semantic cu semnale lexicale ?n etapa de reranking.\cite{gao2023retrieval}
+
+
+
+Procesul de generare a embedding-urilor se desf?È™oar? ?n dou? faze distincte. ÃŽn \textbf{faza de ingestie}, vectorii sunt calcula?i pentru fiecare fragment de document È™i stoca?i ?n Qdrant al?turi de metadatele corespunz?toare. ÃŽn \textbf{faza de interogare}, vectorul interog?rii utilizatorului este calculat la momentul cererii, folosind acelaÈ™i backend activ, È™i comparat cu vectorii stoca?i, identific?nd fragmentele cel mai relevante pentru construc?ia contextului.
+
+\subsection{LlamaIndex}
+
+LlamaIndex este un framework Python specializat pentru construirea aplica?iilor 
+bazate pe LLM \cite{llamaindex_doc}, utilizat ?n cadrul acestui proiect exclusiv 
+pentru componenta de segmentare semantic? a documentelor. Modulul 
+\texttt{SemanticSplitterNodeParser} oferit de framework rezolv? limit?rile 
+abord?rilor tradi?ionale de segmentare â€” precum ?mp?r?irea la num?r fix de 
+tokeni sau la delimitatori structurali â€” care pot produce fragmente ce taie 
+unit??i semantice coerente sau agreg? paragrafe tematice distincte.
+
+Algoritmul func?ioneaz? ?n mai multe etape. ÃŽn prima etap?, textul este ?mp?r?it 
+?n propozi?ii individuale. Pentru fiecare propozi?ie, se calculeaz? embedding-ul 
+s?u È™i se compar? cu embedding-ul propozi?iilor din vecin?tate, controlat prin 
+parametrul \texttt{buffer\_size} â€” care determin? c?te propozi?ii adiacente sunt 
+luate ?n considerare la calculul similarit??ii. Un \texttt{buffer\_size} mai mare 
+ofer? un context mai larg pentru decizia de segmentare, reduc?nd sensibilitatea 
+la varia?ii locale minore ale similarit??ii. ÃŽn a doua etap?, diferen?ele de 
+similaritate dintre propozi?ii consecutive sunt calculate È™i comparate cu un prag configurabil (\texttt{breakpoint\_percentile\_threshold}). Acolo unde 
+sc?derea similarit??ii dep?È™eÈ™te acest prag, algoritmul introduce o grani?? de 
+fragment â€” marc?nd tranzi?ia c?tre un subiect nou. Rezultatul este o segmentare 
+care respect? coeren?a tematic? a textului, produc?nd fragmente mai adecvate 
+pentru construc?ia contextului ?n pipeline-ul RAG al sistemului \cite{llamaindex_doc}.
+
+\section{Modele lingvistice È™i rutare multi-provider}
+
+
+\subsection{Furnizorii de servicii cloud: OpenAI È™i Anthropic}
+
+OpenAI reprezint? furnizorul principal al sistemului, oferind acces la modele 
+din familia GPT prin intermediul unui API REST cu autentificare prin API Key
+\cite{openai_api}. Modelele GPT sunt caracterizate printr-o capacitate ridicat? 
+de urm?rire a instruc?iunilor complexe È™i suport pentru prompturi structurate 
+pe roluri (system, user, assistant), ceea ce le face potrivite pentru domeniul 
+medical informa?ional unde precizia È™i tonul r?spunsului sunt esen?iale 
+\cite{openai_api}. ÃŽn cadrul proiectului, modelul activ este configurat prin 
+variabila de mediu \texttt{OPENAI\_MODEL}, permi??nd schimbarea acestuia f?r? 
+modific?ri ale codului.
+
+Anthropic Claude reprezint? al doilea furnizor cloud integrat \cite{anthropic_claude}. 
+Modelele Claude sunt antrenate cu o metodologie de tip Constitutional AI 
+\cite{bai2022constitutional}, care introduce un set explicit de principii etice 
+?n procesul de antrenare prin reinforcement learning din feedback AI (RLAIF). 
+Concret, modelul este antrenat s? ?È™i critice È™i s? ?È™i revizuiasc? propriile 
+r?spunsuri ?n raport cu aceste principii, rezult?nd un comportament mai 
+consistent ?n situa?ii ambigue sau cu poten?ial de risc â€” caracteristici 
+relevante pentru un chatbot medical \cite{bai2022constitutional}. Integrarea 
+se realizeaz? prin SDK-ul oficial Python (\texttt{anthropic}), care expune 
+o interfa?? similar? cu cea a OpenAI, simplific?nd implementarea stratului 
+de abstractizare comun.
+
+\subsection{Inferen?a local? cu Ollama}
+
+Pentru scenariile care necesit? func?ionare f?r? conexiune la internet sau care 
+nu permit transmiterea datelor c?tre servicii externe din considerente de 
+confiden?ialitate, proiectul integreaz? Ollama ca furnizor de inferen?? local? 
+\cite{ollama_doc}. Ollama abstractizeaz? gestionarea modelelor locale â€” 
+desc?rcare, versionare È™i rulare â€” prin comenzi simple (\texttt{ollama pull} 
+pentru desc?rcarea unui model, \texttt{ollama serve} pentru pornirea serverului 
+de inferen??). Modelul activ este specificat prin variabila de mediu 
+\texttt{OLLAMA\_MODEL}, consistent cu abordarea celorlal?i furnizori din sistem.
+
+Ollama expune o interfa?? REST compatibil? cu formatul OpenAI Chat Completions, 
+ceea ce elimin? necesitatea unor adaptoare separate pe furnizor È™i permite 
+stratului de orchestrare s? comunice uniform cu to?i furnizorii â€” OpenAI, 
+Anthropic È™i Ollama â€” f?r? modific?ri ale logicii interne. Proiectul utilizeaz? 
+modele din familiile LLaMA, Gemma È™i Qwen, disponibile ?n variante de diferite 
+dimensiuni È™i optimizate pentru rulare pe hardware de consum.
+\section{Componenta de graf de cunoÈ™tin?e}
+
+\subsection{Graful de cunoÈ™tin?e ?n contextul RAG}
+
+Reg?sirea vectorial? clasic? opereaz? la nivel de fragment de text, identific?nd pasajele semantice cel mai similare cu interogarea utilizatorului. Aceast? abordare poate fi insuficient? pentru ?ntreb?rile care implic? rela?ii explicite ?ntre mai multe entit??i medicale, de tipul asocierilor dintre simptome, diagnostice È™i tratamente \cite{gao2023retrieval}.
+
+Grafurile de cunoÈ™tin?e ofer? o reprezentare structurat? a entit??ilor È™i a rela?iilor dintre acestea, permi??nd interog?ri bazate pe parcurgerea grafului care recupereaz? lan?uri de informa?ii interdependente. Integrarea unui graf de cunoÈ™tin?e ?n fluxul RAG â€” denumit? ?n literatura de specialitate Graph-RAG \cite{edge2024local} â€” permite construirea unui context mai bogat È™i mai structurat pentru generarea r?spunsurilor, captur?nd rela?ii semantice care nu sunt evidente prin similaritate vectorial?.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figuri/graph.png}
+  \caption{Arhitectura Graph-RAG. Surs?: \cite{edge2024local}}
+  \label{fig:graph}
+\end{figure}
+
+Figura prezint? un pipeline de tip Graph RAG (Retrieval-Augmented Generation bazat pe grafuri de cunoÈ™tin?e), care extinde paradigma clasic? RAG prin integrarea rela?iilor semantice dintre concepte.
+
+Procesul este ?mp?r?it ?n dou? etape principale: etapa de indexare (Indexing Time) È™i etapa de interogare (Query Time).
+
+ÃŽn etapa de indexare, documentele surs? sunt prelucrate prin extrac?ia textului È™i ?mp?r?irea acestuia ?n fragmente (text chunks). Ulterior, din aceste fragmente sunt extrase entit??ile relevante È™i rela?iile dintre acestea, utiliz?nd tehnici de procesare a limbajului natural. Aceste informa?ii sunt organizate ?ntr-un graf de cunoÈ™tin?e, ?n care nodurile reprezint? entit??i, iar muchiile descriu rela?iile semantice dintre acestea. Aceast? reprezentare permite capturarea structurii informa?iei dincolo de simpla similaritate textual?.
+
+ÃŽn etapa de interogare, graful de cunoÈ™tin?e este analizat pentru identificarea unor grupuri de noduri interconectate, denumite comunit??i (graph communities), care reflect? concepte sau subdomenii relevante pentru interogarea utilizatorului. Fiecare comunitate este rezumat? pentru a ob?ine o reprezentare sintetic? a informa?iei (community summaries), iar pe baza acestora sunt generate r?spunsuri par?iale (community answers). ÃŽn final, aceste r?spunsuri sunt agregate ?ntr-un r?spuns global (global answer), adaptat contextului interog?rii.
+
+Comparativ cu abord?rile clasice de tip RAG, care se bazeaz? exclusiv pe similaritate vectorial? ?ntre fragmente de text, utilizarea unui graf de cunoÈ™tin?e permite exploatarea rela?iilor explicite dintre concepte, conduc?nd la r?spunsuri mai coerente, mai bine contextualizate È™i mai robuste ?n fa?a ambiguit??ilor. \cite{edge2024local}
+
+\subsection{Kuzu -- baza de date grafic?}
+
+Kuzu este o baz? de date grafic? de tip embedded, optimizat? pentru interog?ri analitice pe grafuri de dimensiuni medii È™i mari \cite{kuzu_doc}. Spre deosebire de bazele de date grafice de tip client-server â€” precum Neo4j â€” Kuzu ruleaz? ?n acelaÈ™i proces cu aplica?ia Python, elimin?nd laten?a de re?ea È™i simplific?nd semnificativ arhitectura de deployment. Aceast? caracteristic? ?l face deosebit de potrivit pentru aplica?ii care necesit? integrare str?ns? ?ntre procesarea grafului È™i logica aplicativ?.
+
+
+Kuzu implementeaz? modelul de date Property Graph, ?n care at?t nodurile c?t 
+È™i muchiile pot de?ine propriet??i arbitrare \cite{kuzu_doc, kuzu:cidr}. 
+Aceast? structur? permite recuperarea eficient? a informa?iilor prin urm?rirea 
+conexiunilor dintre entit??i ?n mai mul?i paÈ™i consecutivi â€” util? ?n scenarii 
+?n care r?spunsul la o interogare implic? rela?ii indirecte ?ntre concepte 
+aflate la distan?? ?n graf.
+
+
+Construc?ia unui graf de cunoÈ™tin?e porneÈ™te de la extrac?ia entit??ilor È™i a 
+rela?iilor din textul surs? â€” proces cunoscut sub denumirea de 
+\textit{Named Entity Recognition} (NER) È™i \textit{Relation Extraction} (RE) 
+?n literatura de procesare a limbajului natural \cite{jurafsky2023}. Abord?rile 
+clasice utilizeaz? liste de termeni, expresii regulate È™i reguli lingvistice 
+pentru identificarea entit??ilor de interes, ?n timp ce abord?rile moderne 
+se bazeaz? pe modele neuronale antrenate pe corpusuri adnotate. Indiferent de 
+metod?, entit??ile extrase sunt normalizate la forme canonice pentru a elimina 
+varia?iile de scriere È™i a asigura consisten?a grafului. Rela?iile dintre 
+entit??i sunt detectate prin identificarea expresiilor lingvistice care 
+semnaleaz? asocieri semantice specifice â€” de tipul rela?iilor terapeutice, 
+cauzale sau de diferen?iere diagnostic? ?n domeniul medical.
+
+\section{Procesarea datelor È™i utilitare}
+
+\subsection{Extrac?ia textului din documente PDF cu PyMuPDF}
+
+Documentele medicale utilizate ca surs? de cunoÈ™tin?e sunt disponibile predominant ?n format PDF, un format opac din perspectiva prelucr?rii automate a textului. Extrac?ia fidel? a con?inutului textual reprezint? primul pas critic al pipeline-ului de ingestie, cu impact direct asupra calit??ii informa?iilor indexate.
+
+PyMuPDF (denumit È™i \texttt{fitz}) este o bibliotec? Python de ?nalt? performan?? pentru procesarea documentelor PDF, construit? pe motorul MuPDF \cite{pymupdf_doc}. Spre deosebire de alte solu?ii de extrac?ie â€” precum \texttt{pdfminer} sau \texttt{pypdf} â€” PyMuPDF men?ine informa?ii geometrice complete despre fiecare bloc de text: pozi?ia, dimensiunea fontului È™i alinierea, permi??nd reconstruirea par?ial? a structurii logice a documentului pe baza propriet??ilor vizuale ale elementelor extrase.
+
+\subsection{Procesarea datelor tabelare cu modulul \texttt{csv}}
+
+ÃŽn implementarea curent?, datele tabelare sunt procesate cu modulul standard
+\texttt{csv} din Python. FiÈ™ierul CSV este parcurs secven?ial cu \texttt{csv.reader}, cu
+valid?ri explicite pe structur? È™i pe c?mpurile obligatorii ?nainte de
+transformarea ?n obiecte tipizate \texttt{MedicalItem}. Aceast? abordare men?ine
+controlul strict asupra regulilor de validare È™i reduce complexitatea
+opera?ional? a pipeline-ului pentru seturile de date utilizate ?n proiect.
+\subsection{Gestionarea configura?iei cu python-dotenv}
+
+Twelve-Factor App este o metodologie pentru construirea aplica?iilor software 
+moderne, publicat? de Heroku, care defineÈ™te dou?sprezece principii arhitecturale 
+menite s? asigure portabilitatea, scalabilitatea È™i mentenabilitatea aplica?iilor 
+\cite{twelvefactor}. Principiile acoper? aspecte precum gestionarea dependen?elor, 
+separarea configura?iei de cod, tratarea proceselor ca entit??i f?r? stare È™i 
+exportarea serviciilor ca resurse ataÈ™abile. DeÈ™i metodologia a fost formulat? 
+?n contextul aplica?iilor web, principiile sale sunt aplicabile oric?rei aplica?ii 
+care ruleaz? ?ntr-un mediu containerizat sau distribuit.
+
+Principiul al treilea â€” \textit{Config} â€” stipuleaz? c? orice configura?ie care 
+variaz? ?ntre medii de deployment (dezvoltare, testare, produc?ie) trebuie stocat? 
+exclusiv ?n variabile de mediu, nu ?n codul surs? sau ?n fiÈ™iere de configura?ie 
+versionate \cite{twelvefactor}. Aceast? separare permite deployment-ul aceleiaÈ™i 
+imagini de aplica?ie ?n medii diferite f?r? modific?ri ale codului, elimin?nd 
+o surs? frecvent? de erori È™i simplific?nd gestionarea secretelor â€” chei API, 
+creden?iale, URL-uri de servicii.
+
+Biblioteca \texttt{python-dotenv} implementeaz? acest principiu prin ?nc?rcarea 
+variabilelor dintr-un fiÈ™ier \texttt{.env} ?n mediul de execu?ie al procesului 
+Python, prin popularea dic?ionarului \texttt{os.environ} \cite{dotenv_doc}. 
+FiÈ™ierul \texttt{.env} nu este versionat â€” este exclus din repository prin 
+\texttt{.gitignore} â€” È™i con?ine valorile specifice mediului local al 
+dezvoltatorului. ÃŽn mediile containerizate, variabilele sunt transmise direct 
+de orchestratorul de containere, iar \texttt{python-dotenv} respect? prioritatea 
+variabilelor definite ?n sistem fa?? de cele din fiÈ™ier, comportamentul corect 
+pentru deployment-uri Docker sau Kubernetes.
+
+
+
+
+\section{Containerizare È™i rulare}
+
+\subsection{Principiile containeriz?rii cu Docker}
+
+Docker este o platform? pentru containerizarea aplica?iilor software, 
+oferind un mecanism de ambalare a aplica?iei ?mpreun? cu dependen?ele 
+È™i configura?iile sale ?ntr-o imagine portabil? È™i reproductibil? 
+\cite{docker_doc}. Containerele Docker folosesc mecanisme ale nucleului Linux, precum namespace-urile È™i cgroup-urile, pentru a oferi izolare la nivel de proces È™i control asupra resurselor. Namespace-urile izoleaz? resursele sistemului â€” sistem de fiÈ™iere, re?ea, procese â€” astfel ?nc?t fiecare container are propria 
+vedere asupra acestora, iar cgroup-urile limiteaz? È™i monitorizeaz? utilizarea 
+resurselor precum CPU È™i memorie \cite{docker_doc}. ÃŽn practic?, aceast? abordare asigur? un mediu de execu?ie mult mai consistent ?ntre dezvoltare, testare È™i produc?ie È™i reduce problemele clasice de incompatibilitate a dependen?elor, f?r? a implica ?ns? izolarea complet? specific? unei maÈ™ini virtuale.
+
+Imaginea Docker a proiectului este definit? printr-un fiÈ™ier 
+\texttt{Dockerfile} single-stage, care instaleaz? dependen?ele È™i 
+uneltele necesare ?n aceeaÈ™i imagine de execu?ie. Aceast? abordare 
+simplific? procesul de build È™i este adecvat? mediului de dezvoltare, 
+unde prioritatea este reproductibilitatea mediului de execu?ie, nu 
+optimizarea dimensiunii imaginii finale \cite{docker_doc}.
+
+\subsection{Orchestrarea serviciilor cu Docker Compose}
+
+Aplica?ia este compus? din mai multe servicii independente care trebuie s? func?ioneze coordonat pentru a oferi func?ionalitate complet?. Docker Compose permite definirea È™i gestionarea acestor servicii printr-un fiÈ™ier YAML unic, simplific?nd semnificativ procesul de pornire, oprire È™i configurare a ?ntregii stive aplicative \cite{docker_compose_doc}.
+
+Topologia Docker Compose a proiectului include urm?toarele servicii:
+\begin{itemize}
+  \item \texttt{app} â€” aplica?ia CLI principal?, responsabil? pentru 
+  logica de orchestrare, ingestie È™i evaluare;
+  \item \texttt{api} â€” serviciul Flask care expune interfa?a REST;
+  \item \texttt{qdrant} â€” baza de date vectorial?, rulat? ca serviciu 
+  persistent cu stocare montat? pe sistemul gazd?;
+  \item \texttt{openwebui} â€” front-end-ul grafic pentru interac?iunea 
+  conversa?ional?;
+  \item \texttt{ollama} â€” serviciu op?ional pentru inferen?a local?, 
+  activat prin profilul \texttt{local-llm}.
+\end{itemize}
+
+\subsection{Reproductibilitatea mediului de execu?ie}
+
+Containerizarea garanteaz? reproductibilitatea complet? a mediului de execu?ie: orice utilizator care porneÈ™te stiva Docker Compose pornind de la aceeaÈ™i configura?ie va ob?ine un mediu func?ional identic cu cel utilizat ?n dezvoltare È™i testare. Aceast? proprietate este esen?ial? ?n contextul cercet?rii È™i evalu?rii academice, unde reproductibilitatea rezultatelor reprezint? un criteriu fundamental de validitate È™tiin?ific? \cite{reproducibility2018}.
+
+FiÈ™ierul \texttt{.env.example} inclus ?n repository documenteaz? exhaustiv toate variabilele de mediu necesare pentru configurarea sistemului, cu valori implicite sigure È™i comentarii explicative. Acest fiÈ™ier template simplific? procesul de configurare ini?ial? È™i reduce bariera de intrare pentru noi utilizatori sau evaluatori ai sistemului.
+
+\section{Calitatea codului È™i testare}
+
+\subsection{Instrumente de formatare È™i analiz? static?}
+
+Men?inerea unui standard uniform al stilului de cod este important? ?n proiectele cu arhitectur? modular?, deoarece faciliteaz? citirea, revizuirea È™i extinderea codului pe durata ?ntregului ciclu de via?? al proiectului. Proiectul utilizeaz? Black ca formator automat de cod Python \cite{black_doc}. Black aplic? un stil de formatare opinionat È™i neambiguu, elimin?nd necesitatea deciziilor manuale de formatare È™i asigur?nd uniformitatea vizual? a ?ntregii baze de cod.
+
+Ruff este un linter Python de ?nalt? performan??, implementat ?n Rust \cite{ruff_doc}, care verific? respectarea unui set extins de reguli de calitate a codului: detec?ia variabilelor neutilizate, a importurilor redundante sau incorect ordonate, a anti-pattern-urilor comune È™i a poten?ialelor erori logice. Spre deosebire de solu?iile tradi?ionale de analiz? static?, Ruff ofer? o performan?? de zeci de ori mai rapid? \cite{ruff_doc}, permi??nd integrarea sa ca pas de verificare ?n pipeline-ul de CI/CD f?r? impact semnificativ asupra timpului total de build.
+
+\subsection{Cadrul de testare automat?}
+
+Proiectul include o suit? extins? de teste automate, organizat? pe dou? niveluri de abstractizare. Testele unitare verific? comportamentul corect al componentelor individuale ?n izolare, prin furnizarea dependen?elor simulate care elimin? efectele colaterale ale apelurilor externe. Testele de integrare verific? comportamentul fluxurilor complete de execu?ie, asigur?nd c? interac?iunile dintre componente se desf?È™oar? conform aÈ™tept?rilor.
+
+Testele sunt implementate ?n principal cu framework-ul standard \texttt{unittest}, iar execu?ia este realizat? prin comenzi de tip \texttt{python -m unittest}. Suita de teste acoper? componentele critice ale sistemului: modulul de protec?ie (\textit{guardrails}) este testat pentru detectarea corect? a interog?rilor periculoase, a mesajelor de urgen?? È™i a con?inutului ?n afara domeniului medical; modulul de orchestrare este testat pentru construc?ia corect? a promptului È™i pentru logica de reluare ?n caz de evaluare eÈ™uat?; modulele de ingestie sunt testate pentru corectitudinea extrac?iei, segment?rii È™i index?rii documentelor.
+
+\subsection{Monitorizarea acoperirii testelor}
+
+Acoperirea testelor (\textit{test coverage}) este monitorizat? prin instrumentul \texttt{coverage.py} \cite{coveragepy_doc}, care m?soar? procentul de linii de cod executate ?n cursul rul?rii complete a suitei de teste. DeÈ™i o acoperire ridicat? nu garanteaz? ?n sine absen?a defectelor, ea ofer? un indicator obiectiv al gradului ?n care comportamentul sistemului este validat È™i documentat prin scenarii explicite.
+
+Rapoartele de acoperire sunt generate periodic È™i urm?rite ca metric? de calitate pe parcursul dezvolt?rii proiectului. Componentele cu acoperire redus? sunt identificate È™i prioritizate pentru completarea suitei de teste ?n itera?iile ulterioare, men?in?nd un nivel ridicat de ?ncredere ?n stabilitatea func?ional? a sistemului pe m?sura extinderii sale.
+
+\chapter{Arhitectura proiectului}
+
+\section{Arhitectura de ansamblu}
+\label{sec:ansamblu}
+
+Sistemul implementat este organizat ca o arhitectur? modular? de tip agentic, ?n care fiecare component? are un rol clar È™i poate fi testat?, ?nlocuit? sau extins? independent. Pentru a respecta principiul separ?rii responsabilit??ilor (\textit{separation of concerns}), proiectul este ?mp?r?it ?n module specializate, fiecare cu o func?ie bine definit?:
+\begin{itemize}
+    \item \texttt{agent} coordoneaz? fluxul principal al cererii: aplicarea regulilor de protec?ie, rularea motorului de ra?ionament, evaluarea r?spunsului È™i gestionarea relu?rilor (\textit{retry});
+    \item \texttt{rag} se ocup? de preg?tirea È™i reg?sirea contextului: segmenteaz? documentele, genereaz? embedding-uri È™i interogheaza baza vectorial? pentru fragmente relevante;
+    \item \texttt{knowledge} gestioneaz? componenta de graf de cunoÈ™tin?e, inclusiv extrac?ia entit??ilor medicale È™i reprezentarea rela?iilor dintre acestea;
+    \item \texttt{api} expune func?ionalitatea sistemului prin endpoint-uri REST, astfel ?nc?t aplica?ia s? poat? fi folosit? din interfe?e externe;
+    \item \texttt{config} centralizeaz? parametrii de configurare È™i È™abloanele de prompt, pentru a men?ine comportamentul sistemului consecvent È™i uÈ™or de ajustat.
+\end{itemize}
+Contractele de date dintre module sunt definite explicit ?n pachetul \texttt{models}, prin clase \texttt{dataclass} tipizate, completate de valid?ri ?n punctele critice de intrare, pentru a men?ine consisten?a tipurilor pe ?ntregul flux de execu?ie.
+
+Interdependen?ele dintre module sunt gestionate exclusiv prin furnizarea dependen?elor: fiecare component? primeÈ™te func?iile de care are nevoie ca parametri la ini?ializare, f?r? a instan?ia direct dependen?ele sale. Aceast? decizie de proiectare are dou? consecin?e practice: facilitarea test?rii â€” orice component? poate fi testat? izolat prin substituirea dependen?elor cu implement?ri simulate â€” È™i extensibilitatea â€” un nou furnizor LLM sau o nou? strategie de reg?sire pot fi integrate f?r? modific?ri ?n logica de orchestrare.
+
+Fluxul de procesare al unei interog?ri urmeaz? o succesiune secven?ial? de etape, proiectat? pentru a reduce riscul de r?spunsuri incorecte ?n context medical. Figura~\ref{fig:pipeline} ilustreaz? aceast? succesiune.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum width=4.2cm, minimum height=0.7cm, align=center, font=\small},
+  sidebox/.style={draw, rounded corners=3pt, minimum width=3.2cm, minimum height=0.7cm, align=center, font=\small},
+  >=Stealth, node distance=0.6cm
+]
+\node[box] (q)   {Interogare utilizator};
+\node[box, below=of q]   (g)   {Guardrail};
+\node[sidebox, right=1.6cm of g] (bl)  {\small R?spuns blocat};
+\node[box, below=of g]   (rag) {Reg?sire context (RAG)};
+\node[box, below=of rag] (pr)  {Construc?ie prompt};
+\node[box, below=of pr]  (llm) {Generare LLM};
+\node[box, below=of llm] (ev)  {Evaluator};
+\node[sidebox, right=1.6cm of ev] (rt)  {\small Retry: prompt adaptat /\\ schimbare provider};
+\node[box, below=of ev]  (out) {R?spuns final};
+
+\draw[->] (q)   -- (g);
+\draw[->] (g)   -- node[left]{\scriptsize valid}   (rag);
+\draw[->] (g)   -- node[above]{\scriptsize invalid} (bl);
+\draw[->] (rag) -- (pr);
+\draw[->] (pr)  -- (llm);
+\draw[->] (llm) -- (ev);
+\draw[->] (ev)  -- node[left]{\scriptsize acceptat} (out);
+\draw[->] (ev)  -- node[above]{\scriptsize eÈ™uat}   (rt);
+\draw[->] (rt.north) |- (llm.east);
+\end{tikzpicture}
+\caption{Fluxul de procesare al unei interog?ri ?n sistemul chatbot medical}
+\label{fig:pipeline}
+\end{figure}
+
+\begin{enumerate}
+    \item aplicarea mecanismelor de protec?ie (\textit{guardrails}) asupra ?ntreb?rii utilizatorului;
+    \item delegarea c?tre modulul de \textit{reasoning}, care decide dac? este necesar? recuperarea de context din baza vectorial? (RAG);
+    \item extragerea fragmentelor relevante atunci c?nd interogarea necesit? cunoÈ™tin?e externe;
+    \item construirea promptului final prin combinarea regulilor din fiÈ™ierul \texttt{llm.txt}, a contextului recuperat È™i a ?ntreb?rii utilizatorului;
+    \item trimiterea promptului c?tre LLM Hub È™i generarea r?spunsului;
+    \item evaluarea r?spunsului cu un evaluator dedicat;
+    \item reluarea procesului, ?n modulul de \textit{reasoning}, cu prompt ajustat sau cu schimbarea furnizorului LLM, dac? evaluarea nu este satisf?c?toare;
+    \item returnarea c?tre utilizator doar a r?spunsului validat.
+\end{enumerate}
+
+
+\section{Orchestratorul}
+
+Orchestratorul reprezint? punctul central de coordonare al sistemului, responsabil cu execu?ia complet? a ciclului de via?? al unei cereri: validare prin guardrail, reg?sire de context, generare de r?spuns, evaluare È™i, dac? este necesar, reluare. Implementat ?n clasa \texttt{Orchestrator} din \texttt{agent/orchestrator/orchestrator.py}, acesta primeÈ™te o cerere de interogare È™i returneaz? un r?spuns complet, adnotat cu rezultatele tuturor etapelor intermediare.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum width=5cm, minimum height=0.65cm, align=center, font=\small},
+  sbox/.style={draw, rounded corners=3pt, minimum width=3.8cm, minimum height=0.65cm, align=center, font=\small},
+  >=Stealth, node distance=0.7cm
+]
+\node[box] (req)  {\texttt{QueryRequest (query, top\_k, filters)}};
+\node[box, below=of req]  (grd)  {Guardrail};
+\node[sbox, right=1.8cm of grd] (blk)  {\small \texttt{OrchestratorResponse}\\small (guardrail invalid, retries=0)};
+\node[box, below=of grd]  (re)   {\texttt{ReasoningEngine.run()}};
+\node[box, below=of re]   (resp) {\texttt{OrchestratorResponse}};
+
+\draw[->] (req) -- (grd);
+\draw[->] (grd) -- node[left]{\scriptsize is\_valid=True}  (re);
+\draw[->] (grd) -- node[above]{\scriptsize is\_valid=False} (blk);
+\draw[->] (re)  -- (resp);
+\end{tikzpicture}
+\caption{Fluxul de execu?ie al \texttt{Orchestrator.run()}}
+\label{fig:orchestrator}
+\end{figure}
+
+\subsection{Structura È™i gestionarea dependen?e}
+
+Orchestratorul utilizeaz? un model de organizare a dependen?elor prin intermediul 
+clasei \texttt{OrchestratorDependencies}, care grupeaz? toate func?iile externe necesare: \texttt{guardrail} (implicit \texttt{apply\_guardrails}), \texttt{retrieve} (implicit \texttt{retrieve\_top\_similar}), \texttt{llm\_call} (implicit \texttt{llm\_ask\_request}) È™i \texttt{evaluator} (implicit \texttt{evaluate\_response}). Aceast? arhitectur? permite ?nlocuirea oric?rei componente cu versiuni de test ?n timpul test?rii, f?r? a modifica logica de orchestrare. La ini?ializare, orchestratorul construieÈ™te intern un \texttt{ReasoningEngine} c?ruia ?i transmite aceleaÈ™i dependen?e, deleg?nd acestuia toat? logica de generare È™i evaluare.
+
+\subsection{Fluxul de execu?ie}
+
+Metoda \texttt{run} primeÈ™te un obiect \texttt{QueryRequest} cu c?mpurile \texttt{query}, \texttt{top\_k} (implicit 3), \texttt{language} (implicit \texttt{"ro"}) È™i \texttt{filters} op?ionale. Execu?ia urmeaz? dou? etape secven?iale:
+
+\begin{enumerate}
+    \item \textbf{Validarea prin guardrail}: interogarea este transmis? func?iei de guardrail. Dac? rezultatul are \texttt{is\_valid = False}, orchestratorul returneaz? imediat un \texttt{OrchestratorResponse} cu mesajul de respingere al guardrailului, f?r? a apela motorul de ra?ionament. Num?rul de relu?ri este 0, iar c?mpurile \texttt{evaluator} È™i \texttt{retrieval} sunt \texttt{None}.
+    \item \textbf{Reasoning}: dac? interogarea este valid?, controlul este transferat la  \texttt{ReasoningEngine} printr-un \texttt{ReasoningInput} ce con?ine interogarea, \texttt{top\_k}, limba È™i filtrele. Rezultatul \texttt{ReasoningOutput} este prelucrat direct ?n c?mpurile \texttt{OrchestratorResponse}: r?spunsul final, furnizorul È™i modelul utilizat, num?rul de relu?ri, rezultatul evaluatorului, rezultatul reg?sirii È™i liniile de context.
+\end{enumerate}
+
+Logica complet? de reg?sire a contextului, construc?ie a promptului, generare, evaluare È™i reluare este implementat? ?n \texttt{ReasoningEngine} È™i este descris? ?n detaliu ?n sec?iunea~\ref{sec:reasoning}. Orchestratorul nu reproduce aceast? logic? â€” el o invoc? printr-un apel unic la metoda \texttt{run}, primind ?napoi un \texttt{ReasoningOutput} complet care include r?spunsul, provenien?a È™i istoricul procesului de generare.
+
+\subsection{Structura r?spunsului final}
+
+Orchestratorul returneaz? un obiect \texttt{OrchestratorResponse} cu c?mpurile: \texttt{response} (textul r?spunsului sau \texttt{None}), \texttt{provider} È™i \texttt{model} (furnizorul È™i modelul utilizat la ultima generare), \texttt{retries} (num?rul de relu?ri efectuate), \texttt{guardrail} (\texttt{GuardrailResult} cu detaliile valid?rii), \texttt{evaluator} (\texttt{EvaluatorResult} sau \texttt{None} ?n caz de respingere de guardrail), \texttt{retrieval} (\texttt{RetrievalResult} sau \texttt{None}) È™i \texttt{context\_lines} (lista liniilor de context utilizate). Structura serializabil? a acestui obiect permite API-ului s? returneze clientului informa?ii complete, asigur?nd transparen?a ?ntregului proces de generare.
+
+
+\section{Modulul de ra?ionament (Reasoning)}
+\label{sec:reasoning}
+
+Modulul de ra?ionament, implementat ?n clasa \texttt{ReasoningEngine} din \texttt{agent/reasoning/engine.py}, concentreaz? ?ntreaga logic? de decizie privind generarea r?spunsului: activarea RAG, construc?ia promptului, evaluarea calit??ii È™i strategia de reluare. Orchestratorul ?i deleag? controlul complet dup? ce guardrail-ul valideaz? interogarea, iar \texttt{ReasoningEngine} returneaz? un r?spuns final validat sau un mesaj de ?ncredere sc?zut?.
+
+\subsection{Preprocesarea interog?rii È™i decizia RAG}
+
+Prima etap? a motorului de ra?ionament const? ?n evaluarea direct? a interog?rii utilizatorului pentru reg?sire contextual?. Interogarea este transmis? modulului RAG f?r? transform?ri lingvistice intermediare, iar motorul verific? dac? exist? fragmente relevante È™i dac? scorul maxim dep?È™eÈ™te pragul minim configurat (\texttt{retrieval\_min\_score}). Dac? nu, r?spunsul este un mesaj de ?ncredere sc?zut? returnat direct, f?r? a mai apela modelul LLM â€” evit?nd astfel generarea de r?spunsuri nefondate ?n absen?a unui context relevant.
+
+\subsection{Construc?ia promptului È™i generarea r?spunsului}
+
+Dac? reg?sirea produce context relevant, fragmentele sunt asamblate ?ntr-un bloc de context structurat. Promptul final combin? sistemul de instruc?iuni din \texttt{llm.txt}, blocul de context È™i interogarea original? a utilizatorului.
+
+Generarea se desf?È™oar? ?ntr-o bucl? cu un num?r maxim de ?ncerc?ri configurat. La fiecare itera?ie, motorul selecteaz? furnizorul LLM activ, trimite cererea È™i evalueaz? r?spunsul primit. Dac? evaluatorul semnaleaz? un r?spuns valid sau nu recomand? reluarea, bucla se opreÈ™te. Altfel, se aplic? una din dou? strategii de reluare, ?n func?ie de tipul de eÈ™ec detectat de evaluator:
+
+\begin{itemize}
+    \item \textbf{Prompt ajustat} (\texttt{adjust\_prompt}) â€” mesajul utilizatorului este completat cu instruc?iuni corective derivate din motivele de eÈ™ec raportate de evaluator, ghid?nd modelul spre un r?spuns mai precis ?n aceeaÈ™i ?ncercare;
+    \item \textbf{Schimbarea furnizorului} (\texttt{switch\_llm}) â€” dac? modelul curent are dificult??i cu tipul de interogare, motorul comut? pe urm?torul furnizor din ierarhia de fallback configurat?, men?in?nd acelaÈ™i prompt.
+\end{itemize}
+
+\subsection{Rutarea multi-provider}
+
+Selec?ia furnizorului pentru fiecare ?ncercare este gestionat? de metoda \texttt{\_select\_provider}. La prima ?ncercare se foloseÈ™te ?ntotdeauna furnizorul primar configurat prin variabile de mediu. Pentru ?ncerc?rile ulterioare cu strategia \texttt{switch\_llm}, motorul parcurge ?n ordine lista \texttt{provider\_fallback\_order} din configura?ia evaluatorului. Dac? lista este epuizat?, revine la furnizorul primar. Clien?ii concre?i pentru OpenAI, Anthropic È™i modelele locale (Gemma, Qwen prin Ollama) sunt implementa?i ?n \texttt{agent/reasoning/providers/} È™i expuÈ™i printr-o interfa?? unificat? ?n \texttt{llm/llm\_router.py}.
+
+\subsection{Finalizarea r?spunsului}
+
+Dup? ieÈ™irea din bucl?, r?spunsul final este completat cu blocul fragmentelor recuperate È™i, ?n modul hibrid de reg?sire, cu un bloc de cit?ri structurate ce include sursa È™i pagina fiec?rui fragment utilizat. Motorul returneaz? un obiect \texttt{ReasoningOutput} care include r?spunsul, furnizorul È™i modelul folosit, num?rul de relu?ri, rezultatul evaluatorului È™i rezultatul reg?sirii â€” oferind orchestratorului transparen?? complet? asupra procesului de generare.
+
+
+
+
+\section{Modulul de protec?ie (Guardrails)}
+
+Modulul de protec?ie reprezint? prima component? prin care trece orice interogare a utilizatorului È™i are rolul de a determina dac? aceasta poate fi procesat? ?n continuare de sistem. Decizia se bazeaz? pe o strategie ?n dou? niveluri: o verificare determinist? bazat? pe È™abloane de cuvinte-cheie, urmat?, la nevoie, de o clasificare semantic? realizat? de un model LLM.
+
+\subsection{Motiva?ia È™i rolul modulului}
+
+ÃŽntr-un sistem de tip chatbot medical, riscurile asociate unui r?spuns neadecvat sunt semnificativ mai ridicate dec?t ?n aplica?ii de uz general. Un utilizator poate descrie o urgen?? medical? real?, poate solicita doze precise de medicamente sau poate formula ?ntreb?ri cu inten?ii v?t?m?toare. F?r? un mecanism explicit de filtrare, sistemul ar putea genera r?spunsuri care, deÈ™i corecte din perspectiv? lingvistic?, pot constitui sfaturi periculoase sau pot ?nt?rzia accesul la ?ngrijire medical? de urgen??.
+
+Modulul de protec?ie adreseaz? aceste riscuri prin clasificarea fiec?rei interog?ri ?ntr-una din categoriile definite È™i prin blocarea sau redirec?ionarea celor care nu pot fi procesate ?n siguran?? de sistemul de generare.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum width=4.5cm, minimum height=0.65cm, align=center, font=\small},
+  res/.style={draw, rounded corners=3pt, minimum width=3cm, minimum height=0.65cm, align=center, font=\small, fill=gray!10},
+  >=Stealth, node distance=0.55cm
+]
+\node[box] (norm) {Normalizare interogare};
+\node[box, below=of norm] (v1) {Interogare vid??};
+\node[res, right=1.5cm of v1] (r1) {AMBIGUOUS (1.00)};
+\node[box, below=of v1] (v2) {Urgen?? medical??};
+\node[res, right=1.5cm of v2] (r2) {EMERGENCY (0.95)};
+\node[box, below=of v2] (v3) {Con?inut periculos critic?};
+\node[res, right=1.5cm of v3] (r3) {UNSAFE (0.95)};
+\node[box, below=of v3] (v4) {Con?inut periculos soft?};
+\node[res, right=1.5cm of v4] (r4) {UNSAFE (0.92)};
+\node[box, below=of v4] (v5) {Info-only?};
+\node[res, right=1.5cm of v5] (r5) {INFO\_ONLY (0.90)};
+\node[box, below=of v5] (v6) {Personal medical?};
+\node[res, right=1.5cm of v6] (r6) {PERSONAL\_MEDICAL (0.90 / 0.80)};
+\node[box, below=of v6] (llm) {Clasificator LLM (op?ional)};
+\node[box, below=of llm] (gr)  {\texttt{GuardrailResult}};
+
+\draw[->] (norm) -- (v1);
+\draw[->] (v1) -- node[left]{\scriptsize nu} (v2);
+\draw[->] (v1) -- node[above]{\scriptsize da} (r1);
+\draw[->] (v2) -- node[left]{\scriptsize nu} (v3);
+\draw[->] (v2) -- node[above]{\scriptsize da} (r2);
+\draw[->] (v3) -- node[left]{\scriptsize nu} (v4);
+\draw[->] (v3) -- node[above]{\scriptsize da} (r3);
+\draw[->] (v4) -- node[left]{\scriptsize nu} (v5);
+\draw[->] (v4) -- node[above]{\scriptsize da} (r4);
+\draw[->] (v5) -- node[left]{\scriptsize nu} (v6);
+\draw[->] (v5) -- node[above]{\scriptsize da} (r5);
+\draw[->] (v6) -- node[above]{\scriptsize nu} (gr);
+\draw[->] (v6) -- node[left]{\scriptsize da} (llm);
+\draw[->] (llm) -- node[above]{\scriptsize sigur} (r6);
+\draw[->] (llm) -- (gr);
+\end{tikzpicture}
+\caption{Strategia de clasificare a modulului Guardrail}
+\label{fig:guardrail}
+\end{figure}
+
+
+\subsection{Categoriile de clasificare}
+
+Sistemul defineÈ™te È™ase categorii de clasificare, fiecare asociat? cu o politic? de r?spuns distinct?:
+
+\begin{itemize}
+    \item \textbf{EMERGENCY} â€” interogarea con?ine indicatori ai unei urgen?e medicale imediate (ex. durere ?n piept, dificult??i de respira?ie, accident vascular cerebral). Sistemul blocheaz? procesarea ulterioar? È™i returneaz? un mesaj care ?ndeamn? utilizatorul s? contacteze serviciile de urgen?? (num?rul 112).
+    \item \textbf{UNSAFE} â€” interogarea con?ine con?inut explicit d?un?tor. Sunt definite dou? sub-variante: critica, care acoper? inten?ii de autoagresiune, violen?? sau sintez? de substan?e interzise, È™i soft, care vizeaz? solicit?ri de doze exacte, prescrip?ii sau scheme personalizate de tratament f?r? consultarea unui medic. Ambele variante blocheaz? r?spunsul, dar furnizeaz? mesaje diferite adaptate situa?iei.
+    \item \textbf{AMBIGUOUS} â€” interogarea este ambigu? sau nu poate fi clasificat? cu suficient? certitudine. Sistemul returneaz? un mesaj de redirec?ionare c?tre un medic.
+    \item \textbf{INFO\_ONLY} â€” interogarea are caracter informa?ional pur (defini?ii, simptome generale, cauze, preven?ie) È™i nu con?ine indicatori personali sau de urgen??. Este considerat? valid? È™i este transmis? mai departe ?n pipeline.
+    \item \textbf{PERSONAL\_MEDICAL} â€” interogarea con?ine markeri la persoana ?nt?i (ex. â€žam durere", â€žm? simt"), suger?nd o situa?ie personal?, nu educa?ional?. Este considerat? valid?, dar semnalat? orchestratorului pentru o tratare diferen?iat?.
+    \item \textbf{SAFE} â€” interogarea nu a declanÈ™at niciun È™ablon specific È™i este considerat? sigur?. Este transmis? mai departe ?n pipeline.
+\end{itemize}
+
+Fiec?rei categorii ?i este asociat un scor de ?ncredere care reflect? gradul de certitudine al deciziei. Politica de acordare a scorurilor este: 1,00 pentru respingerea interog?rilor vide, 0,95 pentru potriviri deterministe cu risc ridicat (urgen?e È™i con?inut periculos critic), 0,92 pentru potriviri soft nesigure, 0,90 pentru clasific?ri deterministe inofensive, 0,80 pentru decizii luate pe baza LLM È™i 0,60 pentru situa?iile ?n care LLM-ul nu este disponibil.
+
+\subsection{Strategia determinist? de clasificare}
+
+Prima faz? a modulului utilizeaz? potriviri de È™abloane de cuvinte-cheie organizate ierarhic ?n grupuri tematice. Interogarea este normalizat? ?nainte de aplicarea È™abloanelor â€” prin conversia la litere mici È™i eliminarea diacriticelor â€” pentru a reduce variabilitatea lingvistic? È™i a ?mbun?t??i rata de detec?ie.
+
+Verific?rile se aplic? ?n ordine strict ierarhic?, ceea ce garanteaz? c? riscurile cu impact mai mare sunt evaluate primele:
+
+\begin{enumerate}
+    \item \textbf{Interogare vid?}: o interogare goal? sau format? exclusiv din spa?ii este respins? imediat, cu un scor de ?ncredere de 1,00.
+    \item \textbf{È˜abloane de urgen??}: grupuri de expresii acoperind urgen?e cardiovasculare, respiratorii, neurologice, traumatisme hemoragice È™i supradoze sau intoxica?ii. Dac? se detecteaz? o potrivire È™i contextul nu este pur educa?ional, interogarea este clasificat? \textbf{EMERGENCY} cu scor 0,95.
+    \item \textbf{È˜abloane critice nesigure}: expresii cu inten?ii de autoagresiune, violen?? sau sintez? de substan?e periculoase. La detectare, interogarea este clasificat? \textbf{UNSAFE} cu scor 0,95.
+    \item \textbf{È˜abloane soft nesigure}: solicit?ri de doze exacte, prescrip?ii sau scheme de tratament personalizate. La detectare, interogarea este clasificat? \textbf{UNSAFE} cu scor 0,92.
+    \item \textbf{Markeri informativi È™i personali}: expresii cu caracter educa?ional sau cu referire la persoana ?nt?i, pentru clasificarea ?n \textbf{INFO\_ONLY} sau \textbf{PERSONAL\_MEDICAL} cu scor 0,90.
+\end{enumerate}
+
+Un mecanism special previne false pozitive pentru categoria de urgen??: o interogare care con?ine expresii de urgen??, dar care prezint? È™i un cadru educa?ional evident (ex. â€žce simptome are un infarct?"), f?r? markeri personali sau de urgen?? imediat?, nu este clasificat? ca EMERGENCY. Aceast? detectare a contextului educa?ional se realizeaz? prin verificarea simultan? a prezen?ei unor semnale educa?ionale È™i a absen?ei markerilor la persoana ?nt?i È™i a indicatorilor de urgen?? actual?.
+
+\subsection{Clasificarea asistat? de LLM}
+
+Abordarea hibrid? â€” determinist? mai ?nt?i, LLM ulterior â€” este justificat? de necesitatea echilibrului ?ntre vitez? È™i acurate?e semantic?. Verific?rile pe baz? de È™abloane sunt instantanee È™i acoper? cazurile cu risc ridicat, bine definite lexical (urgen?e, doze, automutilare). LLM-ul este invocat doar pentru interog?rile care nu au primit o clasificare cert?, ceea ce limiteaz? laten?a suplimentar? la cazurile cu adev?rat ambigue È™i reduce costul de inferen??.
+
+Interog?rile care nu primesc o clasificare determinist? cert? â€” ?n special cele cu caracter personal sau ambiguu â€” sunt trimise spre clasificare semantic? unui model LLM. Modelul primeÈ™te un prompt de sistem cu instruc?iuni stricte È™i trebuie s? returneze exact una dintre etichetele predefinite: \texttt{EMERGENCY}, \texttt{UNSAFE}, \texttt{SAFE} sau \texttt{AMBIGUOUS}.
+
+Temperatura LLM este setat? la zero pentru a elimina variabilitatea È™i a asigura reproductibilitatea deciziilor. Dac? r?spunsul modelului nu corespunde exact uneia dintre etichete, se aplic? o potrivire fuzzy: dac? denumirea unei categorii cu risc este con?inut? ca subÈ™ir ?n r?spunsul brut, aceasta este selectat?. Dac? nicio potrivire nu reuÈ™eÈ™te, clasificatorul revine implicit la \texttt{SAFE}, evit?nd blocarea nejustificat? a interog?rilor benigne.
+
+ÃŽn cazul ?n care modelul LLM nu este disponibil (eroare de re?ea, dep?È™irea timpului de r?spuns etc.), modulul revine la un rezultat \textbf{SAFE} cu scor de ?ncredere 0,60, asigur?nd disponibilitatea serviciului chiar È™i ?n absen?a clasificatorului semantic.
+
+\subsection{Structura rezultatului}
+
+Indiferent de calea de clasificare urmat?, modulul returneaz? un obiect \texttt{GuardrailResult} care include: categoria de clasificare, codul motivului deciziei, scorul de ?ncredere, indicatorul de validitate al interog?rii, cuvintele-cheie care au declanÈ™at decizia È™i un indicator boolean care arat? dac? a fost utilizat LLM-ul. Aceast? structur? permite orchestratorului s? ia decizii informate È™i ofer? transparen?? complet? pentru validarea comportamentului sistemului.
+
+
+Fiecare decizie este ?nregistrat? ?n jurnalul de evenimente al aplica?iei cu nivel \texttt{INFO} pentru deciziile sigure sau \texttt{WARNING} pentru deciziile de blocare, facilit?nd monitorizarea È™i depanarea ?n produc?ie.
+
+\section{Modulul RAG}
+
+Modulul RAG are rolul de a furniza modelului LLM context factual relevant extras din baza de cunoÈ™tin?e a sistemului. Acesta acoper? ?ntregul pipeline de la ingestia documentelor p?n? la reg?sirea fragmentelor la momentul interog?rii.
+
+\subsection{Pipeline-ul de extrac?ie È™i preprocesare a documentelor}
+
+O abordare naiv? de extrac?ie PDF â€” ?n care ?ntregul document este procesat ca un singur bloc de text â€” s-a dovedit insuficient? ?n contextul documentelor medicale utilizate. Documentele de tip curs sau ghid clinic prezint? frecvent artefacte de extrac?ie semnificative: text reordonat fa?? de fluxul logic al paginii, coloane detectate incorect, antete È™i subsoluri intercalate ?n corp, formule sau tabele transformate ?n È™iruri de caractere f?r? semnifica?ie.
+
+Pentru a rezolva aceste limit?ri, a fost proiectat un pipeline de extrac?ie ?n trei etape. ÃŽn \textbf{prima etap?}, PyMuPDF parcurge documentul pagin? cu pagin?, extrag?nd independent con?inutul textual al fiec?rei pagini sub form? de bloc brut. Procesarea individual? a paginilor permite izolarea artefactelor la nivelul paginii de origine È™i simplific? etapele ulterioare de corec?ie.
+
+ÃŽn \textbf{a doua etap?}, textul brut al fiec?rei pagini este transmis unui model LLM cu un prompt specializat, care identific? È™i elimin? elementele parazite â€” antete, subsoluri, numere de pagin?, caractere de silabisire â€” reconstruieÈ™te ordinea logic? a propozi?iilor fragmentate È™i normalizeaz? formatarea, produc?nd o versiune curat? È™i coerent? a textului. Aceast? abordare exploateaz? capacitatea modelelor lingvistice de a ?n?elege contextul È™i de a reconstrui semnifica?ia textului par?ial degradat, un rol ?n care regulile heuristice rigide se dovedesc insuficiente \cite{llm_review_2024}.
+
+ÃŽn \textbf{a treia etap?}, paginile verificate È™i corectate sunt concatenate secven?ial, ob?in?nd un document Markdown structurat care poate fi procesat de strategia de segmentare. Concatenarea se realizeaz? cu delimitatori explici?i ?ntre pagini, men?in?nd claritatea parcursului fiec?rui fragment fa?? de pagina surs?, informa?ie necesar? pentru procesul de citare al r?spunsurilor. Fluxul este expus È™i ca utilitar de linie de comand? (\texttt{extract-markdown}) pentru procesarea individual? a documentelor.
+
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum width=5cm, minimum height=0.65cm, align=center, font=\small},
+  >=Stealth, node distance=0.55cm
+]
+\node[box] (pdf)   {Document PDF};
+\node[box, below=of pdf]   (mupdf) {PyMuPDF: extrac?ie per pagin?};
+\node[box, below=of mupdf] (llmc)  {LLM: cur??are È™i normalizare text};
+\node[box, below=of llmc]  (md)    {Document Markdown structurat};
+\node[box, below=of md]    (seg)   {Segmentare: Euristic? / Semantic?};
+\node[box, below=of seg]   (emb)   {Generare embeddings};
+\node[box, below=of emb]   (qd)    {Qdrant: indexare fragmente};
+
+\draw[->] (pdf)   -- (mupdf);
+\draw[->] (mupdf) -- (llmc);
+\draw[->] (llmc)  -- (md);
+\draw[->] (md)    -- (seg);
+\draw[->] (seg)   -- (emb);
+\draw[->] (emb)   -- (qd);
+\end{tikzpicture}
+\caption{Pipeline-ul de ingestie a documentelor}
+\label{fig:rag-ingest}
+\end{figure}
+
+\subsection{Strategii de segmentare a documentelor}
+
+Calitatea procesului de reg?sire depinde ?n mod direct de modul ?n care documentele sunt segmentate ?n fragmente ?nainte de indexare. Fragmentele prea lungi pot introduce zgomot semantic È™i pot dep?È™i limita de tokeni acceptat? de modelele LLM, ?n timp ce fragmentele prea scurte pot lipsi de context suficient pentru a genera r?spunsuri coerente \cite{lewis2020retrieval}.
+
+Sistemul implementeaz? dou? strategii complementare de segmentare. Prima strategie este euristic?, bazat? pe delimitatori structurali ai textului: titluri de sec?iuni, paragrafe È™i marcatori de list?. Aceast? abordare este determinist? È™i eficient? computa?ional, dar poate produce fragmente neomogene semantic ?n documentele cu structur? complex?.
+
+A doua strategie utilizeaz? segmentarea semantic? prin intermediul LlamaIndex (\texttt{llama-index-core}), care analizeaz? coeziunea tematic? a propozi?iilor È™i paragrafelor consecutive, grup?nd unit??ile similare ?n acelaÈ™i fragment. Aceast? abordare produce fragmente cu coeren?? semantic? mai ridicat?, cu pre?ul unui cost computa?ional crescut. Sistemul include un mecanism de fallback: dac? dependen?ele necesare nu sunt disponibile, procesul revine automat la strategia euristic?, men?in?nd func?ionalitatea complet? a pipeline-ului.
+
+Dup? stabilirea modului de segmentare, urm?toarea decizie arhitectural? este backend-ul folosit pentru generarea embedding-urilor, deoarece acesta influen?eaz? direct at?t calitatea reg?sirii, c?t È™i compromisul confiden?ialitate-cost-laten??.
+
+\subsection{Procesul de vectorizare ?n modulul RAG}
+
+\subsubsection{Backend Open-Source}
+
+Furnizorul implicit de 
+embedding-uri al proiectului este biblioteca \texttt{sentence-transformers} 
+\cite{sentence_transformers_doc}, care expune o interfa?? Python unificat? pentru 
+o colec?ie extins? de modele preantrenate. Modelul utilizat este 
+\texttt{paraphrase-multilingual-mpnet-base-v2}, un model multilingv bazat pe 
+arhitectura XLM-RoBERTa, antrenat pe date paralele din peste 50 de limbi, 
+inclusiv rom?n? \cite{paraphrase_multilingual_mpnet}. Modelul produce vectori de dimensiune 768, cu normalizare L2 aplicat? la 
+generare â€” proces prin care fiecare vector este scalat astfel ?nc?t lungimea 
+sa euclidian? s? fie egal? cu 1, transform?nd to?i vectorii ?n puncte pe o 
+sfer? unitar?. Aceast? proprietate asigur? compatibilitatea direct? cu 
+similaritatea cosinus pentru compararea fragmentelor, deoarece pentru vectori 
+normaliza?i L2 produsul scalar È™i similaritatea cosinus sunt echivalente 
+\cite{paraphrase_multilingual_mpnet}. Avantajul principal al acestui backend 
+este c? poate rula complet local, f?r? a transmite date externe È™i f?r? costuri 
+de utilizare per apel.
+
+\subsubsection{Backend Cloud}
+
+Ca alternativ? configurabil?, 
+proiectul integreaz? API-ul de embedding al OpenAI \cite{openai_embeddings}. 
+Modelul activ ?n configura?ia curent? este \texttt{text-embedding-3-small}, 
+care poate fi ?nlocuit cu alte modele din acelaÈ™i API prin modificarea 
+variabilei de mediu \texttt{OPENAI\_EMBEDDING\_MODEL}, f?r? a necesita 
+modific?ri ale logicii de reg?sire. Autentificarea se realizeaz? prin cheia 
+de API stocat? ?n variabila de mediu \texttt{OPENAI\_API\_KEY}, iar apelurile 
+sunt efectuate prin biblioteca oficial? \texttt{openai} \cite{openai_api}, 
+care gestioneaz? serializarea cererilor È™i tratarea erorilor de re?ea.
+
+Fa?? de backend-ul local bazat pe \texttt{sentence-transformers}, aceast? 
+alternativ? ofer? embeddings de calitate superioar? pentru interog?ri complexe, 
+f?r? a necesita resurse computa?ionale locale. Dezavantajul principal const? 
+?n faptul c? textul interog?rilor È™i al documentelor este transmis c?tre 
+serverele OpenAI, ceea ce poate reprezenta o constr?ngere ?n scenarii cu date 
+medicale sensibile. Din acest motiv, backend-ul local r?m?ne op?iunea implicit? 
+a sistemului, iar cel cloud este recomandat atunci c?nd confiden?ialitatea 
+datelor nu constituie o restric?ie.
+
+Indiferent de backend-ul activ, ieÈ™irea acestei etape r?m?ne aceeaÈ™i din punct de vedere contractual: vectori normaliza?i È™i metadate asociate, care intr? ?n etapa de reg?sire a contextului.
+
+\subsection{Reg?sirea hibrid? a contextului}
+
+Pe l?ng? reg?sirea vectorial? pur?, sistemul suport? un mod de reg?sire hibrid, care combin? similaritatea vectorial? cu un semnal lexical bazat pe suprapunerea termenilor (token overlap) È™i un mecanism de \textit{keyword fallback}.  Aceast? combina?ie permite identificarea documentelor relevante at?t prin similitudine semantic?, c?t È™i prin potrivire exact? a termenilor tehnici.
+
+Parametrii de reg?sire, inclusiv num?rul maxim de fragmente returnate È™i scorul minim de relevan??, sunt configurabili prin variabile de mediu.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum width=4.5cm, minimum height=0.65cm, align=center, font=\small},
+  >=Stealth, node distance=0.55cm
+]
+\node[box] (q)    {Interogare utilizator};
+\node[box, below=of q]    (emb)  {Embedding interogare};
+\node[box, below=of emb]  (vec)  {C?utare vectorial? (Qdrant)};
+\node[box, below=of vec]  (lex)  {Reranking lexical (token overlap)};
+\node[box, below=of lex]  (rr)   {Combinare rezultate + Reranking};
+\node[box, below=of rr]   (gr)   {Traversare graf Kuzu (mod hibrid)};
+\node[box, below=of gr]   (res)  {\texttt{RetrievalResult (hits, context\_lines)}};
+
+\draw[->] (q)   -- (emb);
+\draw[->] (emb) -- (vec);
+\draw[->] (vec) -- (lex);
+\draw[->] (lex) -- (rr);
+\draw[->] (rr)  -- (gr);
+\draw[->] (gr)  -- (res);
+\end{tikzpicture}
+\caption{Pipeline-ul de reg?sire a contextului}
+\label{fig:rag-retrieval}
+\end{figure}
+
+
+\subsection{Extrac?ia entit??ilor È™i construirea grafului de cunoÈ™tin?e}
+
+Popularea grafului de cunoÈ™tin?e se realizeaz? prin extrac?ia automat? a entit??ilor din documentele medicale ingerate. Un modul specializat (\texttt{knowledge/entities/extractor.py}) utilizeaz? o abordare determinist?, bazat? pe reguli, pentru identificarea entit??ilor medicale È™i filtrarea lor pe baz? de prag de ?ncredere, structur?nd rezultatele conform schemei predefinite a grafului.
+
+Entit??ile extrase sunt normalizate È™i deduplicate, iar noile ?nregistr?ri sunt fuzionate cu nodurile existente atunci c?nd sunt detectate coresponden?e, prevenind fragmentarea reprezent?rii aceluiaÈ™i concept ?n noduri distincte. Aceast? abordare permite construirea incremental? a grafului pe m?sura ingestiei de noi documente.
+Graful de cunoÈ™tin?e al proiectului este structurat ?n jurul a dou? tipuri de noduri: \texttt{Entity} (boal?, simptom, medicament, structur? anatomic?, stocate ?n form? canonic?) È™i \texttt{SourceChunk} (fragmentele de document surs?). Rela?iile principale sunt \texttt{MENTIONED\_IN}, \texttt{DISEASE\_HAS\_SYMPTOM}, \texttt{CONDITION\_CAUSES\_SYMPTOM}, \texttt{DRUG\_TREATS\_DISEASE} È™i \texttt{DISEASE\_DIFFERS\_FROM\_DISEASE}. Fiecare muchie re?ine scorul de ?ncredere, sursa, pagina È™i identificatorul fragmentului.
+
+Popularea se face la ingestie prin extrac?ie determinist? bazat? pe liste de termeni medicali È™i aliasuri normalizate, urmat? de detectarea rela?iilor prin expresii trigger ?n text. La interogare, sistemul extrage entit??i seed din query È™i ruleaz? o traversare BFS controlat? de ad?ncime (\texttt{graph\_traversal\_depth}), recuper?nd lan?uri de rela?ii relevante. Rezultatele din graf sunt combinate ponderat cu rezultatele vectoriale, rezult?nd contextul hibrid transmis modelului lingvistic.
+
+\subsection{Reg?sirea hibrid? vector-graf}
+
+ÃŽn modul hibrid, contextul furnizat modelului LLM este construit prin combinarea rezultatelor vectoriale cu informa?iile ob?inute din traversarea grafului de cunoÈ™tin?e. Pentru o interogare dat?, sistemul identific? mai ?nt?i fragmentele de text relevante prin similaritate vectorial?, extrage entit??ile medicale men?ionate ?n interogare, interogeaz? graful pentru rela?iile asociate acestor entit??i È™i concateneaz? toate informa?iile recuperate ?ntr-un context unificat.
+
+Aceast? abordare creÈ™te relevan?a r?spunsului ?n cazul ?ntreb?rilor cu dependen?e semantice complexe, permi??nd modelului s? beneficieze at?t de flexibilitatea reg?sirii vectoriale, c?t È™i de structura explicit? a rela?iilor codificate ?n graf.
+
+\section{Modulul de evaluare}
+\label{sec:evaluare}
+
+Modulul de evaluare are rolul de a determina dac? un r?spuns generat de modelul LLM este suficient de bun pentru a fi livrat utilizatorului. Implementat ?n pachetul \texttt{agent/evaluation}, acesta combin? o etap? determinist? bazat? pe euristici cu o etap? op?ional? asistat? de un model LLM secundar, numit \textit{judec?tor} (\textit{LLM-as-a-judge}). Rezultatul evalu?rii este utilizat de motorul de ra?ionament pentru a decide dac? r?spunsul este acceptat sau dac? se impune o reluare cu un prompt adaptat sau cu un furnizor diferit.
+
+\subsection{Arhitectura modulului}
+
+Modulul este organizat ?n patru componente principale: \texttt{evaluator.py} â€” punctul de intrare care orchestreaz? evaluarea; \texttt{heuristics.py} â€” colec?ia de verific?ri deterministe; \texttt{failure\_taxonomy.py} â€” taxonomia tipurilor de eÈ™ec; \texttt{adaptive\_prompt.py} â€” generatorul de prompturi de reluare adaptate tipului de eÈ™ec; È™i \texttt{llm\_judge.py} â€” utilitarele pentru scenariul de arbitraj LLM. Configura?ia numeric? (praguri, num?r de relu?ri, ordine de fallback) este centralizat? ?n \texttt{config/eval\_config.py} È™i poate fi suprascris? prin variabile de mediu.
+
+\subsection{Evaluarea euristic?}
+
+Prima etap? a evalu?rii const? ?n aplicarea unui set de verific?ri deterministe implementate ?n func?ia \texttt{run\_heuristics}. Fiec?rei verific?ri ?i este asociat? o penalizare numeric? ce se scade dintr-un scor ini?ial de 1,0. Verific?rile sunt aplicate ?n ordine, iar scorul rezultat este trunchiat la 0,0 ?n cazul penaliz?rilor cumulate.
+
+\begin{itemize}
+    \item \textbf{R?spuns gol} (\texttt{EMPTY}): dac? r?spunsul este complet absent, se aplic? o penalizare maxim? de 1,0, iar evaluarea se opreÈ™te imediat.
+    \item \textbf{R?spuns prea scurt} (\texttt{TOO\_SHORT}): r?spunsurile cu mai pu?in de 10 caractere primesc o penalizare de 0,6.
+    \item \textbf{Refuz ?n prezen?a contextului} (\texttt{REFUSED\_WITH\_CONTEXT}): dac? r?spunsul con?ine fraze de tipul \textit{â€žnu È™tiu"} sau \textit{â€žnu pot r?spunde"} deÈ™i exist? fragmente de context recuperat, se aplic? o penalizare de 0,45.
+    \item \textbf{R?spuns incomplet} (\texttt{INCOMPLETE}): se penalizeaz? cu 0,25 dac? lungimea r?spunsului este sub pragul minim configurat (\texttt{safe\_min\_length}, implicit 80 de caractere) ?n prezen?a contextului; cu 0,2 dac? textul nu se termin? cu semn de punctua?ie final.
+    \item \textbf{Sfaturi medicale nesigure} (\texttt{UNSAFE\_ADVICE}): dac? r?spunsul con?ine men?iuni de doze concrete (expresii numerice de tipul \textit{â€ž500mg"}, \textit{â€ž2 tablets"}) f?r? un avertisment de consultare a unui medic, penalizarea este de 0,5.
+    \item \textbf{Ignorarea contextului} (\texttt{CONTEXT\_IGNORED}): se verific? suprapunerea lexical? dintre tokenii r?spunsului È™i cei ai fragmentelor recuperate. O suprapunere sub 6\% semnaleaz? c? r?spunsul nu utilizeaz? contextul disponibil, cu o penalizare de 0,25.
+    \item \textbf{Risc de halucina?ie} (\texttt{HALLUCINATION\_RISK}): dac? ignorarea contextului este ?nso?it? de un r?spuns lung, lipsit de formule de hedging È™i f?r? recomandare de consultare medical?, riscul de halucina?ie creÈ™te, penalizarea suplimentar? fiind de 0,5.
+    \item \textbf{R?spuns ?n afara subiectului} (\texttt{OFF\_TOPIC}): suprapunerea lexical? ?ntre tokenii interog?rii È™i cei ai r?spunsului sub 5\% atrage o penalizare de 0,2.
+\end{itemize}
+
+\subsection{Arbitrajul LLM-as-a-judge}
+
+Alegerea unui evaluator bazat ?n principal pe euristici deterministe, cu judec?torul LLM ca mecanism de arbitraj op?ional, este motivat? de compromisul laten??-acurate?e. Un evaluator pur LLM ar ad?uga un apel suplimentar de inferen?? la fiecare r?spuns generat, dubl?nd laten?a perceput? de utilizator ?n cazul tipic ?n care r?spunsul este corect. Euristica detecteaz? direct cazurile extreme â€” gol, prea scurt, doze f?r? avertisment, ignorare complet? a contextului â€” f?r? niciun cost de inferen??. Judec?torul LLM este invocat exclusiv pentru zona de frontier?, unde decizia determinist? este nesigur?, limit?nd astfel costul suplimentar la cazurile cu adev?rat ambigue.
+
+Dac? scorul euristic se situeaz? ?n zona de frontier? definit? de intervalul \texttt{[borderline\_low, borderline\_high]} (implicit [0,45; 0,65]) È™i func?ia de judecat? LLM este activat?, evaluatorul apeleaz? un model secundar pentru arbitraj. Judec?torul primeÈ™te un prompt structurat care ?i cere s? noteze r?spunsul pe patru dimensiuni: acurate?e fa?? de context (0,0â€“0,4), completitudine (0,0â€“0,3), siguran?? (0,0â€“0,2) È™i claritate (0,0â€“0,1). R?spunsul aÈ™teptat este exclusiv JSON de forma \texttt{\{"score": <float>, "reason": "<text>"\}}. Scorul final devine media aritmetic? dintre scorul euristic È™i cel furnizat de judec?tor, normalizat ?n intervalul [0,0; 1,0]. Aceast? etap? este dezactivat? implicit (\texttt{EVAL\_USE\_LLM\_JUDGE=false}) pentru a nu introduce laten?? suplimentar? ?n fluxul normal.
+
+\subsection{Decizia de acceptare È™i strategia de reluare}
+
+Un r?spuns este acceptat dac? scorul final dep?È™eÈ™te pragul \texttt{pass\_score} (implicit 0,70). ÃŽn caz contrar, evaluatorul construieÈ™te un prompt de reluare adaptat tipului primar de eÈ™ec identificat, utiliz?nd È™abloanele din \texttt{adaptive\_prompt.py}. Fiecare tip de eÈ™ec are un È™ablon specific: de exemplu, \texttt{REFUSED\_WITH\_CONTEXT} include fragmentele de context ?n promptul de reluare pentru a for?a utilizarea lor, iar \texttt{UNSAFE\_ADVICE} solicit? explicit reformularea cu avertismente de siguran??. ÃŽn plus, evaluatorul indic? È™i \textit{strategia de reluare}: dac? tipul de eÈ™ec este \texttt{UNSAFE\_ADVICE} sau \texttt{HALLUCINATION\_RISK}, strategia este \texttt{switch\_llm} â€” motorul de ra?ionament va schimba furnizorul LLM conform ordinii de fallback configurate; ?n toate celelalte cazuri, strategia este \texttt{adjust\_prompt}, care refoloseÈ™te acelaÈ™i furnizor cu promptul adaptat.
+
+\subsection{Structura rezultatului}
+
+Evaluatorul returneaz? un obiect \texttt{EvaluatorResult} cu c?mpurile: \texttt{passed} (boolean), \texttt{score} (float cu 4 zecimale), \texttt{reasons} (lista textelor asociate tipurilor de eÈ™ec), \texttt{failure\_types} (lista enumer?rilor \texttt{FailureType}), \texttt{retry\_recommended} (boolean), \texttt{adaptive\_prompt} (promptul de reluare sau \texttt{None} dac? r?spunsul a trecut), \texttt{retry\_strategy} (\texttt{"adjust\_prompt"} sau \texttt{"switch\_llm"}) È™i \texttt{judge\_used} (boolean care indic? dac? arbitrajul LLM a fost invocat). Aceast? structur? permite motorului de ra?ionament s? ia decizii informate privind reluarea È™i permite urm?rirea clar? a procesului de evaluare a calit??ii r?spunsurilor.
+
+
+\section{Interfa?a API a sistemului}
+
+\subsection{Structura endpoint-urilor}
+
+Interfa?a API este structurat? ?n dou? categorii de endpoint-uri. Prima categorie cuprinde endpoint-uri interne dedicate fluxului aplica?iei, care includ opera?ii de ingestie a documentelor, interogare conversa?ional? È™i evaluare a calit??ii r?spunsului. A doua categorie cuprinde endpoint-uri compatibile cu formatul OpenAI Chat Completions API \cite{openai_api}, care permit utilizarea sistemului ca backend pentru orice client ce implementeaz? protocolul OpenAI, f?r? modific?ri suplimentare la nivelul clientului. ÃŽn aceast? categorie sunt incluse endpoint-uri standard pentru interoperabilitate È™i operare, precum \texttt{/v1/chat/completions}, \texttt{/v1/models} È™i \texttt{/health}; pentru componenta de graf este expus È™i endpoint-ul \texttt{/graph/nexus}.
+
+Aceast? compatibilitate bidirec?ional? este esen?ial? pentru integrarea cu OpenWebUI, un front-end open-source pentru interfe?e conversa?ionale. Prin expunerea unui endpoint \texttt{/v1/chat/completions} conform specifica?iei OpenAI, chatbot-ul medical poate fi accesat direct din OpenWebUI f?r? a necesita adapt?ri specifice de protocol.
+
+\subsection{Securitatea interfa?ei}
+
+Accesul la interfa?a API poate fi protejat printr-un mecanism de autentificare bazat pe chei API (\textit{API key authentication}), controlat prin variabila de mediu \texttt{API\_REQUIRE\_KEY}. C?nd aceast? op?iune este activat?, fiecare cerere trebuie s? includ? un token valid ?n header-ul HTTP (\texttt{Authorization: Bearer <API\_KEY>} sau \texttt{X-API-Key}), verificat de middleware ?nainte ca solicitarea s? fie transmis? logicii aplicative. Aceast? abordare reprezint? o practic? standard de securitate pentru serviciile RESTful, protej?nd accesul la resurse sensibile È™i prevenind utilizarea neautorizat? a serviciului \cite{flask_doc}.
+
+Middleware-ul de autentificare este parametrizat prin variabile de mediu, ceea ce permite activarea sau dezactivarea sa ?n func?ie de contextul de deployment: dezactivat ?n mediul de dezvoltare local? È™i activ ?n orice configura?ie expus? extern.
+
+\chapter{Rezultate obținute}
+
+\section{Arhitectura modulului de benchmark}
+
+Primul pas in evaluarea sistemului a fost construirea unui agent de benchmark dedicat itemilor tip grila medicala in limba romana, implementat in modulul \texttt{agent/benchmarking/benchmark.py}. Rolul acestui agent nu este doar de a calcula un scor final, ci de a transforma evaluarea intr-un proces controlat, repetabil si comparabil intre modele LLM diferite, in conditiile in care intrebarile din dataset au formate eterogene si reguli de raspuns distincte.
+
+Agentul porneste de la doua surse de intrare: setul de itemi (\texttt{primele\_10\_grile\_pag2\_curatate.json}) si cheia de raspuns (\texttt{primele\_10\_grile\_pag2\_answer\_key.txt}/JSON). Pentru a elimina variatiile de structura dintre surse, etapa de incarcare normalizeaza fiecare item la schema interna \texttt{\{id, intrebare, choices\}}, cu optiuni A--E uniforme si identificatori convertiti strict numeric. Similar, cheia de raspuns este normalizata la maparea \texttt{id -> set de litere}, indiferent daca raspunsul a fost notat ca string, lista sau marcaj boolean pe optiuni. Aceasta normalizare este esentiala deoarece permite evaluarea set-based (nu text-based), deci robusta la variatii de formulare ale LLM-ului.
+
+Un element central al agentului este tratarea explicita a tipurilor de grile medicale (de exemplu \texttt{R.I.}, \texttt{u.a.s.c.c.e.}, \texttt{u.f.d.f.d.}, \texttt{c.e.}, \texttt{s.c.f.c.e.}). Sistemul detecteaza euristic daca un item cere un singur raspuns sau mai multe raspunsuri corecte, folosind atat indicatori lexicali din intrebare, cat si tiparul optiunilor (de tip secventa/mapare). Pe baza acestei clasificari se genereaza prompturi diferite, cu format de iesire strict (campuri obligatorii precum \texttt{STATUT\_A..E}, \texttt{VARIANTA}, \texttt{FRAGMENT\_PROBLEMA}, \texttt{RASPUNS}), pentru a reduce ambiguitatea si a forta consistenta deciziei modelului.
+
+Integrarea cu RAG este realizata printr-o strategie de retrieval extinsa fata de un singur query. Pentru fiecare item se construieste un pool de interogari: intrebarea de baza plus interogari per optiune (\texttt{Intrebare + Optiunea X}). Rezultatele sunt agregate intr-un pool mai mare (\textit{candidate pool}), apoi rerankate cu un scor compozit care combina: scorul semantic initial, overlap de tokeni cu intrebarea si semnale de potrivire cu continutul optiunilor. Dupa rerankare se aplica deduplicare la nivel de chunk (\texttt{source\_file, page, chunk\_id, text}) si se pastreaza top-\textit{k} rezultate, care devin contextul final transmis modelului.
+
+Pe partea de inferenta, agentul foloseste un \textit{system prompt} conservator, orientat pe dovezi contextuale explicite si pe interzicerea rationamentului din cunostinte externe. Dupa fiecare raspuns, iesirea este validata cu un set de reguli structurale si semantice (de exemplu: existenta literelor A--E, coerenta dintre \texttt{RASPUNS} si \texttt{VARIANTA}, concordanta dintre statusuri si literele finale, respingerea justificarilor de tip ,,in general''). Daca raspunsul e invalid, se aplica retry cu prompt de revizuire; pentru itemii cu raspuns unic exista si un \textit{repair prompt} suplimentar care impune explicit ,,exact o litera''.
+
+Rezultatul final al benchmark-ului este un raport detaliat pe item si agregat global. La nivel de item se salveaza raspunsul brut, literele prezise, literele gold, motivele de respingere si chunk-urile recuperate. La nivel agregat se calculeaza atat metrici \textit{macro} (\texttt{precision}, \texttt{recall}, \texttt{f1} mediate pe item), cat si metrici \textit{micro} (din total \texttt{tp/fp/fn}), plus \texttt{exact\_match\_rate}, \texttt{global\_exact\_match\_rate} si \texttt{global\_score}. Astfel, agentul de benchmark devine nu doar un instrument de notare, ci o componenta de diagnostic al comportamentului LLM-RAG, utila pentru identificarea erorilor de retrieval, de formatare sau de rationament sub constrangeri.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=1.8cm,
+  box/.style={draw, rounded corners, align=center, minimum width=3.1cm, minimum height=1.0cm},
+  >=Stealth
+]
+\node[box] (q) {Intrebari benchmark\\+ answer key};
+\node[box, right=of q] (b) {Agent benchmark};
+\node[box, right=of b] (r) {Raspunsuri per model};
+\node[box, right=of r] (m) {Metrici per model\\+ raport comparativ};
+\draw[->] (q) -- (b);
+\draw[->] (b) -- (r);
+\draw[->] (r) -- (m);
+\end{tikzpicture}
+\caption{Fluxul simplificat al modulului de benchmark}
+\label{fig:benchmark-flow}
+\end{figure}
+
+\section{Setul de date de evaluare (benchmark-ul)}
+
+Setul utilizat in evaluare provine dintr-un subset de grile medicale in limba romana, stocat in \texttt{data/dataset/primele\_10\_grile\_pag2\_curatate.json}, impreuna cu cheia de raspuns \texttt{data/dataset/primele\_10\_grile\_pag2\_answer\_key.txt}. Acest set este curatat si structurat pentru evaluare automata, astfel incat fiecare item sa poata fi mapat neechivoc la schema interna \texttt{\{id, intrebare, choices\}}.
+
+Benchmark-ul conține 10 întrebări de tip grilă cu opțiuni A--E. Din punct de vedere tipologic, include atât itemi cu răspuns unic (ordonare temporală, asociere, completare de frază), cât și itemi cu răspuns multiplu (\texttt{R.I.}, \texttt{u.a.s.c.c.e.}). Tematic, întrebările sunt concentrate pe termoreglare, febră și frison, ceea ce permite testarea simultană a acurateței contextuale și a disciplinei de format.
+
+Criteriile de selecție au fost: acoperirea mai multor tipuri de logică de răspuns, existența unui etalon clar (litere gold) și formularea suficient de tehnică pentru a penaliza răspunsurile speculative. Formatul de evaluare este \textit{întrebare + opțiuni A--E + răspuns de referință}.
+
+\section{Modele evaluate}
+
+În implementarea curentă, benchmark-ul poate rula pe providerii activați în routerul LLM: OpenAI (cloud), Ollama (local) și Qwen (local). Pentru comparabilitate, fiecare model este evaluat cu același set de itemi, aceeași configurație de retrieval și aceleași reguli de validare.
+
+\textbf{GPT-4o / GPT-4o-mini (OpenAI).} Modele din familia GPT-4o, accesate prin API. În context medical, avantajul principal este stabilitatea pe instrucțiuni stricte și consistența pe itemi eterogeni; dezavantajul este dependența de infrastructură cloud și costul per apel.
+
+\textbf{Claude 3.x (Anthropic).} Familia Claude este relevantă pentru accentul pe siguranță și aliniere (inclusiv principii de tip Constitutional AI), aspect important în domeniul medical. În implementarea curentă, providerul Anthropic este disponibil prin \texttt{LLM\_PROVIDER=anthropic}, cu model configurabil prin \texttt{ANTHROPIC\_MODEL}.
+
+\textbf{LLaMA / Gemma / Qwen local (via Ollama/Qwen).} Modelele locale oferă control asupra datelor și cost predictibil. Compromisul tipic este variabilitatea mai mare pe respectarea formatului strict, în special la itemi cu logică combinatorie.
+
+\section{Rezultatele evaluării}
+
+Raportul benchmark include, pentru fiecare model: scorul mediu agregat, rata răspunsurilor acceptate din prima, numărul mediu de retry-uri pe item, exact match rate și distribuția tipurilor de eșec. În implementare, sunt calculate atât metrice macro, cât și micro (\texttt{precision}, \texttt{recall}, \texttt{f1}), plus indicatori globali la nivel de rulare.
+
+\begin{table}[H]
+\centering
+\caption{Tabel comparativ al rezultatelor pe modele}
+\label{tab:benchmark-comparativ}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Scor mediu} & \textbf{Acceptate din prima} & \textbf{Retry mediu/item} & \textbf{Exact match} & \textbf{Eșec dominant} \\
+\hline
+GPT-4o & [de completat] & [de completat] & [de completat] & [de completat] & [de completat] \\
+\hline
+GPT-4o-mini & [de completat] & [de completat] & [de completat] & [de completat] & [de completat] \\
+\hline
+Claude 3.x & [de completat] & [de completat] & [de completat] & [de completat] & [de completat] \\
+\hline
+LLaMA / Gemma / Qwen (local) & [de completat] & [de completat] & [de completat] & [de completat] & [de completat] \\
+\hline
+\end{tabular}
+\end{table}
+
+Pentru reprezentare vizuală, analiza poate fi completată cu două grafice: (1) bar chart pentru scorul mediu per model și (2) stacked bar chart pentru distribuția tipurilor de eșec. Aceste grafice separă rapid erorile de conținut de erorile de format/procedură.
+
+\section{Analiza și interpretarea rezultatelor}
+
+Interpretarea rezultatelor trebuie făcută pe trei axe: calitate factuală, robustețe procedurală și cost operațional. Un model poate avea răspunsuri factual bune, dar să piardă puncte prin nerespectarea formatului (de exemplu, răspuns multiplu când itemul cere o singură literă), ceea ce crește numărul de retry-uri și latența totală.
+
+Itemii cei mai dificili sunt, de regulă, cei care impun transformări intermediare: ordonare temporală, mapare relațională sau identificarea fragmentului problematic într-o frază compusă. În aceste cazuri, diferența dintre modele apare atât în acuratețe, cât și în stabilitatea execuției sub constrângeri stricte de output.
+
+Comparativ cloud vs local, compromisul principal rămâne clasic: modelele cloud oferă în general consistență mai bună pe instrucțiuni complexe, dar implică cost și dependență externă; modelele locale oferă control al datelor și cost predictibil, dar pot necesita reglaje suplimentare pentru a atinge aceeași stabilitate.
+
+Metodologia actuală are și limite: dimensiune redusă a benchmark-ului (10 itemi), acoperire tematică restrânsă și format predominant de tip grilă. O direcție imediată este extinderea setului cu itemi din mai multe capitole medicale, niveluri diferite de dificultate și scenarii suplimentare de evaluare.
+
+\chapter{Concluzii}
+\section{Concluzii generale}
+Lucrarea eviden?iaz? faptul c? integrarea LLM cu RAG È™i cu un flux agentic de validare poate creÈ™te fiabilitatea r?spunsurilor ?n domeniul medical, cu condi?ia utiliz?rii unor surse bine curate È™i a unor mecanisme explicite de control al calit??ii.
+
+\section{Direc?ii viitoare}
+Extinderile naturale includ optimizarea strategiei de recuperare a contextului, ?mbun?t??irea evaluatorului prin criterii mai fine È™i integrarea unui mecanism de citare automat? a surselor ?n r?spunsul final.
+
+\bibliographystyle{unsrt}
+\bibliography{referinte}
+
+
+\appendix
+\chapter{Exemplu de prompt utilizat ?n orchestrare}
+\begin{verbatim}
+Rol: asistent medical educa?ional, orientat pe informa?ie verificabil?.
+Instruc?iuni:
+- foloseÈ™te exclusiv contextul furnizat È™i reguli din llm.txt;
+- c?nd contextul este insuficient, declar? limitarea explicit;
+- nu oferi diagnostic final È™i nu ?nlocui consulta?ia medical?.
+
+Context RAG:
+{chunk_1}
+{chunk_2}
+...
+
+ÃŽntrebarea utilizatorului:
+{user_query}
+\end{verbatim}
+
+
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+

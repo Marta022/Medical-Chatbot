@@ -1,0 +1,228 @@
+[
+  {
+    "id": 551,
+    "intrebare": "F.d.u. evenimente implicate in patogeneza febrei: a. pirogenii ajung in circulatia sistemica; b. eliberarea de adenozin-5'-monofosfat ciclic (AMPc); c. activarea receptorului EP-3 pentru PGE2 de pe celulele gliale; d. pirogenii interactioneaza cu receptori de pe endoteliul capilarelor care inconjoara centrii de reglare hipotalamici; e. eliberarea de prostaglandina E2 (PGE2) de pe versantul cerebral al endoteliului hipotalamic; care este inlantuirea temporala/cauzala corecta:",
+    "A": "a→d→e→c→b;",
+    "B": "b→e→d→c→a;",
+    "C": "c→b→e→a→d;",
+    "D": "d→e→a→c→b;",
+    "E": "e→b→d→a→c;"
+  },
+  {
+    "id": 552,
+    "intrebare": "F.d.u. evenimente implicate in patogeneza febrei: a. AMPc activeaza terminatiile neuronale din centrul termoreglator; b. febra; c. eliberarea de adenozin-5'-monofosfat ciclic (AMPc); d. conservarea caldurii si producerea de caldura; e. ridicarea nivelului de referinta pentru termostatul hipotalamic; care este inlantuirea temporala/cauzala corecta:",
+    "A": "a→b→c→d→e;",
+    "B": "b→e→c→a→d;",
+    "C": "c→a→e→d→b;",
+    "D": "d→e→a→c→b;",
+    "E": "e→a→c→d→b;"
+  },
+  {
+    "id": 553,
+    "intrebare": "R.I. factori implicati in patogeneza febrei, u.a.s.c.c.e.:",
+    "A": "pirogenii (exogeni si endogeni) nu trec din sange in creier;",
+    "B": "la producerea febrei participa retele de capilare dilatate care fac parte din organul vascular al laminei terminale;",
+    "C": "in timpul febrei, nivelurile PGE2 sunt scazute in hipotalamus si in ventriculul trei;",
+    "D": "absenta genelor celorlalti trei receptori pentru PGE2 (decat EP-3) nu altereaza mecanismul febrei;",
+    "E": "PGE2 nu este neurotransmitator, ci actioneaza prin intermediul AMPc;"
+  },
+  {
+    "id": 554,
+    "intrebare": "R.I. factori implicati in patogeneza febrei, u.a.s.c.c.e.:",
+    "A": "pirogenii interactioneaza cu receptori de pe endoteliul capilarelor care inconjoara centrii de reglare hipotalamici;",
+    "B": "receptorii de tip Toll sunt identici cu receptorii pe care actioneaza citokinele;",
+    "C": "organul vascular al laminei terminale este implicat in producerea febrei, dar si in reglarea osmolaritatii sangelui;",
+    "D": "PGE2 atinge concentratiile maxime in proximitatea capilarelor care inconjoara centrii termoreglatori hipotalamici;",
+    "E": "daca gena pentru receptorul EP-3 lipseste, pirogenii declanseaza febra necontrolata;",
+    "F": "AMPc ridica direct sau indirect nivelul de referinta pentru termostatul hipotalamic;"
+  },
+  {
+    "id": 555,
+    "intrebare": "R.I. factori implicati in patogeneza febrei, u.a.s.c.c.e.:",
+    "A": "pirogenii exogeni (produsi microbieni) actioneaza pe receptori de tip Toll;",
+    "B": "distrugerea organelor vasculare circumventriculare determina cresteri incontrolabile ale febrei;",
+    "C": "dintre cei patru receptori pentru PGE2, EP-3 este implicat in producerea febrei;",
+    "D": "AMPc are rol de neurotransmitator;",
+    "E": "AMPc poate actiona si indirect, determinand eliberarea altor neurotransmitatori;"
+  },
+  {
+    "id": 556,
+    "intrebare": "R.I. patogeneza febrei, u.a.s.c.c.e.:",
+    "A": "pirogenii sunt substante care produc febra;",
+    "B": "endotoxina inhiba eliberarea de proteine de faza acuta;",
+    "C": "toxinele streptococilor din grupele A si B sunt numite si superantigene;",
+    "D": "factorul de necroza tumorala (FNT) si interferonul (IFN) α sunt citokine pirogene;",
+    "E": "productia de citokine in SNC este stimulata de diverse evenimente generatoare de inflamatie;"
+  },
+  {
+    "id": 557,
+    "intrebare": "R.I. patogeneza febrei, u.a.s.c.c.e.:",
+    "A": "pirogenii exogeni sunt produsi bacterieni, toxine bacteriene sau microorganisme intregi;",
+    "B": "endotoxina provoaca leucocitoza;",
+    "C": "superantigenele sunt toxine bacteriene care inhiba activarea celulelor T;",
+    "D": "leucocitoza cu neutrofilie din infectii este produsa de IL 1 si IL 6;",
+    "E": "printre citokinele produse in SNC se afla IL-1, FNT, IL-6;"
+  },
+  {
+    "id": 558,
+    "intrebare": "R.I. patogeneza febrei, u.a.s.c.c.e.:",
+    "A": "toate bacteriile gram-negative produc endotoxina (lipopolizaharida);",
+    "B": "endotoxina provoaca stare generala alterata;",
+    "C": "Staphylococcus aureus produce toxina responsabila de sindromul de soc toxic;",
+    "D": "citokinele pirogene ajunse in circulatia sistemica inhiba sinteza de PGE2 in tesuturile periferice;",
+    "E": "infectiile virale ale SNC pot induce productia de citokine in SNC;"
+  },
+  {
+    "id": 559,
+    "intrebare": "R.I. patogeneza febrei, u.a.s.c.c.e.:",
+    "A": "endotoxina este foarte pirogena;",
+    "B": "si bacteriile gram-pozitive produc pirogeni;",
+    "C": "pirogenii endogeni sunt citokinele pirogene;",
+    "D": "mialgiile si artralgiile care adesea insotesc febra sunt provocate de miozita si artrita infectioasa;",
+    "E": "hemoragia cerebrala pot induce productia de citokine in SNC;"
+  },
+  {
+    "id": 560,
+    "intrebare": "R.I. patogeneza febrei, u.a.s.c.c.e.:",
+    "A": "endotoxina provoaca febra;",
+    "B": "febra poate fi provocata de enterotoxine din Staphylococcus aureus;",
+    "C": "IL-1 si IL-6 sunt citokine pirogene;",
+    "D": "traumatismele cerebrale suprima productia de citokine in SNC;",
+    "E": "celulele din SNC care produc citokine sunt microgliile si posibil neuronii;"
+  },
+  {
+    "id": 585,
+    "intrebare": "Despre febra recurenta, u.a.s.c.c.e.:",
+    "A": "este o varianta de febra recurenta;",
+    "B": "prezinta 2 episoade febrile separate de afebrilitate;",
+    "C": "apare de obicei in virozele respiratorii;",
+    "D": "prezinta 2 episoade febrile, primul cu valori mai mari;",
+    "E": "prezinta 2 episoade febrile, al doilea cu valori mai mari;"
+  },
+  {
+    "id": 586,
+    "intrebare": "Despre febra intermitenta, u.a.s.c.c.e.:",
+    "A": "este un tip de febra cu variatii mari in care perioadele febrile sunt intrerupte de perioade afebrile;",
+    "B": "este un tip de febra in care valorile minime ajung in domeniul normalului;",
+    "C": "are ca varianta febra hectica;",
+    "D": "este un tip de febra cu variatii mari in care valorile minime raman in domeniul febrei;",
+    "E": "poate fi sistematizata sau nesistematizata;"
+  },
+  {
+    "id": 587,
+    "intrebare": "Despre febra Pel-Ebstein este fals:",
+    "A": "este un tip de febra ondulanta;",
+    "B": "apare in boala Hodgkin;",
+    "C": "prezinta perioade febrile prelungite (3-10 zile) separate prin perioade de afebrilitate (3-10 zile);",
+    "D": "este un tip de febra neregulata;",
+    "E": "perioadele febrile au ascensiune si scadere progresive;"
+  },
+  {
+    "id": 588,
+    "intrebare": "Despre frison u.a.s.c.c.e.:",
+    "A": "este perceput ca o senzatie de frig intens;",
+    "B": "apare in perioada de efervescenta a starii febrile;",
+    "C": "se manifesta sub forma contractiilor musculare intense, continue;",
+    "D": "este insotit de vasoconstrictie cutanata si paloare;",
+    "E": "are ca efect cresterea temperaturii;"
+  },
+  {
+    "id": 589,
+    "intrebare": "Despre hipotermie ca semn de infectie severa este fals:",
+    "A": "poate apare la nou-nascut;",
+    "B": "poate apare la cei tratati cronic cu glucocorticoizi;",
+    "C": "poate apare la cei cu insuficienta renala;",
+    "D": "poate apare la cei cu insuficienta hepatica;",
+    "E": "apare intotdeauna la pacientul imunocompetent;"
+  },
+  {
+    "id": 590,
+    "intrebare": "Din punct de vedere al manifestarilor neuropsihice sindromul febril poate include, c.e.:",
+    "A": "cresterea pragului convulsiv la pacientul epileptic;",
+    "B": "insomnie;",
+    "C": "iritabilitate;",
+    "D": "delir;",
+    "E": "halucinatii;"
+  },
+  {
+    "id": 592,
+    "intrebare": "Printre efectele negative ale febrei se afla u.c.e.:",
+    "A": "cresterea consumului de oxigen si a necesitatilor calorice;",
+    "B": "cresterea catabolismului muscular;",
+    "C": "scaderea acuitatii psihice;",
+    "D": "cresterea riscului convulsiv;",
+    "E": "inhibarea proliferarii unor bacterii;"
+  },
+  {
+    "id": 593,
+    "intrebare": "Febra continua defineste:",
+    "A": "cresterea persistenta a temperaturii cu variatii zilnice >1°C, fara a se ajunge insa la valori normale;",
+    "B": "cresterea persistenta a temperaturii cu variatii zilnice >1°C, ajungandu-se la valori normale;",
+    "C": "cresterea persistenta a temperaturii cu variatii zilnice ce nu depasesc 1°C;",
+    "D": "febra cu curba nesistematizabila;",
+    "E": "febra care persista mai mult de 2 saptamani;"
+  },
+  {
+    "id": 595,
+    "intrebare": "Febra hectica este o varianta de febra:",
+    "A": "sustinuta;",
+    "B": "remitenta;",
+    "C": "intermitenta;",
+    "D": "ondulanta;",
+    "E": "neregulata;"
+  },
+  {
+    "id": 596,
+    "intrebare": "Febra remitenta defineste:",
+    "A": "febra in care variatiile zilnice sunt >1°C, valorile minime atingand valori normale;",
+    "B": "febra in care variatiile zilnice sunt >1°C, valorile minime ramanand in domeniul febrei;",
+    "C": "febra in care variatiile zilnice sunt <1°C, valorile minime ramanand in domeniul febrei;",
+    "D": "febra sustinuta, „in platou”;",
+    "E": "febra in care exista variatii mari intrerupte de perioade afebrile de 1-2 zile;"
+  },
+  {
+    "id": 597,
+    "intrebare": "Febra reprezinta cresterea temperaturii corporale peste:",
+    "A": "37°C axilar;",
+    "B": "37°C central;",
+    "C": "37,5°C axilar;",
+    "D": "37,5°C central;",
+    "E": "38°C axilar;"
+  },
+  {
+    "id": 598,
+    "intrebare": "Febra reprezinta cresterea temperaturii corporale:",
+    "A": "necontrolata de hipotalamus;",
+    "B": "consecutiva unei modificari la nivelul hipotalamusului;",
+    "C": "peste 37°C axilar;",
+    "D": "peste 37,5°C axilar;",
+    "E": "peste 37,5°C central;"
+  },
+  {
+    "id": 599,
+    "intrebare": "Hipertermia:",
+    "A": "defineste situatia in care cresterea temperaturii corporale este consecutiva unei modificari la nivelul hipotalamusului anterior;",
+    "B": "defineste situatia in care cresterea temperaturii corporale este consecutiva unei modificari la nivelul hipotalamusului posterior;",
+    "C": "defineste situatia in care cresterea temperaturii corporale nu mai este controlata de hipotalamus;",
+    "D": "este o notiune sinonima cu febra;",
+    "E": "reprezinta o crestere a temperaturii corporale intre 37°C si 38°C;"
+  },
+  {
+    "id": 600,
+    "intrebare": "Neutrofilia in formula leucocitara apare de obicei in:",
+    "A": "infectii bacteriene;",
+    "B": "infectii virale;",
+    "C": "boli infiltrative ale maduvei osoase;",
+    "D": "reactii de hipersensibilitate;",
+    "E": "infectii cu metazoare;"
+  },
+  {
+    "id": 601,
+    "intrebare": "Pirogenii endogeni actioneaza la nivelul centrului termoreglarii predominant prin intermediul:",
+    "A": "PG;",
+    "B": "IL-1;",
+    "C": "IL-6;",
+    "D": "interferonul;",
+    "E": "FNTα;"
+  }
+]
