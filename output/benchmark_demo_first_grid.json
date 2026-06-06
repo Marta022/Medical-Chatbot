@@ -1,0 +1,79 @@
+{
+  "benchmark_json_path": "data/dataset/benchmark_questions.json",
+  "answer_key_path": "data/dataset/benchmark_responses.json",
+  "dataset_total_count": 1,
+  "evaluated_count": 1,
+  "guardrail_enabled_during_benchmark": false,
+  "missing_answer_ids": [],
+  "answer_key_coverage": 1.0,
+  "supports_multiple_correct_answers": true,
+  "global_score": 1.0,
+  "global_exact_match_rate": 1.0,
+  "aggregate": {
+    "exact_match_rate": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "macro_f1": 1.0,
+    "micro_precision": 1.0,
+    "micro_recall": 1.0,
+    "micro_f1": 1.0
+  },
+  "rows": [
+    {
+      "id": 521,
+      "query": "Temperatura corporala normala si patologica, u.a.s.c.c.e.",
+      "gold_answers": [
+        "A",
+        "C",
+        "D"
+      ],
+      "predicted_answers": [
+        "A",
+        "C",
+        "D"
+      ],
+      "single_answer_retry_used": false,
+      "raw_response": "STATUS_A: FALSE\nSTATUS_B: TRUE\nSTATUS_C: FALSE\nSTATUS_D: FALSE\nSTATUS_E: TRUE\nANSWER: A,C,D",
+      "rejection_reason": null,
+      "retrieved_chunks": [
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.766,
+          "source": "pdf",
+          "source_file": "cap1_revizuit.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "420aa726b48b158c",
+          "text": "Temperatura corporală este controlată de hipotalamus. Neuronii din hipotalamusul anterior preoptic și posterior primesc semnale din două surse: de la receptorii termici din piele (transmise prin nervii periferici) și de la temperatura sângelui care irigă regiunea. Aceste două tipuri de semnale sunt integrate de către centrul termoreglator al hipotalamusului pentru a menține temperatura normală. Într-o ambianță neutră termic, metabolismul produce mai multă căldură decât este necesară pentru a menține temperatura centrală între 36,5-37,5°C. În mod normal, temperatura corpului este menținută în ciuda variațiilor ambientale, deoarece centrul termoreglator hipotalamic echilibrează producția excesivă de căldură (prin activitatea metabolică musculară și hepatică) cu disiparea de căldură prin piele și plămâni. La persoanele sănătoase de 18-40 de ani, temperatura orală medie este 36,8° ± 0,4 °C, mai joasă dimineața (6.00) și mai înaltă după-amiază (16.00-18.00). Temperatura orală maximă este 37,2°C la ora 6.00 și 37,7°C la ora 16.00. Variația normală a temperaturii este de obicei de 0,5°C. Febra= temperatura > 37,2°C si > 37,7°C seara! La unele persoane în convalescența unei boli febrile, această variație circadiană poate ajunge până la 1,0°C. În timpul unei boli febrile, variația circadiană se menține de obicei, dar la niveluri mai înalte, febrile. Variația cotidiană de temperatură pare să fie stabilită în copilăria timpurie. Persoanele vârstnice pot avea o capacitate redusă de a dezvolta febră, făcând doar o febră moderată chiar și în infecții severe. La femeile care au menstruație, temperatura matinală este în general mai mică în cele 2 săptămâni dinainte de ovulație; la ovulație crește cu 0,6°C și rămâne la acest nivel până la declanșarea menstruației. Temperatura corporală poate varia în perioada ciclului menstrual."
+        },
+        {
+          "title": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "score": 0.7568,
+          "source": "pdf",
+          "source_file": "cap1_revizuit.md",
+          "page": null,
+          "section": "Febra și hipertermia - Dr.O.O. / Introducere",
+          "chunk_id": "752e35bb273c37cc",
+          "text": "Temperatura corporală este influențată și de sarcină și de disfuncțiile endocrinologice."
+        },
+        {
+          "title": "Febra",
+          "score": 0.6983,
+          "source": "pdf",
+          "source_file": "cap1_revizuit.md",
+          "page": null,
+          "section": "Febra",
+          "chunk_id": "2b3022b196705c96",
+          "text": "Procesele fiziologice prin care căldura este conservată (vasoconstricție) sau produsă (termogeneză musculară, hepatică etc.) continuă până când temperatura sângelui care irigă neuronii hipotalamici corespunde noului nivel de referință al termostatului. După atingerea acestui nou echilibru, hipotalamusul menține temperatura la nivel febril prin aceleași mecanisme de păstrare a echilibrului termic ca și în starea normală (afebrilă). Când nivelul de referință hipotalamic este coborât la nivelul normal (ca răspuns la scăderea concentrației de pirogeni sau la administrarea de antipiretice) -> se trece la disiparea căldurii prin vasodilatație și comportamente adaptative (de exemplu, dezvelire, dezbrăcare), până când temperatura sângelui de la nivelul hipotalamusului ajunge la noul nivel de referință. De obicei, febra nu depășește 41,1 °C; este posibil ca menținerea sub acest „plafon termic\" natural să fie mediată prin neuropeptide care funcționează drept compensație. O febră >41,5°C se numește hipertermie - poate să apară la pacienții cu infecții severe, dar cel mai adesea la pacienții cu hemoragii în sistemul nervos central (SNC). Rareori, nivelul de referință hipotalamic crește în urma unei tulburări hipotalamice fie cu substrat organic (traumatism, hemoragie, tumoră locală), fie funcționale = febra hipotalamica. Cei mai mulți pacienți cu leziuni hipotalamice au însă temperaturi corporale subnormale, nu supranormale."
+        }
+      ],
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "exact_match": true
+    }
+  ]
+}
